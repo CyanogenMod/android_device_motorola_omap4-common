@@ -44,6 +44,8 @@
 
 #include <tinyalsa/asoundlib.h>
 
+#include "hdmi_audio_hal.h"
+
 #define UNUSED(x) (void)(x)
 
 /* XXX TODO: Dynamically detect the HDMI card
@@ -55,6 +57,8 @@
 #define HDMI_SAMPLING_RATE 44100
 #define HDMI_PERIOD_SIZE 1920
 #define HDMI_PERIOD_COUNT 4
+
+#define HDMI_EDID_PATH "/sys/devices/omapdss/display1/edid"
 
 typedef audio_hw_device_t hdmi_device_t;
 
@@ -68,6 +72,11 @@ typedef struct _hdmi_out {
 } hdmi_out_t;
 
 #define S16_SIZE sizeof(int16_t)
+
+/*****************************************************************
+ * UTILITY FUNCTIONS
+ *****************************************************************
+ */
 
 /*****************************************************************
  * AUDIO STREAM OUT (hdmi_out_*) DEFINITION
@@ -164,11 +173,81 @@ int hdmi_out_set_parameters(struct audio_stream *stream, const char *kv_pairs)
     return 0;
 }
 
+#define MASK_CEA_QUAD     ( CEA_SPKR_FLFR | CEA_SPKR_RLRR )
+#define MASK_CEA_SURROUND ( CEA_SPKR_FLFR | CEA_SPKR_FC | CEA_SPKR_RC )
+#define MASK_CEA_5POINT1  ( CEA_SPKR_FLFR | CEA_SPKR_FC | CEA_SPKR_LFE | CEA_SPKR_RLRR )
+#define MASK_CEA_7POINT1  ( CEA_SPKR_FLFR | CEA_SPKR_FC | CEA_SPKR_LFE | CEA_SPKR_RLRR | CEA_SPKR_RLCRRC )
+#define SUPPORTS_ARR(spkalloc, profile) (((spkalloc) & (profile)) == (profile))
+
 char * hdmi_out_get_parameters(const struct audio_stream *stream,
 			 const char *keys)
 {
+    struct str_parms *query = str_parms_create_str(keys);
+    char *str;
+    char value[256];
+    struct str_parms *reply = str_parms_create();
+    int status;
+    hdmi_audio_caps_t caps;
+
     TRACEM("stream=%p keys='%s'", stream, keys);
-    return 0;
+
+    if (hdmi_query_audio_caps(HDMI_EDID_PATH, &caps)) {
+        ALOGE("Unable to get the HDMI audio capabilities");
+        str = calloc(1, 1);
+        goto end;
+    }
+
+    status = str_parms_get_str(query, AUDIO_PARAMETER_STREAM_SUP_CHANNELS,
+                                value, sizeof(value));
+    if (status >= 0) {
+        unsigned sa = caps.speaker_alloc;
+        bool first = true;
+
+        /* STEREO is intentionally skipped.  This code is only
+         * executed for the 'DIRECT' interface, and we don't
+         * want stereo on a DIRECT thread.
+         */
+        value[0] = '\0';
+        if (SUPPORTS_ARR(sa, MASK_CEA_QUAD)) {
+            if (!first) {
+                strcat(value, "|");
+            }
+            first = false;
+            strcat(value, "AUDIO_CHANNEL_OUT_QUAD");
+        }
+        if (SUPPORTS_ARR(sa, MASK_CEA_SURROUND)) {
+            if (!first) {
+                strcat(value, "|");
+            }
+            first = false;
+            strcat(value, "AUDIO_CHANNEL_OUT_SURROUND");
+        }
+        if (SUPPORTS_ARR(sa, MASK_CEA_5POINT1)) {
+            if (!first) {
+                strcat(value, "|");
+            }
+            first = false;
+            strcat(value, "AUDIO_CHANNEL_OUT_5POINT1");
+        }
+        if (SUPPORTS_ARR(sa, MASK_CEA_7POINT1)) {
+            if (!first) {
+                strcat(value, "|");
+            }
+            first = false;
+            strcat(value, "AUDIO_CHANNEL_OUT_7POINT1");
+        }
+        str_parms_add_str(reply, AUDIO_PARAMETER_STREAM_SUP_CHANNELS, value);
+        str = strdup(str_parms_to_str(reply));
+    } else {
+        str = strdup(keys);
+    }
+
+    ALOGV("%s() reply: '%s'", __func__, str);
+
+end:
+    str_parms_destroy(query);
+    str_parms_destroy(reply);
+    return str;
 }
 int hdmi_out_add_audio_effect(const struct audio_stream *stream,
 			effect_handle_t effect)
@@ -456,6 +535,7 @@ static int hdmi_adev_open_output_stream(audio_hw_device_t *dev,
         goto fail;
     }
 
+    a_config->channel_mask = config->channel_mask;
     switch (config->channel_mask) {
     case AUDIO_CHANNEL_OUT_STEREO:
         pcm_config->channels = 2;
@@ -471,8 +551,10 @@ static int hdmi_adev_open_output_stream(audio_hw_device_t *dev,
         pcm_config->channels = 8;
         break;
     default:
-        ALOGE("HDMI rejecting channel_mask %x", config->channel_mask);
-        goto fail;
+        ALOGE("HDMI setting a default channel_mask %x -> 8", config->channel_mask);
+        config->channel_mask = AUDIO_CHANNEL_OUT_7POINT1;
+        a_config->channel_mask = AUDIO_CHANNEL_OUT_7POINT1;
+        pcm_config->channels = 8;
     }
 
     ALOGV("stream = %p", out);

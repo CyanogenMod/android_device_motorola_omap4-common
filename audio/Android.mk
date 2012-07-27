@@ -26,7 +26,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := audio.hdmi.$(TARGET_BOARD_PLATFORM)
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
-LOCAL_SRC_FILES := hdmi_audio_hw.c
+LOCAL_SRC_FILES := hdmi_audio_hw.c \
+	hdmi_audio_utils.c
 
 LOCAL_C_INCLUDES += \
 	external/tinyalsa/include \
