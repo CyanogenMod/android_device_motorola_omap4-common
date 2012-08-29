@@ -26,7 +26,8 @@ TARGET_ARCH_VARIANT_CPU := cortex-a9
 TARGET_ARCH_VARIANT_FPU := neon
 ARCH_ARM_HAVE_TLS_REGISTER := true
 
-# Module Build
+# Kernel/Module Build
+TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.4.3
 
 WLAN_MODULES:
 	make clean -C hardware/ti/wlan/mac80211/compat_wl12xx
