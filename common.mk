@@ -2,7 +2,7 @@
 # This is the product configuration for a full common
 #
 
-DEVICE_FOLDER := device/motorola/common
+COMMON_FOLDER := device/motorola/common
 
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
@@ -10,7 +10,7 @@ $(call inherit-product, device/common/gps/gps_us_supl.mk)
 ## (3)  Finally, the least specific parts, i.e. the non-GSM-specific aspects
 
 # Device overlay
-    DEVICE_PACKAGE_OVERLAYS += $(DEVICE_FOLDER)/overlay
+    DEVICE_PACKAGE_OVERLAYS += $(COMMON_FOLDER)/overlay
 
 # high-density artwork where available
 PRODUCT_AAPT_CONFIG := normal hdpi
@@ -114,20 +114,20 @@ PRODUCT_COPY_FILES += \
 
 # Prebuilts
 PRODUCT_COPY_FILES += \
-    $(DEVICE_FOLDER)/prebuilt/bin/strace:system/bin/strace
+    $(COMMON_FOLDER)/prebuilt/bin/strace:system/bin/strace
 
 # Phone settings
 PRODUCT_COPY_FILES += \
-    $(DEVICE_FOLDER)/prebuilt/etc/spn-conf.xml:system/etc/spn-conf.xml
+    $(COMMON_FOLDER)/prebuilt/etc/spn-conf.xml:system/etc/spn-conf.xml
 
 # Kexec files
 ifneq ($(TARGET_DEVICE),solana)
 PRODUCT_COPY_FILES += \
-    $(DEVICE_FOLDER)/kexec/arm_kexec.ko:system/etc/kexec/arm_kexec.ko \
-    $(DEVICE_FOLDER)/kexec/atags:system/etc/kexec/atags \
-    $(DEVICE_FOLDER)/kexec/kexec:system/etc/kexec/kexec \
-    $(DEVICE_FOLDER)/kexec/kexec.ko:system/etc/kexec/kexec.ko \
-    $(DEVICE_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko
+    $(COMMON_FOLDER)/kexec/arm_kexec.ko:system/etc/kexec/arm_kexec.ko \
+    $(COMMON_FOLDER)/kexec/atags:system/etc/kexec/atags \
+    $(COMMON_FOLDER)/kexec/kexec:system/etc/kexec/kexec \
+    $(COMMON_FOLDER)/kexec/kexec.ko:system/etc/kexec/kexec.ko \
+    $(COMMON_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko
 endif
 
 # we have enough storage space to hold precise GC data
