@@ -419,7 +419,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.Print("*                                              *")
   script.Print("*            STS-Dev-Team presents             *")
   script.Print("*                                              *")
-  script.Print("*      JELLY BEAN KEXEC for OMAP4 devices      *")
+  script.Print("*         JELLY BEAN for OMAP4 devices         *")
   script.Print("*                                              *")
   script.Print("*     Follow us  @dhacker29 and @hashcode0f    *")
   script.Print("*        Get the GApps at goo.im/gapps         *")
@@ -473,7 +473,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
 #  script.WriteRawImage("/boot", "boot.img")
 
   script.ShowProgress(0.1, 0)
-  script.Print("Finished installing Jelly Bean KEXEC for OMAP4 devices, Enjoy!")
+  script.Print("Finished installing Jelly Bean for OMAP4 devices, Enjoy!")
   device_specific.FullOTA_InstallEnd()
 
   if OPTIONS.extra_script is not None:

@@ -1,3 +1,14 @@
+# inherit from common
+-include device/motorola/kexec/BoardConfig.mk
+
+# ICS Kernel Hacks
+ifneq ($(TARGET_DEVICE),solana)
+ifneq ($(BOARD_USES_KEXEC),true)
+BOARD_OVERRIDE_FB0_WIDTH := 540
+BOARD_OVERRIDE_FB0_HEIGHT := 960
+endif
+endif
+
 # Camera
 USE_CAMERA_STUB := false
 BOARD_USES_TI_CAMERA_HAL := true
@@ -134,7 +145,6 @@ ifdef OMAP_ENHANCEMENT_MULTIGPU
 endif
 
 
-
 # MOTOROLA
 USE_MOTOROLA_CODE := true
 ifdef USE_MOTOROLA_CODE
@@ -173,4 +183,3 @@ BOARD_USES_SECURE_SERVICES := true
 BOARD_HAS_MAPPHONE_SWITCH := true
 USE_IPV6_ROUTE := true
 LEGACY_RIL := true
-
