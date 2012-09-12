@@ -132,12 +132,6 @@ PRODUCT_COPY_FILES += \
 endif
 endif
 
-ifneq ($(BOARD_USES_KEXEC),true)
-PRODUCT_COPY_FILES += \
-     out/target/product/maserati/root/init:system/etc/rootfs/init
-#    $(COMMON_FOLDER)/prebuilt/etc/rootfs/init:system/etc/rootfs/init
-endif
-
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
 
