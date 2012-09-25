@@ -114,7 +114,9 @@ PRODUCT_COPY_FILES += \
 
 # Prebuilts
 PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/prebuilt/bin/strace:system/bin/strace
+    $(COMMON_FOLDER)/prebuilt/bin/strace:system/bin/strace \
+    $(COMMON_FOLDER)/prebuilt/bin/omapconf:system/bin/omapconf \
+    $(COMMON_FOLDER)/prebuilt/bin/omapconf-dump.sh:system/bin/omapconf-dump.sh
 
 # Phone settings
 PRODUCT_COPY_FILES += \
