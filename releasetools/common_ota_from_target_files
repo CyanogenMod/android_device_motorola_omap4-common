@@ -103,7 +103,7 @@ OPTIONS.extra_script = None
 OPTIONS.aslr_mode = True
 OPTIONS.worker_threads = 3
 OPTIONS.backuptool = True
-OPTIONS.modelidcfg = True
+OPTIONS.modelidcfg = False
 OPTIONS.override_device = 'auto'
 OPTIONS.no_assert = False
 
@@ -463,8 +463,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
     script.ShowProgress(0.2, 10)
     script.RunBackup("restore")
 
-  if OPTIONS.modelidcfg:
-    script.RunConfig("")
+  #if OPTIONS.modelidcfg:
+    #script.RunConfig("")
 
   script.Mount("/system")
   script.RunFinalReleaseUtils()
@@ -816,8 +816,8 @@ def main(argv):
       OPTIONS.worker_threads = int(a)
     elif o in ("--backup"):
       OPTIONS.backuptool = bool(a.lower() == 'true')
-    elif o in ("--configid"):
-      OPTIONS.modelidcfg = bool(a.lower() == 'true')
+    #elif o in ("--configid"):
+      #OPTIONS.modelidcfg = bool(a.lower() == 'true')
     elif o in ("--override_device"):
       OPTIONS.override_device = a
     else:
