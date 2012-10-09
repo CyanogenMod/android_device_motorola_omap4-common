@@ -123,8 +123,8 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/etc/spn-conf.xml:system/etc/spn-conf.xml
 
 # Kexec files
-ifneq ($(TARGET_DEVICE),solana)
 ifeq ($(BOARD_USES_KEXEC),true)
+ifneq ($(TARGET_DEVICE),solana)
 PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/kexec/arm_kexec.ko:system/etc/kexec/arm_kexec.ko \
     $(COMMON_FOLDER)/kexec/atags:system/etc/kexec/atags \
@@ -132,6 +132,11 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/kexec/kexec.ko:system/etc/kexec/kexec.ko \
     $(COMMON_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko
 endif
+
+# Kexec Boot support for Safestrap v3
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/prebuilt/bin/bbx:/root/sbin/bbx \
+    $(COMMON_FOLDER)/prebuilt/bin/fixboot.sh:/root/sbin/fixboot.sh
 endif
 
 # we have enough storage space to hold precise GC data
