@@ -112,7 +112,7 @@ BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_MKE2FS := device/motorola/common/releaseutils/mke2fs
 BOARD_HAS_SDCARD_INTERNAL := true
 #BOARD_HAS_SDEXT := false
-TARGET_RECOVERY_PRE_COMMAND := "echo 1 > /sdcard/.recovery_mode; sync;"
+TARGET_RECOVERY_PRE_COMMAND := "echo 1 > /data/.recovery_mode; sync;"
 TARGET_RECOVERY_PRE_COMMAND_CLEAR_REASON := true
 TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
 
