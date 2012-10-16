@@ -124,14 +124,18 @@ PRODUCT_COPY_FILES += \
 
 # Kexec files
 ifeq ($(BOARD_USES_KEXEC),true)
+# Don't add these for solana -- they're in the solana device setup
 ifneq ($(TARGET_DEVICE),solana)
 PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/kexec/arm_kexec.ko:system/etc/kexec/arm_kexec.ko \
-    $(COMMON_FOLDER)/kexec/atags:system/etc/kexec/atags \
-    $(COMMON_FOLDER)/kexec/kexec:system/etc/kexec/kexec \
     $(COMMON_FOLDER)/kexec/kexec.ko:system/etc/kexec/kexec.ko \
     $(COMMON_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko
 endif
+
+# Common kexec files
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/kexec/atags:system/etc/kexec/atags \
+    $(COMMON_FOLDER)/kexec/kexec:system/etc/kexec/kexec
 
 # Kexec Boot support for Safestrap v3
 PRODUCT_COPY_FILES += \
