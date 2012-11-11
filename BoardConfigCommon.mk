@@ -153,6 +153,10 @@ ifdef OMAP_ENHANCEMENT_MULTIGPU
 endif
 
 
+# Number of supplementary service groups allowed by init
+TARGET_NR_SVC_SUPP_GIDS := 28
+
+
 # MOTOROLA
 USE_MOTOROLA_CODE := true
 ifdef USE_MOTOROLA_CODE
