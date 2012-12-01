@@ -112,6 +112,28 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
 
+# WLAN firmware
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/firmware/ti-connectivity/wl128x-fw-4-mr.bin:system/etc/firmware/ti-connectivity/wl128x-fw-4-mr.bin \
+    $(COMMON_FOLDER)/firmware/ti-connectivity/wl128x-fw-4-plt.bin:system/etc/firmware/ti-connectivity/wl128x-fw-4-plt.bin \
+    $(COMMON_FOLDER)/firmware/ti-connectivity/wl128x-fw-4-sr.bin:system/etc/firmware/ti-connectivity/wl128x-fw-4-sr.bin \
+    $(COMMON_FOLDER)/firmware/ti-connectivity/wl1271-nvs.bin:system/etc/firmware/ti-connectivity/wl1271-nvs.bin
+
+# WPAN firmware
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_10.6.15.bts:system/etc/firmware/TIInit_10.6.15.bts \
+    $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_7.2.31.bts:system/etc/firmware/TIInit_7.2.31.bts \
+    $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_7.6.15.bts:system/etc/firmware/TIInit_7.6.15.bts \
+    $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_12.7.27.bts:system/etc/firmware/TIInit_12.7.27.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fmc_ch8_1283.2.bts:system/etc/firmware/fmc_ch8_1283.2.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_rx_ch8_1283.2.bts:system/etc/firmware/fm_rx_ch8_1283.2.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1283.2.bts:system/etc/firmware/fm_tx_ch8_1283.2.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fmc_init_1273.2.bts:system/etc/firmware/fmc_init_1273.2.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_rx_init_1273.2.bts:system/etc/firmware/fm_rx_init_1273.2.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_init_1273.2.bts:system/etc/firmware/fm_tx_init_1273.2.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1273.1.bts:system/etc/firmware/fm_tx_ch8_1273.1.bts \
+    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1273.2.bts:system/etc/firmware/fm_tx_ch8_1273.2.bts
+
 # Prebuilts
 PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/bin/strace:system/bin/strace \
@@ -139,9 +161,13 @@ PRODUCT_COPY_FILES += \
 
 # Kexec Boot support for Safestrap v3
 PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/prebuilt/bin/bbx:/root/sbin/bbx \
-    $(COMMON_FOLDER)/prebuilt/bin/fixboot.sh:/root/sbin/fixboot.sh
+    $(COMMON_FOLDER)/root/bbx:/root/sbin/bbx \
+    $(COMMON_FOLDER)/root/fixboot.sh:/root/sbin/fixboot.sh
 endif
+
+# Rootfs
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/root/init.rc:/root/init.rc
 
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
@@ -152,7 +178,7 @@ PRODUCT_LOCALES += en_US
 # stuff specific to ti OMAP4 hardware
 $(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
 $(call inherit-product, hardware/ti/wpan/ti-wpan-products.mk)
-$(call inherit-product, device/ti/proprietary-open/wl12xx/wlan/wl12xx-wlan-fw-products.mk)
+#$(call inherit-product, device/ti/proprietary-open/wl12xx/wlan/wl12xx-wlan-fw-products.mk)
 $(call inherit-product-if-exists, vendor/motorola/common/common-vendor.mk)
 ifeq ($(BOARD_USES_KEXEC),true)
 $(call inherit-product-if-exists, vendor/motorola/common/proprietary/custom-omap4xxx/custom-omap4.mk)

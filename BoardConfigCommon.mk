@@ -2,11 +2,9 @@
 -include device/motorola/kexec/BoardConfig.mk
 
 # ICS Kernel Hacks
-ifneq ($(TARGET_DEVICE),solana)
 ifneq ($(BOARD_USES_KEXEC),true)
 BOARD_OVERRIDE_FB0_WIDTH := 540
 BOARD_OVERRIDE_FB0_HEIGHT := 960
-endif
 endif
 
 # Camera
@@ -18,6 +16,7 @@ BOARD_USES_TI_CAMERA_HAL := false
 else
 BOARD_USES_TI_CAMERA_HAL := true
 BOARD_HAS_LOCKED_BOOTLOADER := true
+BOARD_USES_HWC_POST2FINDFB := true
 endif
 
 OMAP_ENHANCEMENT := true
@@ -49,6 +48,7 @@ ARCH_ARM_HAVE_TLS_REGISTER := true
 
 # Kernel/Module Build
 TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.4.3
+TARGET_PROVIDES_INIT_RC := true
 
 WLAN_MODULES:
 	make clean -C hardware/ti/wlan/mac80211/compat_wl12xx
@@ -71,9 +71,11 @@ BOARD_MTP_DEVICE := "/dev/mtp"
 # Connectivity - Wi-Fi
 USES_TI_MAC80211 := true
 ifdef USES_TI_MAC80211
+WPA_SUPPLICANT_VERSION           := VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
-WPA_SUPPLICANT_VERSION           := VER_0_8_X_TI
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wl12xx
 BOARD_HOSTAPD_DRIVER             := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_wl12xx
 PRODUCT_WIRELESS_TOOLS           := true
 BOARD_WLAN_DEVICE                := wl12xx_mac80211
 BOARD_SOFTAP_DEVICE              := wl12xx_mac80211
@@ -99,6 +101,7 @@ COMMON_GLOBAL_CFLAGS += -DICS_AUDIO_BLOB
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/common/bluetooth
 
 # Recovery
 BUILD_BOOTMENU_STANDALONE := true
@@ -165,6 +168,10 @@ endif
 USE_MOTOROLA_USERS := true
 ifdef USE_MOTOROLA_USERS
 COMMON_GLOBAL_CFLAGS += -DUSE_MOTOROLA_USERS
+endif
+USE_MOTOROLA_UIDS := true
+ifdef USE_MOTOROLA_UIDS
+COMMON_GLOBAL_CFLAGS += -DMOTOROLA_UIDS
 endif
 
 # Media / Radio
