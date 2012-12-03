@@ -67,7 +67,8 @@ PRODUCT_PACKAGES += \
 # Bluetooth
 PRODUCT_PACKAGES += \
     bt_sco_app \
-    uim-sysfs 
+    uim-sysfs \
+    libbt-vendor
 
 # Release utilities
 PRODUCT_PACKAGES += \
@@ -133,6 +134,10 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_init_1273.2.bts:system/etc/firmware/fm_tx_init_1273.2.bts \
     $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1273.1.bts:system/etc/firmware/fm_tx_ch8_1273.1.bts \
     $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1273.2.bts:system/etc/firmware/fm_tx_ch8_1273.2.bts
+
+# Bluetooth settings
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
 
 # Prebuilts
 PRODUCT_COPY_FILES += \

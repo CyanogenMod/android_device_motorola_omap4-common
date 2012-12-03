@@ -3,6 +3,7 @@
 
 # ICS Kernel Hacks
 ifneq ($(BOARD_USES_KEXEC),true)
+TARGET_SPECIFIC_HEADER_PATH := device/motorola/common/include-stock
 BOARD_FRAMEBUFFER_FORCE_WIDTH := 540
 BOARD_FRAMEBUFFER_FORCE_HEIGHT := 960
 endif
@@ -102,6 +103,7 @@ COMMON_GLOBAL_CFLAGS += -DICS_AUDIO_BLOB
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/common/bluetooth
+BOARD_BLUETOOTH_LIBBT_VNDCFG := device/motorola/common/bluetooth/bt_vendor.conf
 
 # Recovery
 BUILD_BOOTMENU_STANDALONE := true
