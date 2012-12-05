@@ -32,7 +32,8 @@ PRODUCT_PACKAGES += \
 
 # BlueZ a2dp Audio HAL module
 PRODUCT_PACKAGES += \
-    audio.a2dp.default
+    audio.a2dp.default \
+    audio.usb.default
 
 # BlueZ test tools
 PRODUCT_PACKAGES += \
@@ -68,6 +69,14 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     bt_sco_app \
     uim-sysfs \
+    kfmapp     \
+    BluetoothSCOApp \
+    FmRxApp \
+    FmTxApp \
+    FmService \
+    libfmradio \
+    fmradioif \
+    com.ti.fm.fmradioif.xml \
     libbt-vendor
 
 # Release utilities
@@ -182,8 +191,6 @@ PRODUCT_LOCALES += en_US
 
 # stuff specific to ti OMAP4 hardware
 $(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
-$(call inherit-product, hardware/ti/wpan/ti-wpan-products.mk)
-#$(call inherit-product, device/ti/proprietary-open/wl12xx/wlan/wl12xx-wlan-fw-products.mk)
 $(call inherit-product-if-exists, vendor/motorola/common/common-vendor.mk)
 ifeq ($(BOARD_USES_KEXEC),true)
 $(call inherit-product-if-exists, vendor/motorola/common/proprietary/custom-omap4xxx/custom-omap4.mk)

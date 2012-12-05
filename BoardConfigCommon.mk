@@ -3,9 +3,8 @@
 
 # ICS Kernel Hacks
 ifneq ($(BOARD_USES_KEXEC),true)
+# includes fix for framebuffer
 TARGET_SPECIFIC_HEADER_PATH := device/motorola/common/include-stock
-BOARD_FRAMEBUFFER_FORCE_WIDTH := 540
-BOARD_FRAMEBUFFER_FORCE_HEIGHT := 960
 endif
 
 # Camera
@@ -86,6 +85,10 @@ WIFI_FIRMWARE_LOADER             := ""
 COMMON_GLOBAL_CFLAGS += -DUSES_TI_MAC80211
 endif
 
+# gps
+BOARD_VENDOR_TI_GPS_HARDWARE := omap4
+BOARD_GPS_LIBRARIES := libgps
+
 # adb has root
 ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
 ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
@@ -104,6 +107,7 @@ BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/common/bluetooth
 BOARD_BLUETOOTH_LIBBT_VNDCFG := device/motorola/common/bluetooth/bt_vendor.conf
+BOARD_BLUEDROID_VENDOR_CONF := device/motorola/common/bluetooth/vnd_moto-omp4.txt
 
 # Recovery
 BUILD_BOOTMENU_STANDALONE := true
