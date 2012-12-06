@@ -107,7 +107,7 @@ BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/common/bluetooth
 BOARD_BLUETOOTH_LIBBT_VNDCFG := device/motorola/common/bluetooth/bt_vendor.conf
-BOARD_BLUEDROID_VENDOR_CONF := device/motorola/common/bluetooth/vnd_moto-omp4.txt
+#BOARD_BLUEDROID_VENDOR_CONF := device/motorola/common/bluetooth/vnd_moto-omap4.txt
 
 # Recovery
 BUILD_BOOTMENU_STANDALONE := true
