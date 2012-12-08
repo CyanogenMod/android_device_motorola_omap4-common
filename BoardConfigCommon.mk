@@ -22,14 +22,14 @@ endif
 OMAP_ENHANCEMENT := true
 ifeq ($(BOARD_USES_KEXEC),true)
 OMAP_ENHANCEMENT_MULTIGPU := true
+endif
 #OMAP_ENHANCEMENT_BURST_CAPTURE := true
 #OMAP_ENHANCEMENT_S3D := true
 #OMAP_ENHANCEMENT_CPCAM := true
 #OMAP_ENHANCEMENT_VTC := true
 #USE_ITTIAM_AAC := true
 #BLTSVILLE_ENHANCEMENT :=true
-ENHANCED_DOMX := true
-endif
+#ENHANCED_DOMX := true
 
 # inherit from the proprietary version
 -include vendor/motorola/common/BoardConfigVendor.mk
@@ -104,10 +104,7 @@ COMMON_GLOBAL_CFLAGS += -DICS_AUDIO_BLOB
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/common/bluetooth
-BOARD_BLUETOOTH_LIBBT_VNDCFG := device/motorola/common/bluetooth/bt_vendor.conf
-#BOARD_BLUEDROID_VENDOR_CONF := device/motorola/common/bluetooth/vnd_moto-omap4.txt
 
 # Recovery
 BUILD_BOOTMENU_STANDALONE := true
