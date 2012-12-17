@@ -412,8 +412,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
 
-  if "selinux_fc" in OPTIONS.info_dict:
-    WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
+#  if "selinux_fc" in OPTIONS.info_dict:
+#    WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
   script.Print("************************************************")
   script.Print("*                                              *")
@@ -421,8 +421,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.Print("*                                              *")
   script.Print("*         JELLY BEAN for OMAP4 devices         *")
   script.Print("*                                              *")
-  script.Print("*     Follow us  @dhacker29 and @hashcode0f    *")
-  script.Print("*        Get the GApps at goo.im/gapps         *")
   script.Print("*                                              *")
   script.Print("************************************************")
   script.Print(" ")
