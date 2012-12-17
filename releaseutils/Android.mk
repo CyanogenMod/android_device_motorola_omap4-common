@@ -15,15 +15,6 @@
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := common_releaseutils-check_kernel
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_PATH := $(TARGET_OUT_ETC)/releaseutils
-LOCAL_MODULE_STEM := check_kernel
-LOCAL_SRC_FILES := check_kernel
-include $(BUILD_PREBUILT)
-
-include $(CLEAR_VARS)
 LOCAL_MODULE := common_releaseutils-finalize_release
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := ETC
