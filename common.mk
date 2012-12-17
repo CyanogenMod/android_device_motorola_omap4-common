@@ -10,21 +10,20 @@ $(call inherit-product, device/common/gps/gps_us_supl.mk)
 ## (3)  Finally, the least specific parts, i.e. the non-GSM-specific aspects
 
 # Device overlay
-    DEVICE_PACKAGE_OVERLAYS += $(COMMON_FOLDER)/overlay
+DEVICE_PACKAGE_OVERLAYS += $(COMMON_FOLDER)/overlay
 
 # high-density artwork where available
 PRODUCT_AAPT_CONFIG := normal hdpi
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 
-PRODUCT_PACKAGES := \
+PRODUCT_PACKAGES += \
     charger \
     charger_res_images
 
 # Hardware HALs
 PRODUCT_PACKAGES += \
-    camera.omap4 \
     libinvensense_mpl \
-    libedid
+    audio.usb.default
 
 PRODUCT_PACKAGES += \
     libaudioutils \
@@ -33,7 +32,6 @@ PRODUCT_PACKAGES += \
 # BlueZ a2dp Audio HAL module
 PRODUCT_PACKAGES += \
     audio.a2dp.default \
-    audio.usb.default
 
 # BlueZ test tools
 PRODUCT_PACKAGES += \
@@ -68,37 +66,36 @@ PRODUCT_PACKAGES += \
 # Bluetooth
 PRODUCT_PACKAGES += \
     uim-sysfs \
-    kfmapp \
-    FmRxApp \
-    FmTxApp \
-    FmService \
-    libfmradio \
-    fmradioif \
-    com.ti.fm.fmradioif.xml \
     libbt-vendor
+
+# OMAP4
+PRODUCT_PACKAGES += \
+    libdomx \
+    libOMX_Core \
+    libOMX.TI.DUCATI1.VIDEO.H264E \
+    libOMX.TI.DUCATI1.VIDEO.MPEG4E \
+    libOMX.TI.DUCATI1.VIDEO.DECODER \
+    libOMX.TI.DUCATI1.VIDEO.DECODER.secure \
+    libOMX.TI.DUCATI1.VIDEO.CAMERA \
+    libOMX.TI.DUCATI1.MISC.SAMPLE \
+    libstagefrighthw \
+    libI420colorconvert \
+    libtiutils \
+    libion_ti \
+    smc_pa_ctrl \
+    tf_daemon \
+    libtf_crypto_sst \
+    libmm_osal
 
 # Release utilities
 PRODUCT_PACKAGES += \
-    common_releaseutils-check_kernel \
     common_releaseutils-finalize_release \
     common_releaseutils-mke2fs \
     common_releaseutils-tune2fs
 
 PRODUCT_PACKAGES += \
     evtest \
-    camera_test \
-    Camera \
-    CameraOMAP4 \
-    Superuser \
-    su \
     DockAudio \
-    parse_hdmi_edid
-
-PRODUCT_PACKAGES += \
-    com.android.future.usb.accessory \
-    FileManager \
-    MusicFX \
-    Apollo
 
 # Permissions files
 PRODUCT_COPY_FILES += \
@@ -134,24 +131,6 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_7.2.31.bts:system/etc/firmware/TIInit_7.2.31.bts \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_7.6.15.bts:system/etc/firmware/TIInit_7.6.15.bts \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_12.7.27.bts:system/etc/firmware/TIInit_12.7.27.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fmc_ch8_1283.2.bts:system/etc/firmware/fmc_ch8_1283.2.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_rx_ch8_1283.2.bts:system/etc/firmware/fm_rx_ch8_1283.2.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1283.2.bts:system/etc/firmware/fm_tx_ch8_1283.2.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fmc_init_1273.2.bts:system/etc/firmware/fmc_init_1273.2.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_rx_init_1273.2.bts:system/etc/firmware/fm_rx_init_1273.2.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_init_1273.2.bts:system/etc/firmware/fm_tx_init_1273.2.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1273.1.bts:system/etc/firmware/fm_tx_ch8_1273.1.bts \
-    $(COMMON_FOLDER)/firmware/wpan/fmradio/fm_tx_ch8_1273.2.bts:system/etc/firmware/fm_tx_ch8_1273.2.bts
-
-# Prebuilts
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/prebuilt/bin/strace:system/bin/strace \
-    $(COMMON_FOLDER)/prebuilt/bin/omapconf:system/bin/omapconf \
-    $(COMMON_FOLDER)/prebuilt/bin/omapconf-dump.sh:system/bin/omapconf-dump.sh
-
-# Phone settings
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/prebuilt/etc/spn-conf.xml:system/etc/spn-conf.xml
 
 # Kexec files
 ifeq ($(BOARD_USES_KEXEC),true)
@@ -170,8 +149,14 @@ PRODUCT_COPY_FILES += \
 
 # Kexec Boot support for Safestrap v3
 PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/root/bbx:/root/sbin/bbx \
-    $(COMMON_FOLDER)/root/fixboot.sh:/root/sbin/fixboot.sh
+    $(COMMON_FOLDER)/prebuilt/bin/bbx:/root/sbin/bbx \
+    $(COMMON_FOLDER)/prebuilt/bin/fixboot.sh:/root/sbin/fixboot.sh
+else
+
+# non-kexec setting
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.hwc.sw_vsync=1
+
 endif
 
 # Rootfs
@@ -185,9 +170,6 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 PRODUCT_LOCALES += en_US
 
 # stuff specific to ti OMAP4 hardware
-$(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
+#$(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
 $(call inherit-product-if-exists, vendor/motorola/common/common-vendor.mk)
-ifeq ($(BOARD_USES_KEXEC),true)
-$(call inherit-product-if-exists, vendor/motorola/common/proprietary/custom-omap4xxx/custom-omap4.mk)
-$(call inherit-product-if-exists, vendor/motorola/common/proprietary/imgtec/sgx-imgtec-bins.mk)
-endif
+
