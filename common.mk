@@ -68,6 +68,10 @@ PRODUCT_PACKAGES += \
     uim-sysfs \
     libbt-vendor
 
+# Misc
+PRODUCT_PACKAGES += \
+    com.android.future.usb.accessory
+
 # OMAP4
 PRODUCT_PACKAGES += \
     libdomx \
