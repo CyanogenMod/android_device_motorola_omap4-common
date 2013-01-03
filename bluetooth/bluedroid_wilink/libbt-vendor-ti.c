@@ -71,10 +71,9 @@ int ti_op(bt_vendor_opcode_t opcode, void **param) {
     switch(opcode)
     {
         case BT_VND_OP_USERIAL_OPEN:
-            ALOGI(" Opening tty device (%s)", BLUETOOTH_TTY_DEVICE);
-            fd = open(BLUETOOTH_TTY_DEVICE, O_RDWR);
+            fd = open("/dev/ttyO1", O_RDWR);
             if (fd < 0) {
-                ALOGE(" Can't open tty device (%s)", BLUETOOTH_TTY_DEVICE);
+                ALOGE(" Can't open /dev/ttyO1");
                 return -1;
             }
             fd_array[CH_CMD] = fd;
