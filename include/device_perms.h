@@ -40,7 +40,7 @@
     { "hw.",              AID_MEDIA,   0 }, \
     { "persist.ril.event.report", AID_RADIO, 0 },
 
-#define CONTROL_PARMS \
+#define CONTROL_PERMS_APPEND \
     { "hciattach", AID_MOT_TCMD, AID_MOT_TCMD }, \
     { "bluetoothd",AID_MOT_TCMD, AID_MOT_TCMD }, \
     { "bt_start", AID_MOT_TCMD, AID_MOT_TCMD }, \
