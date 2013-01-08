@@ -97,7 +97,6 @@ BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_UMS_LUNFILE := "/sys/devices/virtual/android_usb/android0/f_mass_storage/lun%d/file"
 BOARD_ALWAYS_INSECURE := true
 BOARD_HAS_LARGE_FILESYSTEM := true
-BOARD_MKE2FS := device/motorola/common/releaseutils/mke2fs
 BOARD_HAS_SDCARD_INTERNAL := true
 #BOARD_HAS_SDEXT := false
 TARGET_RECOVERY_PRE_COMMAND := "echo 1 > /data/.recovery_mode; sync;"
