@@ -167,6 +167,69 @@ endif
 PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/root/init.rc:/root/init.rc
 
+# General
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.crypto.state=unencrypted \
+    ro.hdcp.support=2 \
+    ro.service.start.smc=1 \
+    ro.sf.lcd_density=240 \
+    windowsmgr.max_events_per_sec=90 \
+    com.ti.omap_enhancement=true \
+    hwui.render_dirty_regions=false \
+    persist.sys.root_access=3 \
+    ro.product.use_charge_counter=1 \
+    persist.sys.usb.config=mass_storage,adb \
+    ro.setupwizard.enable_bypass=1
+
+# Media
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.media.enc.aud.fileformat=qcp \
+    ro.media.enc.aud.codec=qcelp \
+    ro.media.enc.aud.bps=13300 \
+    ro.media.enc.aud.ch=1 \
+    ro.media.enc.aud.hz=8000 \
+    ro.media.camcorder.1080p=mp4,h264,30,15000000,aac,128000,44100,2 \
+    ro.media.camcorder.720p=mp4,h264,30,10000000,aac,128000,44100,2 \
+    ro.media.camcorder.d1NTSC=mp4,h264,30,6000000,aac,128000,44100,2 \
+    ro.media.camcorder.vga=mp4,h264,30,4000000,aac,128000,44100,2 \
+    ro.media.camcorder.cif=mp4,h264,30,1500000,aac,128000,44100,2 \
+    ro.media.camcorder.qvga=mp4,h264,15,500000,aac,64000,44100,2 \
+    ro.media.camcorder.mms=3gp,h264,15,128000,amrnb,12200,8000,1 \
+    ro.media.camcorder.mmsres=qvga \
+    ro.camcorder.zoom=true \
+    ro.media.capture.maxres=5m \
+    ro.media.capture.fast.fps=4 \
+    ro.media.capture.slow.fps=120 \
+    ro.media.capture.flash=led \
+    ro.media.capture.flashMinV=3300000 \
+    ro.media.capture.torchIntensity=28 \
+    ro.media.capture.flashIntensity=100 \
+    ro.media.capture.classification=classF \
+    ro.media.panorama.defres=3264x1840 \
+    ro.media.panorama.frameres=1280x720
+
+# OpenglES
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.opengles.version=131072
+
+# Radio and Telephony
+PRODUCT_PROPERTY_OVERRIDES += \
+    keyguard.no_require_sim = true
+    persist.ril.mux.noofchannels=10 \
+    ro.cdma.otaspnumschema=SELC,1,80,99 \
+    ro.config.vc_call_vol_steps=7 \
+    ro.kernel.android.ril=yes \
+    ro.telephony.call_ring.multiple=false \
+    persist.ril.mux.noofchannels=10 \
+    persist.ril.mux.retries=500
+
+# Wifi
+PRODUCT_PROPERTY_OVERRIDES += \
+    wifi.interface=wlan0 \
+    softap.interface=wlan0 \
+    wifi.ap.interface=wlan0 \
+    wifi.supplicant_scan_interval=90
+
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
 
@@ -176,4 +239,4 @@ PRODUCT_LOCALES += en_US
 # stuff specific to ti OMAP4 hardware
 #$(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
 $(call inherit-product-if-exists, vendor/motorola/common/common-vendor.mk)
-
+$(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
