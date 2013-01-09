@@ -136,6 +136,14 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_7.6.15.bts:system/etc/firmware/TIInit_7.6.15.bts \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_12.7.27.bts:system/etc/firmware/TIInit_12.7.27.bts \
 
+# Root files
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/root/default.prop:/root/default.prop \
+    $(COMMON_FOLDER)/root/init.mapphone.rc:/root/init.mapphone_cdma.rc \
+    $(COMMON_FOLDER)/root/init.mapphone.rc:/root/init.mapphone_umts.rc \
+    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_cdma.rc \
+    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_umts.rc
+
 # Kexec files
 ifeq ($(BOARD_USES_KEXEC),true)
 # Don't add these for solana -- they're in the solana device setup
@@ -161,11 +169,18 @@ else
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.hwc.sw_vsync=1
 
-endif
-
-# Rootfs
+# setup /system/etc/rootfs files
 PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/root/init.rc:/root/init.rc
+    $(COMMON_FOLDER)/root/default.prop:/system/etc/rootfs/default.prop \
+    system/core/rootdir/init.rc:/system/etc/rootfs/init.rc \
+    system/core/rootdir/ueventd.rc:/system/etc/rootfs/ueventd.rc \
+    $(COMMON_FOLDER)/root/init.mapphone.rc:/system/etc/rootfs/init.mapphone_cdma.rc \
+    $(COMMON_FOLDER)/root/init.mapphone.rc:/system/etc/rootfs/init.mapphone_umts.rc \
+    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_cdma.rc \
+    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_umts.rc \
+    $(OUT)/root/sbin/adbd:system/etc/rootfs/sbin/adbd
+
+endif
 
 # General
 PRODUCT_PROPERTY_OVERRIDES += \
