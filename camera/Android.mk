@@ -1,4 +1,3 @@
-COMMON_FOLDER := device/motorola/common
 LOCAL_PATH:= $(call my-dir)
 
 OMAP4_CAMERA_HAL_SRC := \
@@ -46,7 +45,7 @@ LOCAL_SRC_FILES:= \
 	$(OMAP4_CAMERA_OMX_SRC) \
 	$(OMAP4_CAMERA_COMMON_SRC)
 
-ifeq ($(ENHANCED_DOMX),true)
+ifeq ($(BOARD_USE_TI_ENHANCED_DOMX),true)
     CAMERAHAL_CFLAGS += -DENHANCED_DOMX
 endif
 

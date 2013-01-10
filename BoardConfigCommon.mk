@@ -1,3 +1,6 @@
+# set to allow building from common
+BOARD_VENDOR := motorola-omap4
+
 # includes fix for framebuffer
 TARGET_SPECIFIC_HEADER_PATH := device/motorola/common/include
 
@@ -12,7 +15,7 @@ OMAP_ENHANCEMENT := true
 #OMAP_ENHANCEMENT_VTC := true
 #USE_ITTIAM_AAC := true
 #BLTSVILLE_ENHANCEMENT :=true
-ENHANCED_DOMX := true
+BOARD_USE_TI_ENHANCED_DOMX := true
 
 # inherit from the proprietary version
 -include vendor/motorola/common/BoardConfigVendor.mk
@@ -107,11 +110,10 @@ TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
 # Graphics
 BOARD_EGL_CFG := device/motorola/common/prebuilt/etc/egl.cfg
 USE_OPENGL_RENDERER := true
-TARGET_HAS_CUSTOM_LIBION := true
+BOARD_USE_CUSTOM_LIBION := true
 
 # Makefile variable and C/C++ macro to recognise DOMX version
-ifdef ENHANCED_DOMX
-    COMMON_GLOBAL_CFLAGS += -DENHANCED_DOMX
+ifdef BOARD_USE_TI_ENHANCED_DOMX
     DOMX_PATH := device/motorola/common/domx
 else
     DOMX_PATH := hardware/ti/omap4xxx/domx
