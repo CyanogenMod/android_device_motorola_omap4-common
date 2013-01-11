@@ -141,6 +141,7 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/root/default.prop:/root/default.prop \
     $(COMMON_FOLDER)/root/init.mapphone.rc:/root/init.mapphone_cdma.rc \
     $(COMMON_FOLDER)/root/init.mapphone.rc:/root/init.mapphone_umts.rc \
+    $(COMMON_FOLDER)/root/init.usb.rc:/root/init.usb.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_cdma.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_umts.rc
 
@@ -176,6 +177,7 @@ PRODUCT_COPY_FILES += \
     system/core/rootdir/ueventd.rc:/system/etc/rootfs/ueventd.rc \
     $(COMMON_FOLDER)/root/init.mapphone.rc:/system/etc/rootfs/init.mapphone_cdma.rc \
     $(COMMON_FOLDER)/root/init.mapphone.rc:/system/etc/rootfs/init.mapphone_umts.rc \
+    $(COMMON_FOLDER)/root/init.usb.rc:system/etc/rootfs/init.usb.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_cdma.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_umts.rc \
     $(OUT)/root/sbin/adbd:system/etc/rootfs/sbin/adbd
