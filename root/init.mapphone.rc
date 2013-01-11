@@ -39,6 +39,8 @@ on fs
     mount ext3 loop@/ss/safestrap/rom-slot1/cache.img /cache nosuid nodev noatime nodiratime
     mount ext3 /dev/block/pds /pds nosuid nodev noatime nodiratime
 on post-fs
+    # Load FIPS kernel module
+    exec /system/bin/fips_loader /system/lib/modules
 # Enable PVR modules
     insmod /system/lib/modules/pvrsrvkm_sgx540_120.ko
     insmod /system/lib/modules/omaplfb_sgx540_120.ko
