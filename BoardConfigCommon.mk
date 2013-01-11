@@ -42,7 +42,7 @@ TARGET_KRAIT_BIONIC_PLDSIZE := 64
 
 # Kernel/Module Build
 TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.4.3
-TARGET_PROVIDES_INIT_RC := true
+#TARGET_PROVIDES_INIT_RC := true
 
 WLAN_MODULES:
 	make clean -C hardware/ti/wlan/mac80211/compat_wl12xx
