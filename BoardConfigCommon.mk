@@ -86,12 +86,23 @@ BUILD_WITH_ALSA_UTILS := true
 HAVE_2_3_DSP := 1
 TARGET_PROVIDES_LIBAUDIO := true
 BOARD_USE_MOTO_DOCK_HACK := true
+
+ifneq ($(TARGET_DEVICE),spyder)
 COMMON_GLOBAL_CFLAGS += -DICS_AUDIO_BLOB
+endif
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_BLUETOOTH_TTY_DEVICE := /dev/ttyO1
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/common/bluetooth
+
+# gps
+BOARD_VENDOR_TI_GPS_HARDWARE := omap4
+BOARD_GPS_LIBRARIES := libgps
+
+# adb has root
+ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
+ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
 
 # Recovery
 BOARD_HAS_LOCKED_BOOTLOADER := true
@@ -105,7 +116,6 @@ BOARD_HAS_SDCARD_INTERNAL := true
 TARGET_RECOVERY_PRE_COMMAND := "echo 1 > /data/.recovery_mode; sync;"
 TARGET_RECOVERY_PRE_COMMAND_CLEAR_REASON := true
 TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
-
 
 # Graphics
 BOARD_EGL_CFG := device/motorola/common/prebuilt/etc/egl.cfg
@@ -144,7 +154,6 @@ endif
 
 # Number of supplementary service groups allowed by init
 TARGET_NR_SVC_SUPP_GIDS := 28
-
 
 # MOTOROLA
 USE_MOTOROLA_CODE := true
