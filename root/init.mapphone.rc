@@ -565,7 +565,7 @@ service msp430 /system/bin/msp430 boot
     oneshot
 service uim /system/bin/uim-sysfs
     class core
-    user bluetooth
+    user  root
     group bluetooth net_bt_admin
 service hciattach /system/bin/hciattach -l
     class main
