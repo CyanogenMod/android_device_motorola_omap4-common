@@ -71,9 +71,9 @@ int ti_op(bt_vendor_opcode_t opcode, void **param) {
     switch(opcode)
     {
         case BT_VND_OP_USERIAL_OPEN:
-            fd = open("/dev/ttyO1", O_RDWR);
+            fd = open("/dev/hci_tty", O_RDWR);
             if (fd < 0) {
-                ALOGE(" Can't open /dev/ttyO1");
+                ALOGE(" Can't open /dev/hci_tty");
                 return -1;
             }
             fd_array[CH_CMD] = fd;
