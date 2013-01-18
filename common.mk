@@ -5,9 +5,8 @@
 COMMON_FOLDER := device/motorola/common
 
 # The gps config appropriate for this device
-$(call inherit-product, device/common/gps/gps_us_supl.mk)
-
-## (3)  Finally, the least specific parts, i.e. the non-GSM-specific aspects
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/prebuilt/etc/gps.conf:system/etc/gps.conf
 
 # Device overlay
 DEVICE_PACKAGE_OVERLAYS += $(COMMON_FOLDER)/overlay
