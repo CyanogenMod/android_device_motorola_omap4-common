@@ -73,6 +73,16 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
 
+# Motorola Binaries
+PRODUCT_PACKAGES += \
+    aplogd \
+    charge_only_mode \
+    modemlog \
+    mot_boot_mode \
+    motobox \
+    serialno_tracker \
+    usbd
+
 # OMAP4
 PRODUCT_PACKAGES += \
     libdomx \
