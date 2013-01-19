@@ -32,7 +32,7 @@ PRODUCT_PACKAGES += \
 
 # BlueZ a2dp Audio HAL module
 PRODUCT_PACKAGES += \
-    audio.a2dp.default \
+    audio.a2dp.default
 
 # BlueZ test tools
 PRODUCT_PACKAGES += \
@@ -111,6 +111,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     evtest \
     DockAudio \
+    libjni_mosaic
 
 # Permissions files
 PRODUCT_COPY_FILES += \
@@ -131,7 +132,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
-    frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
+    frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
 
 # WLAN firmware
 PRODUCT_COPY_FILES += \
@@ -145,7 +146,7 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_10.6.15.bts:system/etc/firmware/TIInit_10.6.15.bts \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_7.2.31.bts:system/etc/firmware/TIInit_7.2.31.bts \
     $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_7.6.15.bts:system/etc/firmware/TIInit_7.6.15.bts \
-    $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_12.7.27.bts:system/etc/firmware/TIInit_12.7.27.bts \
+    $(COMMON_FOLDER)/firmware/wpan/bluetooth/TIInit_12.7.27.bts:system/etc/firmware/TIInit_12.7.27.bts
 
 # Root files
 PRODUCT_COPY_FILES += \
