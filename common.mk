@@ -111,7 +111,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     evtest \
     DockAudio \
+    libjni_filtershow_filters \
     libjni_mosaic
+    
 
 # Permissions files
 PRODUCT_COPY_FILES += \
