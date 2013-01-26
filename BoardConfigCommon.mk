@@ -2,7 +2,7 @@
 BOARD_VENDOR := motorola-omap4
 
 # includes fix for framebuffer
-TARGET_SPECIFIC_HEADER_PATH := device/motorola/common/include
+TARGET_SPECIFIC_HEADER_PATH := device/motorola/omap4-common/include
 
 # Camera
 USE_CAMERA_STUB := false
@@ -18,7 +18,7 @@ OMAP_ENHANCEMENT := true
 BOARD_USE_TI_ENHANCED_DOMX := true
 
 # inherit from the proprietary version
--include vendor/motorola/common/BoardConfigVendor.mk
+-include vendor/motorola/omap4-common/BoardConfigVendor.mk
 
 # Processor
 TARGET_NO_BOOTLOADER := true
@@ -88,13 +88,11 @@ TARGET_PROVIDES_LIBAUDIO := true
 BOARD_USE_MOTO_DOCK_HACK := true
 BOARD_USE_HARDCODED_FAST_TRACK_LATENCY_WHEN_DENIED := 160
 
-ifneq ($(TARGET_DEVICE),spyder)
 COMMON_GLOBAL_CFLAGS += -DICS_AUDIO_BLOB
-endif
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/common/bluetooth
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/motorola/omap4-common/bluetooth
 
 # gps
 BOARD_VENDOR_TI_GPS_HARDWARE := omap4
@@ -106,7 +104,7 @@ ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
 
 # Recovery
 BOARD_HAS_LOCKED_BOOTLOADER := true
-TARGET_PREBUILT_RECOVERY_KERNEL := device/motorola/common/recovery-kernel
+TARGET_PREBUILT_RECOVERY_KERNEL := device/motorola/omap4-common/recovery-kernel
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_UMS_LUNFILE := "/sys/devices/virtual/android_usb/android0/f_mass_storage/lun%d/file"
 BOARD_ALWAYS_INSECURE := true
@@ -118,14 +116,14 @@ TARGET_RECOVERY_PRE_COMMAND_CLEAR_REASON := true
 TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
 
 # Graphics
-BOARD_EGL_CFG := device/motorola/common/prebuilt/etc/egl.cfg
+BOARD_EGL_CFG := device/motorola/omap4-common/prebuilt/etc/egl.cfg
 USE_OPENGL_RENDERER := true
 BOARD_USE_CUSTOM_LIBION := true
 
 # Makefile variable and C/C++ macro to recognise DOMX version
 ifdef BOARD_USE_TI_ENHANCED_DOMX
-    TI_CUSTOM_DOMX_PATH := device/motorola/common/domx
-    DOMX_PATH := device/motorola/common/domx
+    TI_CUSTOM_DOMX_PATH := device/motorola/omap4-common/domx
+    DOMX_PATH := device/motorola/omap4-common/domx
     ENHANCED_DOMX := true
 else
     DOMX_PATH := hardware/ti/omap4xxx/domx
@@ -153,22 +151,15 @@ ifdef OMAP_ENHANCEMENT_MULTIGPU
     COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT_MULTIGPU
 endif
 
-
 # Number of supplementary service groups allowed by init
 TARGET_NR_SVC_SUPP_GIDS := 28
 
+BOARD_USE_NO_DEVFS_SETUP := true
+
 # MOTOROLA
-USE_MOTOROLA_CODE := true
-ifdef USE_MOTOROLA_CODE
-COMMON_GLOBAL_CFLAGS += -DUSE_MOTOROLA_CODE
-endif
-USE_MOTOROLA_USERS := true
-ifdef USE_MOTOROLA_USERS
-COMMON_GLOBAL_CFLAGS += -DUSE_MOTOROLA_USERS
-endif
-USE_MOTOROLA_UIDS := true
-ifdef USE_MOTOROLA_UIDS
-COMMON_GLOBAL_CFLAGS += -DMOTOROLA_UIDS
+BOARD_USE_MOTOROLA_DEV_ALIAS := true
+ifdef BOARD_USE_MOTOROLA_DEV_ALIAS
+COMMON_GLOBAL_CFLAGS += -DBOARD_USE_MOTOROLA_DEV_ALIAS
 endif
 
 # Media / Radio
@@ -176,8 +167,7 @@ endif
 
 # OTA Packaging
 TARGET_PROVIDES_RELEASETOOLS := true
-TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT := device/motorola/common/releasetools/common_ota_from_target_files
-TARGET_CUSTOM_RELEASETOOL := ./vendor/motorola/common/tools/squisher
+TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT := device/motorola/omap4-common/releasetools/common_ota_from_target_files
 
 # Bootanimation
 TARGET_BOOTANIMATION_PRELOAD := true

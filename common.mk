@@ -1,8 +1,8 @@
 #
-# This is the product configuration for a full common
+# This is the product configuration for omap4-common
 #
 
-COMMON_FOLDER := device/motorola/common
+COMMON_FOLDER := device/motorola/omap4-common
 
 # The gps config appropriate for this device
 PRODUCT_COPY_FILES += \
@@ -107,7 +107,6 @@ PRODUCT_PACKAGES += \
     DockAudio \
     libjni_filtershow_filters \
     libjni_mosaic
-    
 
 # Permissions files
 PRODUCT_COPY_FILES += \
@@ -153,28 +152,7 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_cdma.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_umts.rc
 
-# Kexec files
-ifeq ($(BOARD_USES_KEXEC),true)
-# Don't add these for solana -- they're in the solana device setup
-ifneq ($(TARGET_DEVICE),solana)
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/kexec/arm_kexec.ko:system/etc/kexec/arm_kexec.ko \
-    $(COMMON_FOLDER)/kexec/kexec.ko:system/etc/kexec/kexec.ko \
-    $(COMMON_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko
-endif
-
-# Common kexec files
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/kexec/atags:system/etc/kexec/atags \
-    $(COMMON_FOLDER)/kexec/kexec:system/etc/kexec/kexec
-
-# Kexec Boot support for Safestrap v3
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/prebuilt/bin/bbx:/root/sbin/bbx \
-    $(COMMON_FOLDER)/prebuilt/bin/fixboot.sh:/root/sbin/fixboot.sh
-else
-
-# non-kexec setting
+# Stock kernel setting
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.hwc.sw_vsync=1
 
@@ -188,9 +166,8 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/root/init.usb.rc:system/etc/rootfs/init.usb.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_cdma.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_umts.rc \
-    $(OUT)/root/sbin/adbd:system/etc/rootfs/sbin/adbd
-
-endif
+    $(OUT)/root/sbin/adbd:system/etc/rootfs/sbin/adbd \
+    $(OUT)/root/init:system/etc/rootfs/init
 
 # General
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -239,7 +216,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Radio and Telephony
 PRODUCT_PROPERTY_OVERRIDES += \
-    keyguard.no_require_sim = true
+    keyguard.no_require_sim = true \
     persist.ril.mux.noofchannels=10 \
     ro.cdma.otaspnumschema=SELC,1,80,99 \
     ro.config.vc_call_vol_steps=7 \
@@ -264,4 +241,4 @@ PRODUCT_LOCALES += en_US
 # stuff specific to ti OMAP4 hardware
 #$(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
 $(call inherit-product, hardware/ti/omap4xxx/security/Android.mk)
-$(call inherit-product-if-exists, vendor/motorola/common/common-vendor.mk)
+$(call inherit-product-if-exists, vendor/motorola/omap4-common/common-vendor.mk)
