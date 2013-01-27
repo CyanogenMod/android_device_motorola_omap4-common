@@ -475,7 +475,6 @@ on boot
 
 # Start services
     exec /system/bin/mot_boot_mode
-    exec /system/bin/serialno_tracker
 # Set core max size (2G)
     setrlimit 4 2147483648 2147483648
     mount debugfs /sys/kernel/debug /sys/kernel/debug
