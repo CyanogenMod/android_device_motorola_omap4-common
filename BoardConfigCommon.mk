@@ -126,6 +126,7 @@ BOARD_USE_CUSTOM_LIBION := true
 
 # Makefile variable and C/C++ macro to recognise DOMX version
 ifdef BOARD_USE_TI_ENHANCED_DOMX
+    BOARD_USE_TI_DUCATI_H264_PROFILE := true
     TI_CUSTOM_DOMX_PATH := device/motorola/omap4-common/domx
     DOMX_PATH := device/motorola/omap4-common/domx
     ENHANCED_DOMX := true
