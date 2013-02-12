@@ -34,6 +34,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+#include <stdint.h>
 
 /** The OMX_API and OMX_APIENTRY are platform specific definitions used
  *  to declare OMX function prototypes.  They are modified to meet the
@@ -130,22 +131,22 @@ extern "C" {
   */ 
 
 /** OMX_U8 is an 8 bit unsigned quantity that is byte aligned */
-typedef unsigned char OMX_U8;
+typedef uint8_t OMX_U8;
 
 /** OMX_S8 is an 8 bit signed quantity that is byte aligned */
-typedef signed char OMX_S8;
+typedef int8_t OMX_S8;
 
 /** OMX_U16 is a 16 bit unsigned quantity that is 16 bit word aligned */
-typedef unsigned short OMX_U16;
+typedef uint16_t OMX_U16;
 
 /** OMX_S16 is a 16 bit signed quantity that is 16 bit word aligned */
-typedef signed short OMX_S16;
+typedef int16_t OMX_S16;
 
 /** OMX_U32 is a 32 bit unsigned quantity that is 32 bit word aligned */
-typedef unsigned long OMX_U32;
+typedef uint32_t OMX_U32;
 
 /** OMX_S32 is a 32 bit signed quantity that is 32 bit word aligned */
-typedef signed long OMX_S32;
+typedef int32_t OMX_S32;
 
 
 /* Users with compilers that cannot accept the "long long" designation should

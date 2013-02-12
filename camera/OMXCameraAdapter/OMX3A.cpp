@@ -1525,12 +1525,12 @@ status_t OMXCameraAdapter::setMeteringAreas(Gen3A_settings& Gen3A)
   for ( unsigned int n = 0; n < mMeteringAreas.size(); n++)
       {
       // transform the coordinates to 3A-type coordinates
-      mMeteringAreas.itemAt(n)->transfrom((size_t)mPreviewData->mWidth,
-                                      (size_t)mPreviewData->mHeight,
-                                      (size_t&)meteringAreas[0]->tAlgoAreas[n].nTop,
-                                      (size_t&)meteringAreas[0]->tAlgoAreas[n].nLeft,
-                                      (size_t&)meteringAreas[0]->tAlgoAreas[n].nWidth,
-                                      (size_t&)meteringAreas[0]->tAlgoAreas[n].nHeight);
+      mMeteringAreas.itemAt(n)->transfrom(mPreviewData->mWidth,
+                                      mPreviewData->mHeight,
+                                      meteringAreas[0]->tAlgoAreas[n].nTop,
+                                      meteringAreas[0]->tAlgoAreas[n].nLeft,
+                                      meteringAreas[0]->tAlgoAreas[n].nWidth,
+                                      meteringAreas[0]->tAlgoAreas[n].nHeight);
 
       meteringAreas[0]->tAlgoAreas[n].nLeft =
               ( meteringAreas[0]->tAlgoAreas[n].nLeft * METERING_AREAS_RANGE ) / mPreviewData->mWidth;

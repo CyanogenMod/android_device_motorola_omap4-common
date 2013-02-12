@@ -133,27 +133,27 @@ class CameraArea : public RefBase
 {
 public:
 
-    CameraArea(ssize_t top,
-               ssize_t left,
-               ssize_t bottom,
-               ssize_t right,
-               size_t weight) : mTop(top),
+    CameraArea(int32_t top,
+               int32_t left,
+               int32_t bottom,
+               int32_t right,
+               uint32_t weight) : mTop(top),
                                 mLeft(left),
                                 mBottom(bottom),
                                 mRight(right),
                                 mWeight(weight) {}
 
-    status_t transfrom(size_t width,
-                       size_t height,
-                       size_t &top,
-                       size_t &left,
-                       size_t &areaWidth,
-                       size_t &areaHeight);
+    status_t transfrom(uint32_t width,
+                       uint32_t height,
+                       int32_t &top,
+                       int32_t &left,
+                       uint32_t &areaWidth,
+                       uint32_t &areaHeight);
 
     bool isValid()
-        {
+    {
         return ( ( 0 != mTop ) || ( 0 != mLeft ) || ( 0 != mBottom ) || ( 0 != mRight) );
-        }
+    }
 
     bool isZeroArea()
     {
@@ -161,38 +161,38 @@ public:
                  && ( 0 == mRight ) && ( 0 == mWeight ));
     }
 
-    size_t getWeight()
-        {
+    uint32_t getWeight()
+    {
         return mWeight;
-        }
+    }
 
     bool compare(const sp<CameraArea> &area);
 
     static status_t parseAreas(const char *area,
-                               size_t areaLength,
+                               uint32_t areaLength,
                                Vector< sp<CameraArea> > &areas);
 
-    static status_t checkArea(ssize_t top,
-                              ssize_t left,
-                              ssize_t bottom,
-                              ssize_t right,
-                              ssize_t weight);
+    static status_t checkArea(int32_t top,
+                              int32_t left,
+                              int32_t bottom,
+                              int32_t right,
+                              int32_t weight);
 
     static bool areAreasDifferent(Vector< sp<CameraArea> > &, Vector< sp<CameraArea> > &);
 
 protected:
-    static const ssize_t TOP = -1000;
-    static const ssize_t LEFT = -1000;
-    static const ssize_t BOTTOM = 1000;
-    static const ssize_t RIGHT = 1000;
-    static const ssize_t WEIGHT_MIN = 1;
-    static const ssize_t WEIGHT_MAX = 1000;
+    static const int32_t TOP = -1000;
+    static const int32_t LEFT = -1000;
+    static const int32_t BOTTOM = 1000;
+    static const int32_t RIGHT = 1000;
+    static const int32_t WEIGHT_MIN = 1;
+    static const int32_t WEIGHT_MAX = 1000;
 
-    ssize_t mTop;
-    ssize_t mLeft;
-    ssize_t mBottom;
-    ssize_t mRight;
-    size_t mWeight;
+    int32_t mTop;
+    int32_t mLeft;
+    int32_t mBottom;
+    int32_t mRight;
+    uint32_t mWeight;
 };
 
 class CameraFDResult : public RefBase
@@ -218,11 +218,11 @@ public:
 
     camera_frame_metadata_t *getFaceResult() { return mFaceData; };
 
-    static const ssize_t TOP = -1000;
-    static const ssize_t LEFT = -1000;
-    static const ssize_t BOTTOM = 1000;
-    static const ssize_t RIGHT = 1000;
-    static const ssize_t INVALID_DATA = -2000;
+    static const int32_t TOP = -1000;
+    static const int32_t LEFT = -1000;
+    static const int32_t BOTTOM = 1000;
+    static const int32_t RIGHT = 1000;
+    static const int32_t INVALID_DATA = -2000;
 
 private:
 
@@ -303,7 +303,7 @@ class CameraFrame
     uint32_t mOffset;
     unsigned int mAlignment;
     int mFd;
-    size_t mLength;
+    uint32_t mLength;
     unsigned mFrameMask;
     unsigned int mQuirks;
     unsigned int mYuv[2];
@@ -362,11 +362,11 @@ public:
     } ZoomEventData;
 
     typedef struct FaceData_t {
-        ssize_t top;
-        ssize_t left;
-        ssize_t bottom;
-        ssize_t right;
-        size_t score;
+        int32_t top;
+        int32_t left;
+        int32_t bottom;
+        int32_t right;
+        uint32_t score;
     } FaceData;
 
     typedef sp<CameraFDResult> FaceEventData;
@@ -548,7 +548,7 @@ public:
     //All sub-components of Camera HAL call this whenever any error happens
     virtual void errorNotify(int error);
 
-    status_t startPreviewCallbacks(CameraParameters &params, void *buffers, uint32_t *offsets, int fd, size_t length, size_t count);
+    status_t startPreviewCallbacks(CameraParameters &params, void *buffers, uint32_t *offsets, int fd, uint32_t length, uint32_t count);
     status_t stopPreviewCallbacks();
 
     status_t enableMsgType(int32_t msgType);
@@ -580,7 +580,7 @@ public:
     //Notifications from CameraHal for video recording case
     status_t startRecording();
     status_t stopRecording();
-    status_t initSharedVideoBuffers(void *buffers, uint32_t *offsets, int fd, size_t length, size_t count, void *vidBufs);
+    status_t initSharedVideoBuffers(void *buffers, uint32_t *offsets, int fd, uint32_t length, uint32_t count, void *vidBufs);
     status_t releaseRecordingFrame(const void *opaque);
 
 	status_t useMetaDataBufferMode(bool enable);
@@ -735,9 +735,9 @@ public:
          void *mBuffers;
          uint32_t *mOffsets;
          int mFd;
-         size_t mLength;
-         size_t mCount;
-         size_t mMaxQueueable;
+         uint32_t mLength;
+         uint32_t mCount;
+         uint32_t mMaxQueueable;
         } BuffersDescriptor;
 
     enum CameraCommands
@@ -1113,7 +1113,7 @@ private:
     void insertSupportedParams();
 
     /** Allocate preview data buffers */
-    status_t allocPreviewDataBufs(size_t size, size_t bufferCount);
+    status_t allocPreviewDataBufs(uint32_t size, uint32_t bufferCount);
 
     /** Free preview data buffers */
     status_t freePreviewDataBufs();
@@ -1125,7 +1125,7 @@ private:
     status_t allocVideoBufs(uint32_t width, uint32_t height, uint32_t bufferCount);
 
     /** Allocate image capture buffers */
-    status_t allocImageBufs(unsigned int width, unsigned int height, size_t length, const char* previewFormat, unsigned int bufferCount);
+    status_t allocImageBufs(unsigned int width, unsigned int height, uint32_t length, const char* previewFormat, unsigned int bufferCount);
 
     /** Free preview buffers */
     status_t freePreviewBufs();
