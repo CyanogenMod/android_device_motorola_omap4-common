@@ -728,9 +728,9 @@ on property:dev.bootcomplete=1
 #    start loadpreinstalls
 service secclkd /system/bin/secclkd
     class main
-    socket secclk_socket stream 660 mot_secclkd mot_secclkd
+    socket secclk_socket stream 660 mot_secclkd radio
     user mot_tpapi
-    group mot_tpapi mot_sec_rtc mot_secclkd
+    group mot_tpapi mot_sec_rtc mot_secclkd radio
 service gadget-lte-modem /system/bin/tty2ttyd ril.wrigley.modem.tty /dev/ttyGS1 0 512
     user radio
     group radio
