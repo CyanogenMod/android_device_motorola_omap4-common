@@ -199,11 +199,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Media
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.media.enc.aud.fileformat=qcp \
-    ro.media.enc.aud.codec=qcelp \
-    ro.media.enc.aud.bps=13300 \
-    ro.media.enc.aud.ch=1 \
-    ro.media.enc.aud.hz=8000 \
     ro.media.camcorder.1080p=mp4,h264,30,15000000,aac,128000,44100,2 \
     ro.media.camcorder.720p=mp4,h264,30,10000000,aac,128000,44100,2 \
     ro.media.camcorder.d1NTSC=mp4,h264,30,6000000,aac,128000,44100,2 \
