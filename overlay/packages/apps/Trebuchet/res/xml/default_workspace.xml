@@ -35,7 +35,7 @@
         launcher:x="0"
         launcher:y="0"
         launcher:spanX="4"
-        launcher:spanY="3" />
+        launcher:spanY="2" />
     <favorite
         launcher:packageName="com.android.gallery3d"
         launcher:className="com.android.camera.CameraLauncher"
