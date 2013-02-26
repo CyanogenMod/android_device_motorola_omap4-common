@@ -148,6 +148,7 @@ on post-fs
 # Install product specific kernel modules
     exec /system/bin/load_modules.sh
 # Load BT userspace driver
+    insmod /system/lib/modules/btwilink.ko
     insmod /system/lib/modules/tty_hci.ko
 # Load wifi drivers (all except wl12xx_sdio)
     insmod /system/lib/modules/compat.ko

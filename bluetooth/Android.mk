@@ -1,2 +1,0 @@
-include $(all-subdir-makefiles)
-
