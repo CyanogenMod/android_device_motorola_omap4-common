@@ -234,6 +234,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     wifi.ap.interface=wlan0 \
     wifi.supplicant_scan_interval=90
 
+# Define SDcard for use with CMUpdater
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.cm.updater.sdcard=sdcard-ext
+
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
 
