@@ -1,18 +1,18 @@
-# Audio libs found in spyder 9.8.20 JB leak
+# Audio libs found in spyder 98.72.16 JB OTA
 lib/libaudio_ext.so
 lib/hw/alsa.omap4.so
 lib/hw/audio.primary.omap4.so
 
-# DRM blobs found in spyder 9.8.20 JB leak
+# DRM blobs found in spyder 98.72.16 JB OTA
 lib/libWVphoneAPI.so
 vendor/lib/libwvdrm_L3.so
 vendor/lib/libwvm.so
 vendor/lib/libWVStreamControlAPI_L3.so
 vendor/lib/drm/libdrmwvmplugin.so
 
-# VZW blobs found in spyder 9.8.20 JB leak
+# VZW blobs found in spyder 98.72.16 JB OTA
 app/appdirectedsmspermission.apk
-app/VerizonSSO.apk
+app/VerizonSSOEngine.apk
 app/VZWAPNLib.apk
 app/vzwapnpermission.apk
 app/VZWAPNService.apk
