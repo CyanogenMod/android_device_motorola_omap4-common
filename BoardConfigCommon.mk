@@ -66,10 +66,6 @@ TARGET_KRAIT_BIONIC_PLDSIZE := 64
 TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.4.3
 #TARGET_PROVIDES_INIT_RC := true
 
-# Kernel Build (for modules)
-TARGET_KERNEL_SOURCE := kernel/motorola/omap4-common
-TARGET_KERNEL_CONFIG := mapphone_defconfig
-
 WLAN_MODULES:
 	make clean -C hardware/ti/wlan/mac80211/compat_wl12xx
 	make -j8 -C hardware/ti/wlan/mac80211/compat_wl12xx KERNEL_DIR=$(KERNEL_OUT) KLIB=$(KERNEL_OUT) KLIB_BUILD=$(KERNEL_OUT) ARCH=arm CROSS_COMPILE="arm-eabi-"
@@ -185,8 +181,6 @@ endif
 
 # Number of supplementary service groups allowed by init
 TARGET_NR_SVC_SUPP_GIDS := 28
-
-BOARD_USE_NO_DEVFS_SETUP := true
 
 # MOTOROLA
 BOARD_USE_MOTOROLA_DEV_ALIAS := true

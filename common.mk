@@ -96,6 +96,10 @@ PRODUCT_PACKAGES += \
     motobox \
     usbd
 
+#symlinks
+PRODUCT_PACKAGES += \
+    libion.so
+
 # OMAP4
 PRODUCT_PACKAGES += \
     libdomx \
@@ -159,22 +163,22 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_cdma.rc \
     $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_umts.rc
 
+# Kexec files
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/kexec/arm_kexec.ko:system/etc/kexec/arm_kexec.ko \
+    $(COMMON_FOLDER)/kexec/kexec.ko:system/etc/kexec/kexec.ko \
+    $(COMMON_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko \
+    $(COMMON_FOLDER)/kexec/atags:system/etc/kexec/atags \
+    $(COMMON_FOLDER)/kexec/kexec:system/etc/kexec/kexec
+
+# Bin files for kexec load
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/prebuilt/bin/bbx:/root/sbin/bbx \
+    $(COMMON_FOLDER)/prebuilt/bin/fixboot.sh:/root/sbin/fixboot.sh
+
 # Stock kernel setting
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.hwc.sw_vsync=1
-
-# setup /system/etc/rootfs files
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/root/default.prop:/system/etc/rootfs/default.prop \
-    system/core/rootdir/init.rc:/system/etc/rootfs/init.rc \
-    system/core/rootdir/ueventd.rc:/system/etc/rootfs/ueventd.rc \
-    $(COMMON_FOLDER)/root/init.mapphone.rc:/system/etc/rootfs/init.mapphone_cdma.rc \
-    $(COMMON_FOLDER)/root/init.mapphone.rc:/system/etc/rootfs/init.mapphone_umts.rc \
-    $(COMMON_FOLDER)/root/init.usb.rc:system/etc/rootfs/init.usb.rc \
-    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_cdma.rc \
-    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/system/etc/rootfs/ueventd.mapphone_umts.rc \
-    $(OUT)/root/sbin/adbd:system/etc/rootfs/sbin/adbd \
-    $(OUT)/root/init:system/etc/rootfs/init
 
 # General
 PRODUCT_PROPERTY_OVERRIDES += \
