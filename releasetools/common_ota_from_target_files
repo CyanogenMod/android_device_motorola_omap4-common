@@ -426,6 +426,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.DeleteRecursive("/system")
   #script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+  self.script.append('delete("/system/bin/applypatch");')
+  self.script.append('delete("/system/bin/recovery");')
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
