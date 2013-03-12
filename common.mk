@@ -181,7 +181,7 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/bin/bbx:/root/sbin/bbx \
     $(COMMON_FOLDER)/prebuilt/bin/fixboot.sh:/root/sbin/fixboot.sh
 
-# Stock kernel setting
+# sw vsync setting
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.hwc.sw_vsync=1
 

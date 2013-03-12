@@ -104,10 +104,6 @@ typedef struct
 
 	/* The HWC was loaded. post() is no longer responsible for presents */
 	int bBypassPost;
-	/* If Post2 is called and a previous call to post() was not made,
-	 * try to find a suitable framebuffer handle to flip
-	 */
-	int bPost2FindFramebuffer;
 
 	/* HWC path for present posts */
 	int (*Post2)(framebuffer_device_t *fb, buffer_handle_t *buffers,
@@ -168,4 +164,25 @@ typedef struct IMG_buffer_format_public_t
 }
 IMG_buffer_format_public_t;
 
+/*
+ * These are vendor specific pixel formats, by (informal) convention IMGTec
+ * formats start from the top of the range, TI formats start from the bottom
+ */
+#define HAL_PIXEL_FORMAT_BGRX_8888      0x1FF
+#define HAL_PIXEL_FORMAT_TI_NV12        0x100
+#define HAL_PIXEL_FORMAT_TI_UNUSED      0x101 /* Free for use */
+#define HAL_PIXEL_FORMAT_TI_NV12_1D     0x102
+
+#ifndef GRALLOC_USAGE_SYSTEM_HEAP
+#define GRALLOC_USAGE_SYSTEM_HEAP GRALLOC_USAGE_PRIVATE_0
+#else
+#error GRALLOC_USAGE_SYSTEM_HEAP should only be defined by hal_public.h
+#endif
+
+#ifndef GRALLOC_USAGE_PHYS_CONTIG
+#define GRALLOC_USAGE_PHYS_CONTIG GRALLOC_USAGE_PRIVATE_1
+#else
+#error GRALLOC_USAGE_PHYS_CONTIG should only be defined by hal_public.h
+#endif
 #endif /* HAL_PUBLIC_H */
+

@@ -18,7 +18,7 @@
 #define __SWVSYNC_H__
 
 bool use_sw_vsync();
-void init_sw_vsync(omap4_hwc_device_t *hwc_dev);
+void init_sw_vsync(omap_hwc_device_t *hwc_dev);
 void start_sw_vsync();
 void stop_sw_vsync();
 

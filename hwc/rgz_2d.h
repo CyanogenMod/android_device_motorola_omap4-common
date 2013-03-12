@@ -18,7 +18,22 @@
 
 #include <linux/bltsville.h>
 
-#define RGZ_MAXLAYERS 12
+/*
+ * Maximum number of layers used to generate subregion rectangles in a
+ * horizontal region.
+ */
+#define RGZ_MAXLAYERS 13
+
+/*
+ * Maximum number of layers the regionizer will accept as input. Account for an
+ * additional 'background layer' to generate empty subregion rectangles and
+ * a damage region as well.
+ */
+#define RGZ_INPUT_MAXLAYERS (RGZ_MAXLAYERS - 2)
+
+/* Number of framebuffers to track */
+#define RGZ_NUM_FB 2
+
 /*
  * Regionizer data
  *
@@ -40,6 +55,7 @@ struct rgz_in_hwc {
     int flags;
     int layerno;
     hwc_layer_1_t *layers;
+    hwc_layer_extended_t *extlayers;
     struct bvsurfgeom *dstgeom;
 };
 
@@ -49,6 +65,10 @@ typedef struct rgz_in_params {
         struct rgz_in_hwc hwc;
     } data;
 } rgz_in_params_t;
+
+typedef struct rgz_ext_layer_list {
+    hwc_layer_extended_t layers[RGZ_INPUT_MAXLAYERS];
+} rgz_ext_layer_list_t;
 
 /*
  * Validate whether the HWC layers can be rendered
@@ -100,8 +120,7 @@ struct rgz_out_bvcmd {
     int cmdlen;
     struct bvsurfgeom *dstgeom;
     int noblend;
-    int clrdst;
-    buffer_handle_t out_hndls[RGZ_MAXLAYERS]; /* OUTPUT */
+    buffer_handle_t out_hndls[RGZ_INPUT_MAXLAYERS]; /* OUTPUT */
     int out_nhndls; /* OUTPUT */
     int out_blits; /* OUTPUT */
 };
@@ -158,7 +177,6 @@ typedef struct rgz_out_params {
  * data.bvc.cmdlen      length of cmdp
  * data.bvc.dstgeom     bltsville struct describing the destination geometry
  * data.bvc.noblend     Test option to disable blending
- * data.bvc.clrdst      Clear the destination
  * data.bvc.out_hndls   Array of buffer handles (OUTPUT)
  * data.bvc.out_nhndls  Number of buffer handles (OUTPUT)
  * data.bvc.out_blits   Number of blits (OUTPUT)
@@ -253,11 +271,16 @@ typedef struct blit_rect {
 #define RGZ_MAX_BLITS (RGZ_SUBREGIONMAX * RGZ_SUBREGIONMAX)
 
 typedef struct rgz_layer {
-    hwc_layer_1_t *hwc_layer;
+    hwc_layer_1_t hwc_layer;
+    uint32_t identity;
     int buffidx;
     int dirty_count;
-    void* dirty_hndl;
 } rgz_layer_t;
+
+typedef struct rgz_fb_state {
+    int rgz_layerno;
+    rgz_layer_t rgz_layers[RGZ_MAXLAYERS];
+} rgz_fb_state_t;
 
 typedef struct blit_hregion {
     blit_rect_t rect;
@@ -274,9 +297,10 @@ struct rgz {
     blit_hregion_t *hregions;
     int nhregions;
     int state;
-    unsigned int rgz_layerno;
-    rgz_layer_t rgz_layers[RGZ_MAXLAYERS];
-    int screen_isdirty;
+    rgz_fb_state_t cur_fb_state;
+    int fb_state_idx; /* Target framebuffer index. Points to the fb where the blits will be applied to */
+    rgz_fb_state_t fb_states[RGZ_NUM_FB]; /* Storage for previous framebuffer geometry states */
+    blit_rect_t damaged_area; /* Area of the screen which will be redrawn unconditionally */
 };
 
 #endif /* __RGZ_2D__ */

@@ -52,7 +52,7 @@ static void *vsync_loop(void *data)
 {
     struct timespec tp, tp_next, tp_sleep;
     nsecs_t now = 0, period = vsync_rate, next_vsync = 0, next_fake_vsync = 0, sleep = 0;
-    omap4_hwc_device_t *hwc_dev = (omap4_hwc_device_t *)data;
+    omap_hwc_device_t *hwc_dev = (omap_hwc_device_t *)data;
     tp_sleep.tv_sec = tp_sleep.tv_nsec = 0;
     bool reset_timers = true;
 
@@ -107,7 +107,7 @@ bool use_sw_vsync()
     return rv;
 }
 
-void init_sw_vsync(omap4_hwc_device_t *hwc_dev)
+void init_sw_vsync(omap_hwc_device_t *hwc_dev)
 {
     pthread_cond_init(&vsync_cond, NULL);
     pthread_create(&vsync_thread, NULL, vsync_loop, (void *)hwc_dev);

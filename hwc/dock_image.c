@@ -154,7 +154,7 @@ fail:
     return -EINVAL;
 }
 
-int init_dock_image(omap4_hwc_device_t *hwc_dev, uint32_t max_width, uint32_t max_height)
+int init_dock_image(omap_hwc_device_t *hwc_dev, uint32_t max_width, uint32_t max_height)
 {
     int err = 0;
 
