@@ -25,8 +25,9 @@ BOARD_VENDOR := motorola-omap4
 
 COMMON_FOLDER := device/motorola/omap4-common
 
-# includes fix for framebuffer
-TARGET_SPECIFIC_HEADER_PATH := device/motorola/omap4-common/include
+# Custom includes for kernel and frameworks
+PRODUCT_VENDOR_KERNEL_HEADERS := $(COMMON_FOLDER)/kernel-headers
+TARGET_SPECIFIC_HEADER_PATH := $(COMMON_FOLDER)/include
 
 # Camera
 USE_CAMERA_STUB := false
@@ -97,7 +98,7 @@ SGX_MODULES:
 TARGET_KERNEL_MODULES += SGX_MODULES
 
 # Storage / Sharing
-BOARD_VOLD_MAX_PARTITIONS := 100
+BOARD_VOLD_MAX_PARTITIONS := 32
 BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/virtual/android_usb/android0/f_mass_storage/lun%d/file"
 BOARD_MTP_DEVICE := "/dev/mtp"
@@ -125,7 +126,6 @@ BOARD_USES_ALSA_AUDIO := true
 BUILD_WITH_ALSA_UTILS := true
 TARGET_PROVIDES_LIBAUDIO := true
 BOARD_USE_MOTO_DOCK_HACK := true
-
 COMMON_GLOBAL_CFLAGS += -DMR0_AUDIO_BLOB
 
 # Bluetooth
