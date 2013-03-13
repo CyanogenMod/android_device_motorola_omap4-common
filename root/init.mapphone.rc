@@ -1,3 +1,5 @@
+import /init.safestrap.rc
+
 on init
     exec /sbin/fixboot.sh
 
@@ -31,8 +33,6 @@ on init
     chown system radio /sys/class/radio/mdm6600/command
 
 on fs
-symlink /dev/block/mmcblk1p25 /dev/block/emstorage
-symlink /dev/block/mmcblk1p7 /dev/block/pds
 # begin SS3 setup
     mount rootfs rootfs / rw remount
     mkdir /ss 0777 root root
