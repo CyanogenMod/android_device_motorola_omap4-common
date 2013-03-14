@@ -16,7 +16,8 @@
 
 #include "CameraHal.h"
 
-namespace android {
+namespace Ti {
+namespace Camera {
 
 const char CameraHal::PARAMS_DELIMITER []= ",";
 
@@ -46,7 +47,7 @@ void CameraHal::PPM(const char* str){
     ppm.tv_sec = ppm.tv_sec * 1000000;
     ppm.tv_sec = ppm.tv_sec + ppm.tv_usec - ppm_start.tv_usec;
 
-    ALOGD("PPM: %s :%ld.%ld ms", str, ( ppm.tv_sec /1000 ), ( ppm.tv_sec % 1000 ));
+    CAMHAL_LOGI("PPM: %s :%ld.%ld ms", str, ( ppm.tv_sec /1000 ), ( ppm.tv_sec % 1000 ));
 }
 
 #elif PPM_INSTRUMENTATION_ABS
@@ -76,7 +77,7 @@ void CameraHal::PPM(const char* str){
     absolute *= 1000;
     absolute += ppm.tv_usec /1000;
 
-    ALOGD("PPM: %s :%llu.%llu ms : %llu ms", str, ( elapsed /1000 ), ( elapsed % 1000 ), absolute);
+    CAMHAL_LOGI("PPM: %s :%llu.%llu ms : %llu ms", str, ( elapsed /1000 ), ( elapsed % 1000 ), absolute);
 }
 
 #endif
@@ -109,13 +110,124 @@ void CameraHal::PPM(const char* str, struct timeval* ppm_first, ...){
     ppm.tv_sec = ppm.tv_sec * 1000000;
     ppm.tv_sec = ppm.tv_sec + ppm.tv_usec - ppm_first->tv_usec;
 
-    ALOGD("PPM: %s :%ld.%ld ms :  %llu ms", temp_str, ( ppm.tv_sec /1000 ), ( ppm.tv_sec % 1000 ), absolute);
+    CAMHAL_LOGI("PPM: %s :%ld.%ld ms :  %llu ms", temp_str, ( ppm.tv_sec /1000 ), ( ppm.tv_sec % 1000 ), absolute);
 
     va_end(args);
 }
 
 #endif
 
-};
+
+/** Common utility function definitions used all over the HAL */
+
+unsigned int CameraHal::getBPP(const char* format) {
+    unsigned int bytesPerPixel;
+
+   // Calculate bytes per pixel based on the pixel format
+   if (strcmp(format, android::CameraParameters::PIXEL_FORMAT_YUV422I) == 0) {
+       bytesPerPixel = 2;
+   } else if (strcmp(format, android::CameraParameters::PIXEL_FORMAT_RGB565) == 0 ||
+              strcmp(format, android::CameraParameters::PIXEL_FORMAT_BAYER_RGGB) == 0) {
+       bytesPerPixel = 2;
+   } else if (strcmp(format, android::CameraParameters::PIXEL_FORMAT_YUV420SP) == 0) {
+       bytesPerPixel = 1;
+   } else {
+       bytesPerPixel = 1;
+   }
+
+   return bytesPerPixel;
+}
+
+void CameraHal::getXYFromOffset(unsigned int *x, unsigned int *y,
+                                unsigned int offset, unsigned int stride,
+                                const char* format)
+{
+   CAMHAL_ASSERT( x && y && format && (0U < stride) );
+
+   *x = (offset % stride) / getBPP(format);
+   *y = (offset / stride);
+}
+
+const char* CameraHal::getPixelFormatConstant(const char* parametersFormat)
+{
+    const char *pixelFormat = NULL;
+
+    if ( NULL != parametersFormat ) {
+        if ( 0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_YUV422I) ) {
+            CAMHAL_LOGVA("CbYCrY format selected");
+            pixelFormat = (const char *) android::CameraParameters::PIXEL_FORMAT_YUV422I;
+        } else if ( (0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_YUV420SP)) ||
+                    (0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_YUV420P)) ) {
+            // TODO(XXX): We are treating YV12 the same as YUV420SP
+            CAMHAL_LOGVA("YUV420SP format selected");
+            pixelFormat = (const char *) android::CameraParameters::PIXEL_FORMAT_YUV420SP;
+        } else if ( 0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_RGB565) ) {
+            CAMHAL_LOGVA("RGB565 format selected");
+            pixelFormat = (const char *) android::CameraParameters::PIXEL_FORMAT_RGB565;
+        } else if ( 0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_BAYER_RGGB) ) {
+            CAMHAL_LOGVA("BAYER format selected");
+            pixelFormat = (const char *) android::CameraParameters::PIXEL_FORMAT_BAYER_RGGB;
+        } else if ( 0 == strcmp(parametersFormat, android::CameraParameters::PIXEL_FORMAT_JPEG) ) {
+            CAMHAL_LOGVA("JPEG format selected");
+            pixelFormat = (const char *) android::CameraParameters::PIXEL_FORMAT_JPEG;
+        } else {
+            CAMHAL_LOGEA("Invalid format, NV12 format selected as default");
+            pixelFormat = (const char *) android::CameraParameters::PIXEL_FORMAT_YUV420SP;
+        }
+    } else {
+        CAMHAL_LOGEA("Preview format is NULL, defaulting to NV12");
+        pixelFormat = (const char *) android::CameraParameters::PIXEL_FORMAT_YUV420SP;
+    }
+
+    return pixelFormat;
+}
+
+size_t CameraHal::calculateBufferSize(const char* parametersFormat, int width, int height)
+{
+    int bufferSize = -1;
+
+    if ( NULL != parametersFormat ) {
+        if ( 0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_YUV422I) ) {
+            bufferSize = width * height * 2;
+        } else if ( (0 == strcmp(parametersFormat, android::CameraParameters::PIXEL_FORMAT_YUV420SP)) ||
+                    (0 == strcmp(parametersFormat, android::CameraParameters::PIXEL_FORMAT_YUV420P)) ) {
+            bufferSize = width * height * 3 / 2;
+        } else if ( 0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_RGB565) ) {
+            bufferSize = width * height * 2;
+        } else if ( 0 == strcmp(parametersFormat, (const char *) android::CameraParameters::PIXEL_FORMAT_BAYER_RGGB) ) {
+            bufferSize = width * height * 2;
+        } else {
+            CAMHAL_LOGEA("Invalid format");
+            bufferSize = 0;
+        }
+    } else {
+        CAMHAL_LOGEA("Preview format is NULL");
+        bufferSize = 0;
+    }
+
+    return bufferSize;
+}
 
 
+bool CameraHal::parsePair(const char *str, int *first, int *second, char delim)
+{
+    // Find the first integer.
+    char *end;
+    int w = (int)strtol(str, &end, 10);
+    // If a delimeter does not immediately follow, give up.
+    if (*end != delim) {
+        CAMHAL_LOGE("Cannot find delimeter (%c) in str=%s", delim, str);
+        return false;
+    }
+
+    // Find the second integer, immediately after the delimeter.
+    int h = (int)strtol(end+1, &end, 10);
+
+    *first = w;
+    *second = h;
+
+    return true;
+}
+
+} // namespace Camera
+} // namespace Ti

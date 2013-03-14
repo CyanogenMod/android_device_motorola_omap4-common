@@ -15,7 +15,7 @@ LOCAL_C_INCLUDES += \
     $(LOCAL_PATH)/../omx_core/inc \
     $(LOCAL_PATH)/../mm_osal/inc \
     $(COMMON_FOLDER)/hwc/ \
-    $(COMMON_FOLDER)/ion_ti/ \
+    $(COMMON_FOLDER)/libion_ti/ \
     system/core/include/cutils \
     hardware/libhardware/include
 

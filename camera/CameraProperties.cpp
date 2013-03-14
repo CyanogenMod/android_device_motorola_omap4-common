@@ -21,16 +21,13 @@
 *
 */
 
-//#include "CameraHal.h"
-#include <utils/threads.h>
-
-#include "DebugUtils.h"
 #include "CameraProperties.h"
 
 #define CAMERA_ROOT         "CameraRoot"
 #define CAMERA_INSTANCE     "CameraInstance"
 
-namespace android {
+namespace Ti {
+namespace Camera {
 
 // lower entries have higher priority
 static const char* g_camera_adapters[] = {
@@ -48,82 +45,91 @@ static const char* g_camera_adapters[] = {
 
 CameraProperties::CameraProperties() : mCamerasSupported(0)
 {
-    LOG_FUNCTION_NAME;
+//    LOG_FUNCTION_NAME;
 
     mCamerasSupported = 0;
     mInitialized = 0;
 
-    LOG_FUNCTION_NAME_EXIT;
+//    LOG_FUNCTION_NAME_EXIT;
 }
 
 CameraProperties::~CameraProperties()
 {
-    LOG_FUNCTION_NAME;
+//    LOG_FUNCTION_NAME;
 
-    LOG_FUNCTION_NAME_EXIT;
+//    LOG_FUNCTION_NAME_EXIT;
 }
 
 
 // Initializes the CameraProperties class
 status_t CameraProperties::initialize()
 {
-    LOG_FUNCTION_NAME;
+//    LOG_FUNCTION_NAME;
 
     status_t ret;
 
-    Mutex::Autolock lock(mLock);
+    android::AutoMutex lock(mLock);
 
     if(mInitialized)
         return NO_ERROR;
 
     ret = loadProperties();
 
-    mInitialized = 1;
+    if (ret == NO_ERROR) {
+        mInitialized = 1;
+    }
 
-    LOG_FUNCTION_NAME_EXIT;
+//    LOG_FUNCTION_NAME_EXIT;
 
     return ret;
 }
 
-extern "C" int CameraAdapter_Capabilities(CameraProperties::Properties* properties_array,
-                                          const unsigned int starting_camera,
-                                          const unsigned int max_camera);
+extern "C" status_t CameraAdapter_Capabilities(CameraProperties::Properties* properties_array,
+        int starting_camera, int max_camera, int & supported_cameras);
 
 ///Loads all the Camera related properties
 status_t CameraProperties::loadProperties()
 {
-    LOG_FUNCTION_NAME;
+//    LOG_FUNCTION_NAME;
 
     status_t ret = NO_ERROR;
 
-    // adapter updates capabilities and we update camera count
-    mCamerasSupported = CameraAdapter_Capabilities(mCameraProps, mCamerasSupported, MAX_CAMERAS_SUPPORTED);
+    //Must be re-initialized here, since loadProperties() could potentially be called more than once.
+    mCamerasSupported = 0;
 
-    if((int)mCamerasSupported < 0) {
-        ALOGE("error while getting capabilities");
+    // adapter updates capabilities and we update camera count
+    const status_t err = CameraAdapter_Capabilities(mCameraProps, mCamerasSupported,
+            MAX_CAMERAS_SUPPORTED, mCamerasSupported);
+
+    if(err != NO_ERROR) {
+        CAMHAL_LOGE("error while getting capabilities");
+        ret = UNKNOWN_ERROR;
+    } else if (mCamerasSupported == 0) {
+        CAMHAL_LOGE("camera busy. properties not loaded. num_cameras = %d", mCamerasSupported);
         ret = UNKNOWN_ERROR;
     } else if (mCamerasSupported > MAX_CAMERAS_SUPPORTED) {
-        ALOGE("returned too many adapaters");
+        CAMHAL_LOGE("returned too many adapaters");
         ret = UNKNOWN_ERROR;
     } else {
-        ALOGE("num_cameras = %d", mCamerasSupported);
+        CAMHAL_LOGI("num_cameras = %d", mCamerasSupported);
 
-        for (unsigned int i = 0; i < mCamerasSupported; i++) {
-            mCameraProps[i].set(CAMERA_SENSOR_INDEX, i);
+        for (int i = 0; i < mCamerasSupported; i++) {
+            mCameraProps[i].setSensorIndex(i);
             mCameraProps[i].dump();
         }
     }
 
-    ALOGV("mCamerasSupported = %d", mCamerasSupported);
-    LOG_FUNCTION_NAME_EXIT;
+    CAMHAL_LOGV("mCamerasSupported = %d", mCamerasSupported);
+//    LOG_FUNCTION_NAME_EXIT;
     return ret;
 }
 
 // Returns the number of Cameras found
 int CameraProperties::camerasSupported()
 {
-    LOG_FUNCTION_NAME;
+//    LOG_FUNCTION_NAME;
     return mCamerasSupported;
 }
 
-};
+} // namespace Camera
+} // namespace Ti

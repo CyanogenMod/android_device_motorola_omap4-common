@@ -35,18 +35,14 @@ PRODUCT_PACKAGES += \
 
 # Hardware HALs
 PRODUCT_PACKAGES += \
-    libinvensense_mpl \
-    audio.usb.default
+    audio.usb.default \
+    audio.a2dp.default
 
 PRODUCT_PACKAGES += \
     audio_policy.omap4 \
     libasound \
     libaudioutils \
     libaudiohw_legacy
-
-# BlueZ a2dp Audio HAL module
-PRODUCT_PACKAGES += \
-    audio.a2dp.default
 
 # BlueZ test tools
 PRODUCT_PACKAGES += \
@@ -112,7 +108,7 @@ PRODUCT_PACKAGES += \
     libOMX.TI.DUCATI1.MISC.SAMPLE \
     libstagefrighthw \
     libI420colorconvert \
-    libtiutils \
+    libtiutils_custom \
     libion_ti \
     smc_pa_ctrl \
     tf_daemon \
