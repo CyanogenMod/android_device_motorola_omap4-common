@@ -454,6 +454,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
 #  script.WriteRawImage("/boot", "boot.img")
 
   script.ShowProgress(0.1, 0)
+  script.Print("If you installed this in other than romslot-1")
+  script.Print("it will not boot!!!!!! This will be fixed soon.")
   device_specific.FullOTA_InstallEnd()
 
   if OPTIONS.extra_script is not None:
