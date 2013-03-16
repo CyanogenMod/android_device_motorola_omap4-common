@@ -27,8 +27,6 @@
 #define LOG_TAG "ion"
 #include <cutils/log.h>
 
-#include "linux_ion.h"
-#include "omap_ion.h"
 #include "ion.h"
 
 int ion_open()
@@ -81,6 +79,8 @@ int ion_alloc_tiler(int fd, size_t w, size_t h, int fmt, unsigned int flags,
                 .h = h,
                 .fmt = fmt,
                 .flags = flags,
+                .out_align = PAGE_SIZE,
+                .token = 0,
         };
 
         struct ion_custom_data custom_data = {
@@ -153,4 +153,49 @@ int ion_import(int fd, int share_fd, struct ion_handle **handle)
                 return ret;
         *handle = data.handle;
         return ret;
+}
+
+int ion_map_cacheable(int fd, struct ion_handle *handle, size_t length, int prot,
+            int flags, off_t offset, unsigned char **ptr, int *map_fd)
+{
+        struct ion_fd_data data = {
+                .handle = handle,
+                .cacheable = 1,
+        };
+        int ret = ion_ioctl(fd, ION_IOC_MAP, &data);
+        if (ret < 0)
+                return ret;
+        *map_fd = data.fd;
+        if (*map_fd < 0) {
+                ALOGE("map ioctl returned negative fd\n");
+                return -EINVAL;
+        }
+        *ptr = mmap(NULL, length, prot, flags, *map_fd, offset);
+        if (*ptr == MAP_FAILED) {
+                ALOGE("mmap failed: %s\n", strerror(errno));
+                return -errno;
+        }
+        return ret;
+}
+
+int ion_flush_cached(int fd, struct ion_handle *handle, size_t length,
+            unsigned char *ptr)
+{
+        struct ion_cached_user_buf_data data = {
+                .handle = handle,
+                .vaddr = (unsigned long)ptr,
+                .size = length,
+        };
+        return ion_ioctl(fd, ION_IOC_FLUSH_CACHED, &data);
+}
+
+int ion_inval_cached(int fd, struct ion_handle *handle, size_t length,
+            unsigned char *ptr)
+{
+        struct ion_cached_user_buf_data data = {
+                .handle = handle,
+                .vaddr = (unsigned long)ptr,
+                .size = length,
+        };
+        return ion_ioctl(fd, ION_IOC_INVAL_CACHED, &data);
 }

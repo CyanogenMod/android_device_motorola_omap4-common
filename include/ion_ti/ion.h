@@ -18,8 +18,13 @@
  *  limitations under the License.
  */
 
+#ifndef __TI_ION_H
+#define __TI_ION_H
+
 #include "linux_ion.h"
 #include "omap_ion.h"
+
+__BEGIN_DECLS
 
 int ion_open();
 int ion_close(int fd);
@@ -32,4 +37,13 @@ int ion_map(int fd, struct ion_handle *handle, size_t length, int prot,
             int flags, off_t offset, unsigned char **ptr, int *map_fd);
 int ion_share(int fd, struct ion_handle *handle, int *share_fd);
 int ion_import(int fd, int share_fd, struct ion_handle **handle);
+int ion_map_cacheable(int fd, struct ion_handle *handle, size_t length,
+        int prot, int flags, off_t offset, unsigned char **ptr, int *map_fd);
+int ion_flush_cached(int fd, struct ion_handle *handle, size_t length,
+            unsigned char *ptr);
+int ion_inval_cached(int fd, struct ion_handle *handle, size_t length,
+            unsigned char *ptr);
 
+__END_DECLS
+
+#endif /* __TI_ION_H */
