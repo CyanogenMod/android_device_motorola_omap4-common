@@ -521,10 +521,7 @@ on property:sys.chargeonly.mode=1
     start whisperd
     start charge_only_mode
 # Power up to suspend
-service tund /system/bin/tund
-    class core
-    socket tund stream 0660 vpn system
-    ioprio be 2
+
 service dnsmasq /system/bin/logwrapper /system/bin/dnsmasq -C/data/misc/wifi/dns.conf -k
     class main
     group wifi
@@ -732,11 +729,6 @@ service dund_dialup /system/bin/dund --listen --channel=6 --nodetach --dialup
     oneshot
 on property:dev.bootcomplete=1
 #    start loadpreinstalls
-service secclkd /system/bin/secclkd
-    class main
-    socket secclk_socket stream 660 mot_secclkd radio
-    user mot_tpapi
-    group mot_tpapi mot_sec_rtc mot_secclkd radio
 service gadget-lte-modem /system/bin/tty2ttyd ril.wrigley.modem.tty /dev/ttyGS1 0 512
     user radio
     group radio
