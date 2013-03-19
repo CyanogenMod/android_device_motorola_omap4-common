@@ -1,16 +1,110 @@
-# Audio libs found in spyder 98.72.16 JB OTA
-lib/libaudio_ext.so
+# system/bin (from spyder 98.72.16 JB OTA JB 4.1.2)
+bin/ap_gain.bin
+bin/ap_gain_mmul.bin
+bin/batch
+bin/battd
+bin/dbvc_atvc_property_set
+bin/dumpe2fs
+bin/enc_mgt_tool
+bin/fips_loader
+bin/ftmipcd
+bin/libthermal-manager.cfg
+bin/logcatd
+bin/logcatd-blan
+bin/mount_cdrom.sh
+bin/startup_smc.sh
+bin/thermaldaemon
+bin/tty2ttyd
+bin/whisperd
+
+# system/etc (from spyder 98.72.16 JB OTA JB 4.1.2)
+etc/ecryptfs.tab
+etc/encrypt.tab
+etc/smc_android_cfg.ini
+etc/smc_pa.ift
+etc/smc_pa_pk_4_8Mb_ipa.bin
+etc/smc_pa_pk_4_ipa.bin
+etc/firmware/ap_bt_data.bin
+
+# system/usr (from spyder 98.72.16 JB OTA JB 4.1.2)
+usr/idc/Motorola_Mobility_Motorola_HD_Dock.idc
+usr/keylayout/cpcap-key.kl
+
+# system/lib/hw (from spyder 98.72.16 JB OTA JB 4.1.2)
 lib/hw/alsa.omap4.so
 lib/hw/audio.primary.omap4.so
+lib/hw/gps.spyder.so
 
-# DRM blobs found in spyder 98.72.16 JB OTA
+# system/lib (from spyder 98.72.16 JB OTA JB 4.1.2)
+lib/libaudio_ext.so
+lib/libdataencrypt_openssl.so
+lib/libdataencrypt_tpa.so
+lib/libdataencrypt_utils.so
+lib/libhdcp.so
+lib/libhdmi.so
+lib/libmot_atcmd.so
+lib/libmotodbgutils.so
+lib/libmoto_netutil.so
+lib/libnbgm_9.0.1.so
+lib/libnmea.so
+lib/libopenssl-smime.so
+lib/libOMX.ITTIAM.AAC.encode.so
+lib/libpkip.so
+lib/libpppd_plugin-ril.so
+lib/libsmapi.so
+lib/libthermal_config.so
+lib/libthermal_manager.so
+lib/libtpa.so
+lib/libtpa_core.so
+
+# system/etc/omapcam
+etc/omapcam/SEN2.cfg
+etc/omapcam/SEN2_EE.cfg
+etc/omapcam/R8_MVEN002_LD2_ND0_IR0_SH0_FL1_SVEN002_DCCID1039.cfg
+etc/omapcam/R8_MVEN002_LD2_ND0_IR0_SH0_FL1_SVEN002_DCCID1039_CAL.cfg
+etc/omapcam/R8_MVEN002_LD2_ND0_IR0_SH0_FL1_SVEN002_DCCID1039_EE.cfg
+
+# system/etc/omapcam/module1_cal
+etc/omapcam/module1_cal/cid1039_ov8820_alg_3a_ae_supp3_dcc.bin
+etc/omapcam/module1_cal/cid1039_ov8820_isif_clamp_dcc.bin
+etc/omapcam/module1_cal/cid1039_ov8820_lsc_interp.bin
+
+# system/etc/omapcam/module1_ee
+etc/omapcam/module1_ee/cid1039_ov8820_ducati_gamma.bin
+etc/omapcam/module1_ee/cid1039_ov8820_ipipe_ee_dcc.bin
+etc/omapcam/module1_ee/cid1039_ov8820_ducati_nsf_ldc.bin
+
+# DRM blobs (from spyder 98.72.16 JB OTA JB 4.1.2)
 lib/libWVphoneAPI.so
 vendor/lib/libwvdrm_L3.so
 vendor/lib/libwvm.so
 vendor/lib/libWVStreamControlAPI_L3.so
 vendor/lib/drm/libdrmwvmplugin.so
 
-# VZW blobs found in spyder 98.72.16 JB OTA
+# LTE RIL files need for maserati, spyder and targa (from spyder 98.72.16 JB OTA JB 4.1.2)
+bin/base64
+bin/extract-embedded-files
+bin/mm-wrigley-qc-dump.sh
+bin/oem-iptables-init.sh
+bin/vril-dump
+bin/wrigley-diag.sh
+bin/wrigley-dump.sh
+bin/wrigley-fetch-mpr.sh
+bin/wrigley-iptables.sh
+lib/libb64.so
+lib/libbabysit.so
+lib/libmotdb.so
+lib/lib-mot-lte-ril.so
+lib/libmoto_mdmctrl.so
+lib/libmoto_nwif_ril.so
+lib/libmoto_qmi_ril.so
+lib/libmoto_ril.so
+lib/librds_util.so
+lib/libril_rds.so
+lib/moto-ril-multimode.so
+lib/libims_client_jni.so
+
+# VZW blobs (from spyder 98.72.16 JB OTA JB 4.1.2)
 app/appdirectedsmspermission.apk
 app/VerizonSSOEngine.apk
 app/VZWAPNLib.apk
