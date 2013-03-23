@@ -57,6 +57,13 @@ extern "C" {
 #define MAX_URI_LENGTH      (OMX_MAX_STRINGNAME_SIZE)
 #define MAX_ALGOAREAS       (35)
 
+// Size of sensor EEPROM in bytes.
+// Note: This size is also defined in
+//       WTSD_DucatiMMSW/framework/camera/Cam_sysstate.h
+//       WTSD_DucatiMMSW/omx/omx_il_1_x/omx_core/omx_ti_ivcommon.h
+//       If you change it here, change it also there.
+#define SENSOR_EEPROM_SIZE  (256)
+
 /*======================================================================= */
 /* Enumerated values for operation mode for compressed image
  *
@@ -1999,6 +2006,114 @@ typedef enum OMX_TI_COLOR_FORMATTYPE {
 //	    (OMX_COLOR_FORMATTYPE) OMX_COLOR_FormatVendorStartUnused  + 0x789, /**< Platform specified opaque format set to unique value 0x789*/
     OMX_TI_ColorFormatTypeMax = 0x7fffffff
 } OMX_TI_COLOR_FORMATTYPE;
+
+// Motorola specific -begin
+
+/**
+ * Target exposure configuration of the exposure algorythm.
+ *
+ * STRUCT MEMBERS:
+ *  nSize              : Size of the structure in bytes
+ *  nVersion           : OMX specification version information
+ *  nTargetExposure    : Value to be passed to the exposure algorythm
+ *                       Range 0..255, default 128.
+ *  nPortIndex         : Port that this structure applies to
+ *  bUseTargetExposure : Flag to enable usage of the nTargetExposure value.
+ *                       Set to true, to use the nTargetExposure value;
+ *                       false means the algorythm shall use the
+ *                       Target Exposure value from tuning data.
+ */
+typedef struct OMX_CONFIG_TARGETEXPOSURE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U8 nTargetExposure;
+    OMX_BOOL bUseTargetExposure;
+} OMX_CONFIG_TARGETEXPOSURE;
+
+/**
+ * Auto Focus Score
+ *
+ *  STRUCT MEMBERS:
+ *  nSize              : Size of the structure in bytes
+ *  nVersion           : OMX specification version information
+ *  nPortIndex         : Port that this structure applies to
+ *  nAutoFocusScore    : Auto Focus Score
+ */
+typedef struct OMX_CONFIG_AUTOFOCUSSCORE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32	nAutoFocusScore;
+} OMX_CONFIG_AUTOFOCUSSCORE;
+
+/**
+ * MIPI, ECC, and CRC counters
+ * Mipi counter counts the frames from the MIPI receiver (CSI_RX).
+ * Motorola TCMD application will use this test
+ * to validate the MIPI channel integrity (TX to RX).
+ *
+ * STRUCT MEMBERS:
+ *  nSize              : Size of the structure in bytes
+ *  nVersion           : OMX specification version information
+ *  nPortIndex         : Port that this structure applies to
+ *  bResetMIPICounter  : if OMX_SetConfig() is called with value True
+ *                       for this parameter, the MIPICounter shall be reset to 0, by ducati.
+ *  nMIPICounter       : MIPI frame counter
+ *  nECCCounter        : ECC counter
+ *  nCRCCounter        : CRC counter
+ */
+typedef struct OMX_CONFIG_MIPICOUNTERS {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_BOOL bResetMIPICounter;
+    OMX_U32 nMIPICounter;
+    OMX_U32 nECCCounter;
+    OMX_U32 nCRCCounter;
+} OMX_CONFIG_MIPICOUNTERS;
+
+/**
+ * Led Flash & Torch Intensity
+ *
+ *  STRUCT MEMBERS:
+ *  nSize              : Size of the structure in bytes
+ *  nVersion           : OMX specification version information
+ *  nPortIndex         : Port that this structure applies to
+ *  nLedFlashIntens    : Led Flash intensity
+ *  nLedTorchIntens    : Led Torch intensity
+ */
+typedef struct OMX_CONFIG_LEDINTESITY {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32	nLedFlashIntens;
+    OMX_U32	nLedTorchIntens;
+} OMX_CONFIG_LEDINTESITY;
+
+ /**
+ * Sensor OPT EEEPROM data
+ *
+ *  STRUCT MEMBERS:
+ *  nSize              : Size of the structure in bytes
+ *  nVersion           : OMX specification version information
+ *  nPortIndex         : Port that this structure applies to
+ *  pData[]            : Array containing the EEPROM data
+ *  nDataSize          : size of the EEPROM data in bytes
+ *  bValid             : TRUE means the data in the pData array
+ *                       have been read from EEPROM.
+ *                       FALSE means reading the EEPROM had failed,
+ *                       and the data in pData array is just zeros.
+*/
+typedef struct OMX_CONFIG_OTPEEPROM {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U8	pData[SENSOR_EEPROM_SIZE];
+    OMX_U32	nDataSize;
+    OMX_BOOL bValid;
+}OMX_CONFIG_OTPEEPROM;
+// Motorola specific - end
 
 /**
  * The OMX_TI_EXIFTAGSTATUS enumeration is used to define the

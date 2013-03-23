@@ -253,7 +253,20 @@ typedef enum OMX_TI_INDEXTYPE {
     OMX_TI_IndexConfigFixedGamma,                       /**< 0x7F00009C reference: OMX_CONFIG_BOOLEANTYPE */
     OMX_TI_IndexConfigDisableThreeLinColorMap,          /**< 0x7F00009D reference: OMX_CONFIG_BOOLEANTYPE */
     OMX_TI_IndexParamComponentBufferAllocation,         /**< 0x7F00009E reference: OMX_TI_PARAM_COMPONENTBUFALLOCTYPE */
-    OMX_TI_IndexConfigStreamInterlaceFormats = ((OMX_INDEXTYPE)OMX_IndexVendorStartUnused + 0x100) /**< 0x7F000100 reference: OMX_STREAMINTERLACEFORMATTYPE */
+    OMX_TI_IndexConfigStreamInterlaceFormats = ((OMX_INDEXTYPE)OMX_IndexVendorStartUnused + 0x100), /**< 0x7F000100 reference: OMX_STREAMINTERLACEFORMATTYPE */
+
+    // Motorola specific - begin
+    // Note! This section must be placed at the bottom of this enum.
+#if 0
+    OMX_IndexConfigTargetExposure = ((OMX_INDEXTYPE)OMX_IndexVendorStartUnused + 0x100),          /**< reference: OMX_CONFIG_TARGETEXPOSURE */
+#endif
+    // Something @ 0x101
+    // Something @ 0x102
+    // Something @ 0x103
+    // Something @ 0x104
+    // Something @ 0x105
+    OMX_IndexConfigLedIntensity = ((OMX_INDEXTYPE)OMX_IndexVendorStartUnused + 0x106),           /**< 0x7F000106 reference: OMX_CONFIG_LEDINTESITY */
+    // Motorola specific - end
 } OMX_TI_INDEXTYPE;
 
 
