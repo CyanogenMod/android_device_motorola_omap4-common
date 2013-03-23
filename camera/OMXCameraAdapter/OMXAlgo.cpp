@@ -1251,5 +1251,121 @@ status_t OMXCameraAdapter::setMechanicalMisalignmentCorrection(const bool enable
     return ret;
 }
 
+// FIXME-HASH: Motorola begin
+
+// This function is used when setting LedFlash Intensity
+status_t OMXCameraAdapter::setLedFlash(int nLedFlashIntensP)
+{
+    status_t ret = NO_ERROR;
+    OMX_ERRORTYPE eError = OMX_ErrorNone;
+    OMX_CONFIG_LEDINTESITY LedIntensity;
+
+    LOG_FUNCTION_NAME
+
+    if ( OMX_StateInvalid == mComponentState )
+        {
+        CAMHAL_LOGEA("OMX component is in invalid state");
+        ret = -1;
+        }
+
+    if ( NO_ERROR == ret )
+        {
+        OMX_INIT_STRUCT_PTR (&LedIntensity, OMX_CONFIG_LEDINTESITY);
+
+        eError = OMX_GetConfig(mCameraAdapterParameters.mHandleComp, (OMX_INDEXTYPE) OMX_IndexConfigLedIntensity, &LedIntensity);
+        if ( OMX_ErrorNone != eError )
+            {
+            CAMHAL_LOGEB("OMXGetConfig() returned error 0x%x on index==%08x", eError, OMX_IndexConfigLedIntensity);
+            ret = -1;
+            }
+        if (NO_ERROR == ret)
+            {
+            CAMHAL_LOGEB("old LedIntensity.nLedFlashIntens is: %d ", LedIntensity.nLedFlashIntens);
+
+            LedIntensity.nLedFlashIntens = (OMX_U32)nLedFlashIntensP;
+            CAMHAL_LOGDB("new LedIntensity.nLedFlashIntens is: %d ", LedIntensity.nLedFlashIntens);
+            eError = OMX_SetConfig(mCameraAdapterParameters.mHandleComp, (OMX_INDEXTYPE) OMX_IndexConfigLedIntensity, &LedIntensity);
+
+            if ( OMX_ErrorNone != eError )
+                {
+                CAMHAL_LOGEB("Error while configuring LedFlash Intensity. "
+                             "OMXSetConfig() returned error 0x%x", eError);
+                ret = -1;
+                }
+            }
+
+        }
+
+    LOG_FUNCTION_NAME_EXIT
+
+    return ret;
+}
+
+// This function is used when setting LedTorch Intensity
+status_t OMXCameraAdapter::setLedTorch(int nLedTorchIntensP)
+{
+    status_t ret = NO_ERROR;
+    OMX_ERRORTYPE eError = OMX_ErrorNone;
+    OMX_CONFIG_LEDINTESITY LedIntensity;
+    char value[PROPERTY_VALUE_MAX];
+    unsigned int torchIntensity = DEFAULT_INTENSITY;
+
+    LOG_FUNCTION_NAME
+
+    if ( OMX_StateInvalid == mComponentState )
+        {
+        CAMHAL_LOGEA("OMX component is in invalid state");
+        ret = -1;
+        }
+
+    if ( NO_ERROR == ret )
+        {
+        OMX_INIT_STRUCT_PTR (&LedIntensity, OMX_CONFIG_LEDINTESITY);
+
+        eError = OMX_GetConfig(mCameraAdapterParameters.mHandleComp, (OMX_INDEXTYPE) OMX_IndexConfigLedIntensity, &LedIntensity);
+        if ( OMX_ErrorNone != eError )
+            {
+            CAMHAL_LOGEB("OMXGetConfig() returned error 0x%x", eError);
+            ret = -1;
+            }
+        if (NO_ERROR == ret)
+            {
+            CAMHAL_LOGEB("old LedIntensity.nLedTorchIntens is: %d ", LedIntensity.nLedTorchIntens);
+
+            // read product specific torvh value
+            if (property_get("ro.media.capture.torchIntensity", value, 0) > 0)
+                {
+                torchIntensity = atoi(value);
+                if ((torchIntensity < 0) || (torchIntensity > DEFAULT_INTENSITY))
+                    {
+                    torchIntensity = DEFAULT_INTENSITY;
+                    }
+                }
+            else
+                {
+                torchIntensity = nLedTorchIntensP;
+                }
+
+            LedIntensity.nLedTorchIntens = (OMX_U32)torchIntensity;
+            CAMHAL_LOGEB("new LedIntensity.nLedTorchIntens is: %d ", LedIntensity.nLedTorchIntens);
+            eError = OMX_SetConfig(mCameraAdapterParameters.mHandleComp, (OMX_INDEXTYPE) OMX_IndexConfigLedIntensity, &LedIntensity);
+
+            if ( OMX_ErrorNone != eError )
+                {
+                CAMHAL_LOGEB("Error while configuring LedTorch Intensity. "
+                             "OMXSetConfig() returned error 0x%x", eError);
+                ret = -1;
+                }
+            }
+
+        }
+
+    LOG_FUNCTION_NAME_EXIT
+
+    return ret;
+}
+
+// Motorola end
+
 } // namespace Camera
 } // namespace Ti

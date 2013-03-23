@@ -257,6 +257,11 @@ static const char KEY_GAMMA_TABLE[];
 
 static const char KEY_PREVIEW_FRAME_RATE_RANGE[];
 
+// Motorola specific - begin
+static const char KEY_MOT_LEDFLASH[];
+static const char KEY_MOT_LEDTORCH[];
+// Motorola specific - end
+
 };
 
 } // namespace Camera

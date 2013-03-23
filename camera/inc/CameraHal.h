@@ -86,6 +86,12 @@
 #define SHARPNESS_OFFSET 100
 #define CONTRAST_OFFSET 100
 
+// MOTOROLA BEGIN
+#define DEFAULT_INTENSITY 100
+#define FLASH_VOLTAGE_THRESHOLD1 3700000 // intensity will be reduced to 50% below threshold1
+#define FLASH_VOLTAGE_THRESHOLD2 3300000 // flash disabled below threshold2
+// MOTOROLA END
+
 #define FRAME_RATE_HIGH_HD 60
 
 #define CAMHAL_GRALLOC_USAGE GRALLOC_USAGE_HW_TEXTURE | \
@@ -1103,6 +1109,9 @@ public:
 
      //@{
 public:
+    // FIXME-HASH: Motorola begin
+    bool SetFlashLedTorch( unsigned intensity );
+    // Motorola end
 
     /** Set the notification and data callbacks */
     void setCallbacks(camera_notify_callback notify_cb,
@@ -1402,6 +1411,13 @@ private:
     status_t releaseTapinLocked(struct preview_stream_ops *in);
 
     static SocFamily getSocFamily();
+
+    // I2C read write utility to support factory test commands
+    bool i2cRW(int read_size, int write_size, unsigned char *read_data, unsigned char *write_data);
+
+    // get best flash intensity level for the current battery level
+    unsigned int getFlashIntensity(void);
+
 /*----------Member variables - Public ---------------------*/
 public:
     int32_t mMsgEnabled;

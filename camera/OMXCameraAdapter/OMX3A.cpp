@@ -281,8 +281,8 @@ status_t OMXCameraAdapter::setParameters3A(const android::CameraParameters &para
             }
         }
 
-    CAMHAL_LOGVB("Flash Setting %s", str);
-    CAMHAL_LOGVB("FlashMode %d", mParameters3A.FlashMode);
+    CAMHAL_LOGEB("Flash Setting %s", str);
+    CAMHAL_LOGEB("FlashMode %d", mParameters3A.FlashMode);
 
     str = params.get(android::CameraParameters::KEY_EFFECT);
     mode = getLUTvalue_HALtoOMX( str, EffLUT);
@@ -685,6 +685,7 @@ status_t OMXCameraAdapter::setFlashMode(Gen3A_settings& Gen3A)
     OMX_IMAGE_PARAM_FLASHCONTROLTYPE flash;
     OMX_CONFIG_FOCUSASSISTTYPE focusAssist;
 
+    CAMHAL_LOGEB("OMXCameraAdapter::setFlashMode(%d);", Gen3A.FlashMode);
     LOG_FUNCTION_NAME;
 
     if ( OMX_StateInvalid == mComponentState )

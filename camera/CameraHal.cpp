@@ -392,6 +392,7 @@ int CameraHal::setParameters(const android::CameraParameters& params)
     bool restartPreviewRequired = false;
     bool updateRequired = false;
     android::CameraParameters oldParams = mParameters;
+    char value[PROPERTY_VALUE_MAX];
 
 #ifdef V4L_CAMERA_ADAPTER
     if (strcmp (V4L_CAMERA_NAME_USB, mCameraProperties->get(CameraProperties::CAMERA_NAME)) == 0 ) {
@@ -1083,6 +1084,8 @@ int CameraHal::setParameters(const android::CameraParameters& params)
                 mParameters.remove(TICameraParameters::KEY_GPS_VERSION);
             }
 
+// FIXME-HASH: Motorola specific - begin
+#if 0
         if( (valstr = params.get(TICameraParameters::KEY_EXIF_MODEL)) != NULL )
             {
             CAMHAL_LOGDB("EXIF Model set %s", valstr);
@@ -1094,6 +1097,40 @@ int CameraHal::setParameters(const android::CameraParameters& params)
             CAMHAL_LOGDB("EXIF Make set %s", valstr);
             mParameters.set(TICameraParameters::KEY_EXIF_MAKE, valstr);
             }
+#endif
+        if( (property_get("ro.product.model",value,0) > 0))
+            {
+            CAMHAL_LOGDB("EXIF Model set %s",value);
+            mParameters.set(TICameraParameters::KEY_EXIF_MODEL, value);
+            }
+
+        if( (property_get("ro.product.manufacturer",value,0) > 0) )
+            {
+            CAMHAL_LOGDB("EXIF Make set %s",value);
+            mParameters.set(TICameraParameters::KEY_EXIF_MAKE, value);
+            }
+
+        // enabled/disabled similar parameters:
+        // KEY_MOT_LEDFLASH // int: 0..100 percent
+        if((params.get(TICameraParameters::KEY_MOT_LEDFLASH) != NULL)
+            && (params.getInt(TICameraParameters::KEY_MOT_LEDFLASH) >=0)
+            && (params.getInt(TICameraParameters::KEY_MOT_LEDFLASH) <=100))
+            {
+            CAMHAL_LOGDB("Led Flash : %s",params.get(TICameraParameters::KEY_MOT_LEDFLASH));
+            mParameters.set(TICameraParameters::KEY_MOT_LEDFLASH,
+                            params.get(TICameraParameters::KEY_MOT_LEDFLASH));
+            }
+
+        // KEY_MOT_LEDTORCH // int: 0..100 percent
+        if((params.get(TICameraParameters::KEY_MOT_LEDTORCH) != NULL)
+            && (params.getInt(TICameraParameters::KEY_MOT_LEDTORCH) >=0)
+            && (params.getInt(TICameraParameters::KEY_MOT_LEDTORCH) <=100))
+            {
+            CAMHAL_LOGDB("Led Torch : %s",params.get(TICameraParameters::KEY_MOT_LEDTORCH));
+            mParameters.set(TICameraParameters::KEY_MOT_LEDTORCH,
+                            params.get(TICameraParameters::KEY_MOT_LEDTORCH));
+            }
+// FIXME-HASH: Motorola end
 
 #ifdef OMAP_ENHANCEMENT
         if( (valstr = params.get(TICameraParameters::KEY_EXP_BRACKETING_RANGE)) != NULL )
@@ -3244,6 +3281,7 @@ status_t CameraHal::__takePicture(const char *params, struct timeval *captureSta
     bool isCPCamMode = false;
     android::sp<DisplayAdapter> outAdapter = 0;
     bool reuseTapout = false;
+    unsigned int intensity = DEFAULT_INTENSITY;
 
 #if PPM_INSTRUMENTATION || PPM_INSTRUMENTATION_ABS
 
@@ -3450,6 +3488,21 @@ status_t CameraHal::__takePicture(const char *params, struct timeval *captureSta
 
         if ( (NO_ERROR == ret) && (NULL != mCameraAdapter) )
             {
+// FIXME-HASH: Motorola begin
+            intensity = getFlashIntensity();
+ 
+            if (intensity == 0)
+                {
+                //notification callback can be triggered with this to inform user
+                mParameters.set(android::CameraParameters::KEY_FLASH_MODE, android::CameraParameters::FLASH_MODE_OFF);
+                }
+            else if (intensity <= DEFAULT_INTENSITY)
+                {
+                mParameters.set(TICameraParameters::KEY_MOT_LEDFLASH, (int) intensity);
+                mParameters.set(TICameraParameters::KEY_MOT_LEDTORCH, (int) intensity);
+                }
+// Motorola end
+
             if ( NO_ERROR == ret )
                 ret = mCameraAdapter->sendCommand(CameraAdapter::CAMERA_QUERY_BUFFER_SIZE_IMAGE_CAPTURE,
                                                   ( int ) &frame,
@@ -4613,6 +4666,11 @@ void CameraHal::initDefaultParameters()
     p.set(TICameraParameters::KEY_ALGO_THREELINCOLORMAP, android::CameraParameters::TRUE);
     p.set(TICameraParameters::KEY_ALGO_GIC, android::CameraParameters::TRUE);
 
+    // FIXME-HASH: Motorola - begin
+    p.set(TICameraParameters::KEY_MOT_LEDFLASH, DEFAULT_INTENSITY);
+    p.set(TICameraParameters::KEY_MOT_LEDTORCH, DEFAULT_INTENSITY);
+    // Motorola - end
+
     LOG_FUNCTION_NAME_EXIT;
 }
 
@@ -4726,6 +4784,200 @@ void CameraHal::resetPreviewRes(android::CameraParameters *params)
 
   LOG_FUNCTION_NAME_EXIT;
 }
+
+// FIXME-HASH: Motorola begin
+#include <cutils/properties.h>
+#include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+
+#define EXT_MODULE_VENDOR_STRING "SHARP,OV8820"
+#define INT_MODULE_VENDOR_STRING "SEMCO,OV7739"
+
+#define DCM_CAM_CONFIG_FILE  "/data/system/dcm_camera.config"
+#define CAMERA_ENABLED  0x73
+#define CAMERA_DISABLED 0x45
+
+#define MOT_BURST_COUNT        "mot-burst-picture-count"
+#define MOT_BURST_COUNT_VALUES "mot-burst-picture-count-values"
+#define MOT_MAX_BURST_SIZE     "mot-max-burst-size"
+//Wide screen aspect ratio (16:9)
+#define WIDE_AR 1.7
+
+// TI supports arbitrary burst limits, so we
+// go with what we've used on other platforms
+#define SUPPORTED_BURSTS       "0,1,3,6,9"
+
+#define TORCH_DRIVER_DEVICE "/dev/i2c-3"
+#define TORCH_DEVICE_SLAVE_ADDR 0x53
+#define TORCH_DEVICE_CONTROL_REG 0x10
+#define TORCH_BRIGHTNESS_CONTROL_REG 0xA0
+#define TORCH_DEFAULT_BRIGHTNESS 0x02
+#define TORCH_ENABLE 0x0A
+#define TORCH_DISABLE 0x0
+#define MAX_EXPOSURE_COMPENSATION 30
+
+bool CameraHal::i2cRW(int read_size, int write_size, unsigned char *read_data, unsigned char *write_data)
+{
+
+    int i2cfd = -1;
+    int i,j;
+    int ioctl_ret;
+    struct i2c_msg msgs[2];
+    struct i2c_rdwr_ioctl_data i2c_trans;
+    bool retL = 0;
+
+    enum { I2C_WRITE, I2C_READ };
+    enum { ARG_BUS = 1, ARG_ADDR, ARG_READCNT, ARG_DATA };
+
+    msgs[0].addr = TORCH_DEVICE_SLAVE_ADDR;
+    msgs[0].flags = 0;
+    msgs[0].len = write_size;
+    msgs[0].buf = write_data;
+
+    msgs[1].addr = TORCH_DEVICE_SLAVE_ADDR;
+    msgs[1].flags = I2C_M_RD;
+    msgs[1].len = read_size;
+    msgs[1].buf = read_data;
+
+    i2c_trans.msgs = NULL;
+    i2c_trans.nmsgs = 0;
+
+    if ((i2cfd = open(TORCH_DRIVER_DEVICE, O_RDWR)) < 0) {
+       CAMHAL_LOGD("failed to open %s", TORCH_DRIVER_DEVICE);
+        return 1;
+    }
+
+    if ( write_size && read_size ) {
+        i2c_trans.msgs = &msgs[0];
+        i2c_trans.nmsgs = 2;
+    }
+    else if (write_size) {
+        i2c_trans.msgs = &msgs[0];
+        i2c_trans.nmsgs = 1;
+    }
+    else if (read_size) {
+        i2c_trans.msgs = &msgs[1];
+        i2c_trans.nmsgs = 1;
+    }
+    else {
+        goto done;
+    }
+
+    if ( write_size > 0 ) {
+       CAMHAL_LOGD("I2C_WRITE");
+        for( i = 0; i < write_size; i++ )
+        {
+            CAMHAL_LOGD( "%02X ", write_data[i] );
+        }
+    }
+
+    if( (ioctl_ret = ioctl( i2cfd, I2C_RDWR, &(i2c_trans))) < 0 )
+    {
+        CAMHAL_LOGD("* failed driver call: ioctl returned %d", ioctl_ret);
+        retL = 1;
+        goto done;
+    }
+
+
+    if ( read_size > 0 ) {
+       CAMHAL_LOGD("I2C_READ");
+        for( i = 0; i < read_size; i++ )
+        {
+            CAMHAL_LOGD( "%02X ", read_data[i] );
+        }
+    }
+
+done:
+    /* close the hardware */
+    close(i2cfd);
+
+    return retL;
+
+}
+
+unsigned int CameraHal::getFlashIntensity()
+{
+    unsigned int flashIntensity = DEFAULT_INTENSITY;
+    char value[PROPERTY_VALUE_MAX];
+    unsigned long minFlashThreshold;
+
+    if (property_get("ro.media.capture.flashIntensity", value, 0) > 0)
+        {
+        flashIntensity = atoi(value);
+        }
+    if (property_get("ro.media.capture.flashMinV", value, 0) > 0)
+        {
+        minFlashThreshold = atoi(value);
+        }
+    else
+        {
+        minFlashThreshold = FLASH_VOLTAGE_THRESHOLD2;
+        }
+    if ( minFlashThreshold != 0)
+       {
+           int fd = open("/sys/class/power_supply/battery/voltage_now", O_RDONLY);
+           if (fd < 0)
+               {
+               CAMHAL_LOGE("Battery status is unavailable, defaulting Flash intensity to MAX");
+               }
+           else
+               {
+               char buf[8];
+               if ( read(fd, buf, 8) < 0 )
+                   {
+                   CAMHAL_LOGE("Unable to read battery status, defaulting flash intensity to MAX\n");
+                   }
+               else
+                   {
+                   unsigned long batteryLevel;
+                   buf[7] = '\0';
+                   batteryLevel = atol(buf);
+	           CAMHAL_LOGE("Current battery Level, %d uv", batteryLevel);
+                   if (batteryLevel < minFlashThreshold)
+                       {
+                       CAMHAL_LOGE("Disabling flash due to low Battery");
+                       flashIntensity = 0;
+                       }
+                   else if (batteryLevel < FLASH_VOLTAGE_THRESHOLD1)
+                       {
+                       flashIntensity = flashIntensity >> 1 ;
+                       }
+                   }
+               close(fd);
+               }
+       }
+    CAMHAL_LOGE("flashIntensity = %d", flashIntensity);
+    return flashIntensity;
+}
+
+bool CameraHal::SetFlashLedTorch( unsigned intensity )
+{
+    android::CameraParameters params;
+    mCameraAdapter->getParameters(params);
+    CAMHAL_LOGE("CameraHalTI::SetFlashLedTorch %d", intensity);
+    unsigned char write_data[2];
+
+    if (intensity == 0)
+    {
+        write_data[0] = TORCH_DEVICE_CONTROL_REG;
+        write_data[1] = TORCH_DISABLE;
+        i2cRW(0, 2, NULL, write_data);
+    }
+    else
+    {
+        write_data[0] = TORCH_BRIGHTNESS_CONTROL_REG;
+        write_data[1] = TORCH_DEFAULT_BRIGHTNESS;
+        i2cRW(0, 2, NULL, write_data);
+
+        write_data[0] = TORCH_DEVICE_CONTROL_REG;
+        write_data[1] = TORCH_ENABLE;
+        i2cRW(0, 2, NULL, write_data);
+    }
+
+    return true;
+}
+
+// Motorola end
 
 void *
 camera_buffer_get_omx_ptr (CameraBuffer *buffer)

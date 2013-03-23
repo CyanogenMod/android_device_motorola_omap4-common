@@ -835,6 +835,7 @@ status_t OMXCameraAdapter::setExposureBracketing(int *evValues,
             }
             }
 
+#if 0
         eError =  OMX_SetConfig(mCameraAdapterParameters.mHandleComp,
                                 ( OMX_INDEXTYPE ) OMX_IndexConfigExtCaptureMode,
                                 &extExpCapMode);
@@ -846,6 +847,7 @@ status_t OMXCameraAdapter::setExposureBracketing(int *evValues,
             {
             CAMHAL_LOGDA("Extended camera capture mode configured successfully");
             }
+#endif
         }
 
     LOG_FUNCTION_NAME_EXIT;

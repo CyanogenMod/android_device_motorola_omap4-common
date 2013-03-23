@@ -695,6 +695,16 @@ status_t OMXCameraAdapter::setParameters(const android::CameraParameters &params
 
     ret |= setParametersEXIF(params, state);
 
+// FIXME-HASH: Motorola specific - begin
+    CAMHAL_LOGDA("Start setting of Motorola specific parameters");
+    if (NULL != params.get(TICameraParameters::KEY_MOT_LEDFLASH)) {
+        setLedFlash((unsigned int) (params.getInt(TICameraParameters::KEY_MOT_LEDFLASH)));
+    }
+    if (NULL != params.get(TICameraParameters::KEY_MOT_LEDTORCH)) {
+        setLedTorch((unsigned int) (params.getInt(TICameraParameters::KEY_MOT_LEDTORCH)));
+    }
+// Motorola specific - end
+
     mParams = params;
     mFirstTimeInit = false;
 

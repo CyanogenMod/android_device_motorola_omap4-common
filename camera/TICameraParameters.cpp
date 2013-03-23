@@ -232,5 +232,10 @@ const char TICameraParameters::KEY_GAMMA_TABLE[] = "gamma-table";
 
 const char TICameraParameters::KEY_PREVIEW_FRAME_RATE_RANGE[] = "preview-frame-rate-range";
 
+// Motorola specific - begin
+const char TICameraParameters::KEY_MOT_LEDFLASH[] = "mot-led-flash"; // U32, default 100, percent
+const char TICameraParameters::KEY_MOT_LEDTORCH[] = "mot-led-torch"; // U32, default 100, percent
+// Motorola specific - end
+
 } // namespace Camera
 } // namespace Ti

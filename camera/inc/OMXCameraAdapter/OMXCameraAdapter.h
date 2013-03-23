@@ -848,7 +848,13 @@ private:
     };
     android::sp<CommandHandler> mCommandHandler;
 
+    // FIXME-HASH: Motorola specific - begin
+    status_t setLedFlash(int nLedFlashIntensP);
+    status_t setLedTorch(int nLedTorchIntensP);
+
 public:
+    status_t getOTPEeprom(unsigned char * pData, unsigned long nSize);
+    // Motorola specific - end
 
     class OMXCallbackHandler : public android::Thread {
         public:
