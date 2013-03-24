@@ -113,7 +113,8 @@ PRODUCT_PACKAGES += \
     smc_pa_ctrl \
     tf_daemon \
     libtf_crypto_sst \
-    libmm_osal
+    libmm_osal \
+    gralloc.omap4.so
 
 PRODUCT_PACKAGES += \
     evtest \

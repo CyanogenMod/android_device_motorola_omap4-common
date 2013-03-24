@@ -17,17 +17,27 @@ ifeq ($(BOARD_VENDOR),motorola-omap4)
 LOCAL_PATH := $(call my-dir)
 
 #Creating Gralloc SymLink
-GRALLOC_SYMLINK := $(TARGET_OUT_VENDOR)/lib/hw/gralloc.omap4.so
-$(GRALLOC_SYMLINK): GRALLOC_FILE := gralloc.omap4430.so
-$(GRALLOC_SYMLINK): $(LOCAL_INSTALLED_MODULE) $(LOCAL_PATH)/Android.mk
-	@echo "Symlink: $@ -> $(GRALLOC_FILE)"
-	@rm -rf $@
-	$(hide) ln -fs $(GRALLOC_FILE) $@
+include $(CLEAR_VARS)
 
-ALL_DEFAULT_INSTALLED_MODULES += $(GRALLOC_SYMLINK)
+LOCAL_MODULE := gralloc.omap4.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := FAKE
 
-# for mm/mmm
-all_modules: $(GRALLOC_SYMLINK)
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(LOCAL_BUILT_MODULE): GRALLOC_FILE := gralloc.omap4430.so
+$(LOCAL_BUILT_MODULE): SYMLINK := $(TARGET_OUT_VENDOR)/lib/hw/$(LOCAL_MODULE)
+$(LOCAL_BUILT_MODULE): $(LOCAL_PATH)/Android.mk
+$(LOCAL_BUILT_MODULE):
+	$(hide) echo "Symlink: $(SYMLINK) -> $(GRALLOC_FILE)"
+	$(hide) mkdir -p $(dir $@)
+	$(hide) mkdir -p $(dir $(SYMLINK))
+	$(hide) rm -rf $@
+	$(hide) rm -rf $(SYMLINK)
+	$(hide) ln -sf $(GRALLOC_FILE) $(SYMLINK)
+	$(hide) touch $@
+
+include $(call all-makefiles-under,$(LOCAL_PATH))
 
 include $(all-subdir-makefiles)
 
