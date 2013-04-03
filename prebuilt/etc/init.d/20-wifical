@@ -1,0 +1,10 @@
+#! /system/bin/sh
+# If user dirty flashes the prop is already set so we need to call wifical once
+
+CALIBRATED=`getprop persist.wlan.ti.calibrated`
+
+case "$CALIBRATED" in
+  "0") rm /system/etc/init.d/20-wifical;;
+  "1") wifical.sh
+       rm /system/etc/init.d/20-wifical;;
+esac
