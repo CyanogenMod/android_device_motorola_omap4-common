@@ -200,7 +200,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=false \
     persist.sys.root_access=3 \
     ro.product.use_charge_counter=1 \
-    persist.sys.usb.config=mass_storage,adb \
+    persist.sys.usb.config=mtp,adb \
     ro.setupwizard.enable_bypass=1
 
 # Media
