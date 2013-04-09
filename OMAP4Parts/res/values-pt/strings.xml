@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Configurações do OMAP4</string>
+    <string name="main_title">Configurações do Motorola OMAP4</string>
+    <string name="category_storage">Armazenamento</string>
+    <string name="storage_switch_title">Usar armazenamento externo</string>
+    <string name="storage_switch_summary_off">Usando armazenamento interno expandido para apps e mídia</string>
+    <string name="storage_switch_summary_on">Usando SD-Card para apps e mídia</string>
+    <string name="storage_switch_unavailable">Não disponível</string>
+</resources>

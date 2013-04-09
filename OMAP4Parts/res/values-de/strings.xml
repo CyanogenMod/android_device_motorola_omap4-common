@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OMAP4 Einstellungen</string>
+    <string name="main_title">Motorola OMAP4 Einstellungen</string>
+    <string name="category_storage">Speicher</string>
+    <string name="storage_switch_title">Benutze externen Speicher</string>
+    <string name="storage_switch_summary_off">Benutze internen Speicher für Apps und Medien</string>
+    <string name="storage_switch_summary_on">Benutze Speicherkarte für Apps und Medien</string>
+    <string name="storage_switch_unavailable">Dieses Gerät besitzt keinen erweiterten internen Speicher</string>
+</resources>
