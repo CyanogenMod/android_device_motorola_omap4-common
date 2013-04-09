@@ -85,7 +85,8 @@ PRODUCT_PACKAGES += \
 
 # Misc
 PRODUCT_PACKAGES += \
-    com.android.future.usb.accessory
+    com.android.future.usb.accessory \
+    OMAP4Parts
 
 # Motorola Binaries
 PRODUCT_PACKAGES += \
