@@ -5,7 +5,7 @@
 
     <PreferenceCategory 
     android:title="@string/category_storage"
-    android:summary="@string/category_storage_summary"
+    android:summary="@string/reboot_summary"
     android:layout="@layout/preference_category_summary">
     <CheckBoxPreference
         android:key="key_switch_storage"
@@ -13,4 +13,16 @@
         android:summaryOn="@string/storage_switch_summary_on"
         android:summaryOff="@string/storage_switch_summary_off" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+    android:title="@string/category_telephony"
+    android:summary="@string/reboot_summary"
+    android:layout="@layout/preference_category_summary">
+    <CheckBoxPreference
+        android:key="gsm_signalstrength"
+        android:title="@string/gsm_signalstrength_title"
+        android:summaryOn="@string/gsm_signalstrength_summary_on"
+        android:summaryOff="@string/gsm_signalstrength_summary_off" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
