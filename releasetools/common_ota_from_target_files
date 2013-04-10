@@ -442,6 +442,11 @@ def WriteFullOTAPackage(input_zip, output_zip):
   Item.Get("system").SetPermissions(script)
   script.SetPermissionsRecursive("/system/etc/init.d", 0, 0, 0755, 0555)
 
+  # Copy data/local.prop
+  script.Mount("/data")
+  script.CopyDataLocalProp()
+  script.Unmount("/data")
+
 #  common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
 #  common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
   script.ShowProgress(0.2, 0)

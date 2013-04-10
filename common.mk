@@ -23,6 +23,7 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/bin/pdsbackup.sh:system/bin/pdsbackup.sh \
     $(COMMON_FOLDER)/prebuilt/bin/wifical.sh:system/bin/wifical.sh \
     $(COMMON_FOLDER)/prebuilt/etc/gps.conf:system/etc/gps.conf \
+    $(COMMON_FOLDER)/prebuilt/etc/localprop:system/etc/localprop \
     $(COMMON_FOLDER)/prebuilt/etc/init.d/20-wifical:system/etc/init.d/20-wifical \
     $(COMMON_FOLDER)/prebuilt/etc/wifi/wlan_fem.ini:system/etc/wifi/wlan_fem.ini
 
