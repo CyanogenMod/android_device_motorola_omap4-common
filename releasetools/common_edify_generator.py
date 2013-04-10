@@ -286,4 +286,4 @@ class EdifyGenerator(object):
 
   def CopyDataLocalProp(self):
     self.script.append('package_extract_file("system/etc/localprop", "/data/local.prop");')
-    self.script.append('set_perm(0, 0, 0644, "/data/local.prop");')
+    self.script.append('set_perm(1000, 1000, 0644, "/data/local.prop");')
