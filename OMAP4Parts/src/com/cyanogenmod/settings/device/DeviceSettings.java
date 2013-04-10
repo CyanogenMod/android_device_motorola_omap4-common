@@ -58,7 +58,7 @@ public class DeviceSettings extends PreferenceActivity implements OnPreferenceCh
         mGSMSignalStrengthPref.setOnPreferenceChangeListener(this);
         if ((SystemProperties.get("ro.product.device","").equals("umts_spyder")) ||
                 (SystemProperties.get("ro.product.device","").equals("edison"))) {
-            mGSMSignalStrengthPref.setSummaryOff(R.string.gsm_signalstrength_unavailable);
+            mGSMSignalStrengthPref.setSummaryOn(R.string.gsm_signalstrength_unavailable);
             mGSMSignalStrengthPref.setEnabled(false);
         }
         mSwitchStoragePref = (CheckBoxPreference) getPreferenceScreen().findPreference(
