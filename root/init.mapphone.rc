@@ -747,7 +747,7 @@ on property:ro.revision=34
 # Wifi calibrate
 service wifi_calibrator /system/bin/sh /system/bin/wifical.sh
     disabled
-    class main
+    class late_start
     user root
     group wifi
     oneshot
