@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Advanced settings</string>
-    <string name="main_title">Motorola OMAP4 Settings</string>
     <string name="category_storage">Storage</string>
     <string name="reboot_summary">Requires reboot to take affect</string>
     <string name="storage_switch_title">Use external storage</string>
