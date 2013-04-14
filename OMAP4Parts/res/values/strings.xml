@@ -12,4 +12,8 @@
     <string name="gsm_signalstrength_summary_off">Using CDMA/LTE Signal Strength Indicator</string>
     <string name="gsm_signalstrength_summary_on">Using GSM Signal Strength Inidicator</string>
     <string name="gsm_signalstrength_unavailable">Disabled: This device is GSM only</string>
+    <string name="reboot_prompt_title">Reboot required</string>
+    <string name="reboot_prompt_message">In order to apply the changed configuration, a reboot is required.\n\nDo you want to reboot now?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

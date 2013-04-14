@@ -16,14 +16,18 @@
 
 package com.cyanogenmod.settings.device;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.SystemProperties;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
-import android.os.SystemProperties;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -46,11 +50,13 @@ public class DeviceSettings extends PreferenceActivity implements OnPreferenceCh
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.main_preferences);
 
-        if (SystemProperties.get("ro.telephony.ril.v3","").equals("writeaidonly")) {
-            SystemProperties.set("persist.sys.gsm_fix", "0");
-        } else if (SystemProperties.get("ro.telephony.ril.v3","").equals(
-                "writeaidonly,signalstrength")) {
-            SystemProperties.set("persist.sys.gsm_fix", "1");
+        if (SystemProperties.get("persist.sys.gsm_fix","").equals(null)) {
+            if (SystemProperties.get("ro.telephony.ril.v3","").equals("writeaidonly")) {
+                SystemProperties.set("persist.sys.gsm_fix", "0");
+            } else if (SystemProperties.get("ro.telephony.ril.v3","").equals(
+                    "writeaidonly,signalstrength")) {
+                SystemProperties.set("persist.sys.gsm_fix", "1");
+            }
         }
         mGSMSignalStrengthPref = (CheckBoxPreference) getPreferenceScreen().findPreference(
                 KEY_GSM_SIGNALSTRENGTH);
@@ -113,13 +119,33 @@ public class DeviceSettings extends PreferenceActivity implements OnPreferenceCh
                     e.printStackTrace();
                 }
             }
+            showRebootPrompt();
         }
         if(preference == mSwitchStoragePref) {
             Log.d(TAG,"Setting persist.sys.vold.switchexternal to "+(
                     mSwitchStoragePref.isChecked() ? "1" : "0"));
             SystemProperties.set("persist.sys.vold.switchexternal", (
                     (Boolean) newValue) ? "1" : "0");
+            showRebootPrompt();
         }
         return true;
     }
+
+    private void showRebootPrompt() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.reboot_prompt_title)
+                .setMessage(R.string.reboot_prompt_message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+                        pm.reboot(null);
+                    }
+                })
+                .setNegativeButton(R.string.no, null)
+                .create();
+
+        dialog.show();
+    }
+
 }
