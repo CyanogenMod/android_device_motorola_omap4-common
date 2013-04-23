@@ -2198,6 +2198,12 @@ status_t BaseCameraAdapter::setState(CameraCommands operation)
                     mNextState = PREVIEW_STATE;
                     break;
 
+                case CAMERA_START_IMAGE_CAPTURE:
+                    CAMHAL_LOGDB("Adapter state switch AF_STATE->CAPTURE_STATE event = 0x%x",
+                                 operation);
+                    mNextState = CAPTURE_STATE;
+                    break;
+
                 case CAMERA_START_SMOOTH_ZOOM:
                     CAMHAL_LOGDB("Adapter state switch AF_STATE->AF_ZOOM_STATE event = %s",
                             printState);
