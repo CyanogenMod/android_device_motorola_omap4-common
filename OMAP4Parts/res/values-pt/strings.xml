@@ -9,4 +9,11 @@
     <string name="reboot_prompt_message">Para aplicar as alterações de configuração, é necessário reiniciar.\n\nVocê deseja reiniciar agora?</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
+    <string name="app_name">Configurações avançadas</string>
+    <string name="reboot_summary">Requer inicialização para ter efeito</string>
+    <string name="category_telephony">Opções de telefonia GSM</string>
+    <string name="gsm_signalstrength_title">Ativar correção da intensidade do sinal GSM</string>
+    <string name="gsm_signalstrength_summary_off">Usando indicador da intensidade do sinal CDMA/LTE</string>
+    <string name="gsm_signalstrength_summary_on">Usando indicador da intensidade do sinal GSM</string>
+    <string name="gsm_signalstrength_unavailable">Desativado: Este dispositivo é somente GSM</string>
 </resources>
