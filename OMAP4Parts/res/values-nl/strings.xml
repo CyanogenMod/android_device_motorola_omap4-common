@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_name">Geavanceerde instellingen</string>
+    <string name="category_storage">Opslag</string>
+    <string name="reboot_summary">Herstart vereist om toe te passen</string>
+    <string name="storage_switch_title">Externe opslag gebruiken</string>
+    <string name="storage_switch_summary_off">Uitgebreide interne opslag wordt gebruikt voor apps en media</string>
+    <string name="storage_switch_summary_on">SD-kaart wordt gebruikt voor apps en media</string>
+    <string name="storage_switch_unavailable">Dit apparaat bevat geen uitgebreide interne opslag</string>
+    <string name="category_telephony">GSM-netwerkinstellingen</string>
+    <string name="gsm_signalstrength_title">GSM-signaalsterkte oplossen</string>
+    <string name="gsm_signalstrength_summary_off">CDMA/LTE-signaal wordt aangegeven</string>
+    <string name="gsm_signalstrength_summary_on">GSM-signaal wordt aangegeven</string>
+    <string name="gsm_signalstrength_unavailable">Uitgeschakeld: alleen GSM-ondersteuning beschikbaar</string>
+    <string name="reboot_prompt_title">Herstart vereist</string>
+    <string name="reboot_prompt_message">Om deze instellingen toe te passen, is een herstart vereist.\n\nNu herstarten?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nee</string>
+</resources>
