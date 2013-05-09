@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_name">高级设置</string>
+    <string name="category_storage">存储</string>
+    <string name="reboot_summary">需要重新启动才能生效</string>
+    <string name="storage_switch_title">使用外置存储</string>
+    <string name="storage_switch_summary_off">将应用与媒体储存到扩展内部存储</string>
+    <string name="storage_switch_summary_on">将应用与媒体储存到 SD 卡</string>
+    <string name="storage_switch_unavailable">此设备没有扩展内部存储</string>
+    <string name="category_telephony">GSM 通话选项</string>
+    <string name="gsm_signalstrength_title">启用 GSM 信号强度修复</string>
+    <string name="gsm_signalstrength_summary_off">使用 CDMA/LTE 信号强度指示器</string>
+    <string name="gsm_signalstrength_summary_on">使用 GSM 信号强度指示器</string>
+    <string name="gsm_signalstrength_unavailable">已禁用：此设备仅支持 GSM</string>
+    <string name="reboot_prompt_title">需要重新启动</string>
+    <string name="reboot_prompt_message">做出的更改需要重启后才能够生效。\n\n您想要现在重启吗？</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+</resources>
