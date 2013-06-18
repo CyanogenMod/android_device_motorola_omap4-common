@@ -430,6 +430,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.DeleteRecursive("/system")
   #script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+  script.CopyFile("changelog.txt", "/system/etc/changelog.txt")
   script.DeleteFiles(["system/bin/applypatch"] +
                      ["system/bin/recovery"])
 
