@@ -478,6 +478,7 @@ on boot
 
 # Start services
     exec /system/bin/mot_boot_mode
+    start wifical_check
 # Set core max size (2G)
     setrlimit 4 2147483648 2147483648
     mount debugfs /sys/kernel/debug /sys/kernel/debug
@@ -743,6 +744,14 @@ on property:sys.mot.encrypt.pass.prot=1
 on property:ro.revision=34
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor hotplug
 # Add any hotplug tuning parameters here.
+
+# Wifi check
+service wifical_check /system/bin/sh /system/bin/wificalcheck.sh
+    disabled
+    class late_start
+    user root
+    group wifi
+    oneshot
 
 # Wifi calibrate
 service wifi_calibrator /system/bin/sh /system/bin/wifical.sh
