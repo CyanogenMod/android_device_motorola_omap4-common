@@ -33,7 +33,10 @@ fi
 mount -o remount rw /system
 
 # Remove old NVS file
+if [ -e $TARGET_NVS_FILE ];
+then
 rm /system/etc/firmware/ti-connectivity/wl1271-nvs.bin
+fi
 
 # Actual calibration...
 # calibrator plt autocalibrate <dev> <module path> <ini file1> <nvs file> <mac addr>
