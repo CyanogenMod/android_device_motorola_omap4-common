@@ -1,0 +1,6 @@
+# VZW blobs
+app/appdirectedsmspermission.apk
+app/VerizonSSOEngine.apk
+app/VZWAPNLib.apk
+app/vzwapnpermission.apk
+app/VZWAPNService.apk
