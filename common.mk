@@ -255,4 +255,3 @@ PRODUCT_LOCALES += en_US
 # stuff specific to ti OMAP4 hardware
 #$(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
 $(call inherit-product, hardware/ti/omap4xxx/security/Android.mk)
-$(call inherit-product-if-exists, vendor/motorola/omap4-common/common-vendor.mk)
