@@ -10,10 +10,10 @@ LOCAL_SRC_FILES:= aplogd.c log_io.c rambuf.c aplogd_util.c
 
 ifeq ($(APLOGD_TEST),true)
 LOCAL_SHARED_LIBRARIES := liblogtest libcutils libsqlite libz
-LOCAL_CFLAGS:=   -fshort-enums -Wall -DAPLOGD_TEST
+LOCAL_CFLAGS:=   -Wall -DAPLOGD_TEST
 else
 LOCAL_SHARED_LIBRARIES := liblog libcutils libsqlite libz
-LOCAL_CFLAGS:=   -fshort-enums -Wall
+LOCAL_CFLAGS:=   -Wall
 endif
 
 LOCAL_MODULE:= aplogd

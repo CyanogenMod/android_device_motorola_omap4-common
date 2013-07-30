@@ -89,7 +89,7 @@ static int aplogd_poll_timeout=-1;
 /* Statistic variables */
 unsigned int aplogd_bytes_logged = 0;
 unsigned int aplogd_bytes_lost = 0;
-static int unwritten_bytes=0;
+static unsigned int unwritten_bytes=0;
 
 extern EventTagMap* g_eventTagMap ;
 static char defaultBuffer[1024];

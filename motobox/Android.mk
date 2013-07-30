@@ -30,7 +30,7 @@ TOOLS := \
 	getconfig \
 	ptf
 
-LOCAL_STATIC_LIBRARIES := libcutils
+LOCAL_STATIC_LIBRARIES := libcutils liblog
 
 ifeq ($(HAVE_DEVUTILS),true)
   TOOLS += \
