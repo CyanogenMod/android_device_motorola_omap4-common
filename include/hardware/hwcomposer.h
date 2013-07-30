@@ -80,21 +80,25 @@ typedef struct hwc_color {
 
 typedef struct hwc_layer_1 {
     /*
-     * Initially set to HWC_FRAMEBUFFER, HWC_BACKGROUND, or
-     * HWC_FRAMEBUFFER_TARGET.
+     * compositionType is used to specify this layer's type and is set by either
+     * the hardware composer implementation, or by the caller (see below).
      *
-     * HWC_FRAMEBUFFER
-     *   Indicates the layer will be drawn into the framebuffer
-     *   using OpenGL ES. The HWC can toggle this value to HWC_OVERLAY to
-     *   indicate it will handle the layer.
+     *  This field is always reset to HWC_BACKGROUND or HWC_FRAMEBUFFER
+     *  before (*prepare)() is called when the HWC_GEOMETRY_CHANGED flag is
+     *  also set, otherwise, this field is preserved between (*prepare)()
+     *  calls.
      *
      * HWC_BACKGROUND
-     *   Indicates this is a special "background" layer. The only valid field
-     *   is backgroundColor. The HWC can toggle this value to HWC_FRAMEBUFFER
-     *   to indicate it CANNOT handle the background color.
+     *   Always set by the caller before calling (*prepare)(), this value
+     *   indicates this is a special "background" layer. The only valid field
+     *   is backgroundColor.
+     *   The HWC can toggle this value to HWC_FRAMEBUFFER to indicate it CANNOT
+     *   handle the background color.
+     *
      *
      * HWC_FRAMEBUFFER_TARGET
-     *   Indicates this layer is the framebuffer surface used as the target of
+     *   Always set by the caller before calling (*prepare)(), this value
+     *   indicates this layer is the framebuffer surface used as the target of
      *   OpenGL ES composition. If the HWC sets all other layers to HWC_OVERLAY
      *   or HWC_BACKGROUND, then no OpenGL ES composition will be done, and
      *   this layer should be ignored during set().
@@ -103,13 +107,38 @@ typedef struct hwc_layer_1 {
      *   HWC version is HWC_DEVICE_API_VERSION_1_1 or higher. In older versions,
      *   the OpenGL ES target surface is communicated by the (dpy, sur) fields
      *   in hwc_compositor_device_1_t.
+     *
+     *   This value cannot be set by the HWC implementation.
+     *
+     *
+     * HWC_FRAMEBUFFER
+     *   Set by the caller before calling (*prepare)() ONLY when the
+     *   HWC_GEOMETRY_CHANGED flag is also set.
+     *
+     *   Set by the HWC implementation during (*prepare)(), this indicates
+     *   that the layer will be drawn into the framebuffer using OpenGL ES.
+     *   The HWC can toggle this value to HWC_OVERLAY to indicate it will
+     *   handle the layer.
+     *
+     *
+     * HWC_OVERLAY
+     *   Set by the HWC implementation during (*prepare)(), this indicates
+     *   that the layer will be handled by the HWC (ie: it must not be
+     *   composited with OpenGL ES).
+     *
      */
     int32_t compositionType;
 
-    /* see hwc_layer_t::hints above */
+    /*
+     * hints is bit mask set by the HWC implementation during (*prepare)().
+     * It is preserved between (*prepare)() calls, unless the
+     * HWC_GEOMETRY_CHANGED flag is set, in which case it is reset to 0.
+     *
+     * see hwc_layer_t::hints
+     */
     uint32_t hints;
 
-    /* see hwc_layer_t::flags above */
+    /* see hwc_layer_t::flags */
     uint32_t flags;
 
     union {
@@ -185,13 +214,53 @@ typedef struct hwc_layer_1 {
              * responsible for closing it when no longer needed.
              */
             int releaseFenceFd;
+
+            /*
+             * Availability: HWC_DEVICE_API_VERSION_1_2
+             *
+             * Alpha value applied to the whole layer. The effective
+             * value of each pixel is computed as:
+             *
+             *   if (blending == HWC_BLENDING_PREMULT)
+             *      pixel.rgb = pixel.rgb * planeAlpha / 255
+             *   pixel.a = pixel.a * planeAlpha / 255
+             *
+             * Then blending proceeds as usual according to the "blending"
+             * field above.
+             *
+             * NOTE: planeAlpha applies to YUV layers as well:
+             *
+             *   pixel.rgb = yuv_to_rgb(pixel.yuv)
+             *   if (blending == HWC_BLENDING_PREMULT)
+             *      pixel.rgb = pixel.rgb * planeAlpha / 255
+             *   pixel.a = planeAlpha
+             *
+             *
+             * IMPLEMENTATION NOTE:
+             *
+             * If the source image doesn't have an alpha channel, then
+             * the h/w can use the HWC_BLENDING_COVERAGE equations instead of
+             * HWC_BLENDING_PREMULT and simply set the alpha channel to
+             * planeAlpha.
+             *
+             * e.g.:
+             *
+             *   if (blending == HWC_BLENDING_PREMULT)
+             *      blending = HWC_BLENDING_COVERAGE;
+             *   pixel.a = planeAlpha;
+             *
+             */
+            uint8_t planeAlpha;
+
+            /* reserved for future use */
+            uint8_t _pad[3];
         };
     };
 
     /* Allow for expansion w/o breaking binary compatibility.
      * Pad layer to 96 bytes, assuming 32-bit pointers.
      */
-    int32_t reserved[24 - 18];
+    int32_t reserved[24 - 19];
 
 } hwc_layer_1_t;
 
@@ -307,13 +376,21 @@ typedef struct hwc_display_contents_1 {
             hwc_surface_t sur;
         };
 
-        /* Fields only relevant for HWC_DEVICE_VERSION_1_2 and later. */
+        /* WARNING: These fields are for experimental virtual display support,
+         * and are not currently used. */
         struct {
             /* outbuf is the buffer that receives the composed image for
              * virtual displays. Writes to the outbuf must wait until
              * outbufAcquireFenceFd signals. A fence that will signal when
              * writes to outbuf are complete should be returned in
              * retireFenceFd.
+             *
+             * This field will not be updated until after prepare(). If
+             * prepare() sets all non-FB layers to OVERLAY or sets all non-FB
+             * layers to FRAMEBUFFER, then the FRAMEBUFFER_TARGET buffer and
+             * the output buffer may be the same. In mixed OVERLAY/FRAMEBUFFER
+             * configurations they will have different buffers so the
+             * h/w composer does not have to read and write the same buffer.
              *
              * For physical displays, outbuf will be NULL.
              */
@@ -444,11 +521,14 @@ typedef struct hwc_composer_device_1 {
      * either HWC_FRAMEBUFFER or HWC_OVERLAY. In the former case, the
      * composition for the layer is handled by SurfaceFlinger with OpenGL ES,
      * in the later case, the HWC will have to handle the layer's composition.
+     * compositionType and hints are preserved between (*prepare)() calles
+     * unless the HWC_GEOMETRY_CHANGED flag is set.
      *
      * (*prepare)() is called with HWC_GEOMETRY_CHANGED to indicate that the
      * list's geometry has changed, that is, when more than just the buffer's
      * handles have been updated. Typically this happens (but is not limited to)
-     * when a window is added, removed, resized or moved.
+     * when a window is added, removed, resized or moved. In this case
+     * compositionType and hints are reset to their default value.
      *
      * For HWC 1.0, numDisplays will always be one, and displays[0] will be
      * non-NULL.
@@ -456,10 +536,9 @@ typedef struct hwc_composer_device_1 {
      * For HWC 1.1, numDisplays will always be HWC_NUM_DISPLAY_TYPES. Entries
      * for unsupported or disabled/disconnected display types will be NULL.
      *
-     * For HWC 1.2 and later, numDisplays will be HWC_NUM_DISPLAY_TYPES or more.
-     * The extra entries correspond to enabled virtual displays, and will be
-     * non-NULL. In HWC 1.2, support for one virtual display is required, and
-     * no more than one will be used. Future HWC versions might require more.
+     * In a future version, numDisplays may be larger than
+     * HWC_NUM_DISPLAY_TYPES. The extra entries correspond to enabled virtual
+     * displays, and will be non-NULL.
      *
      * returns: 0 on success. An negative error code on error. If an error is
      * returned, SurfaceFlinger will assume that none of the layer will be
@@ -490,10 +569,9 @@ typedef struct hwc_composer_device_1 {
      * For HWC 1.1, numDisplays will always be HWC_NUM_DISPLAY_TYPES. Entries
      * for unsupported or disabled/disconnected display types will be NULL.
      *
-     * For HWC 1.2 and later, numDisplays will be HWC_NUM_DISPLAY_TYPES or more.
-     * The extra entries correspond to enabled virtual displays, and will be
-     * non-NULL. In HWC 1.2, support for one virtual display is required, and
-     * no more than one will be used. Future HWC versions might require more.
+     * In a future version, numDisplays may be larger than
+     * HWC_NUM_DISPLAY_TYPES. The extra entries correspond to enabled virtual
+     * displays, and will be non-NULL.
      *
      * IMPORTANT NOTE: There is an implicit layer containing opaque black
      * pixels behind all the layers in the list. It is the responsibility of
