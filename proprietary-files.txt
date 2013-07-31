@@ -1,0 +1,7 @@
+# put anything that is on all devices, but cannot be in omap4-common because it is device specific
+bin/akmd8975
+bin/ap_gain.bin
+bin/ap_gain_mmul.bin
+etc/firmware/ducati-m3.bin
+etc/firmware/TIInit_10.6.15.bts
+lib/hw/audio.primary.omap4.so

@@ -155,6 +155,8 @@ BOARD_HAS_SDCARD_INTERNAL := true
 TARGET_RECOVERY_PRE_COMMAND := "echo 1 > /data/.recovery_mode; sync; \#"
 TARGET_RECOVERY_PRE_COMMAND_CLEAR_REASON := true
 TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
+DEVICE_RESOLUTION := 540x960
+TW_MAX_BRIGHTNESS := 254
 
 # Graphics
 BOARD_EGL_CFG := device/motorola/omap4-common/prebuilt/etc/egl.cfg

@@ -1,6 +1,4 @@
-# system/bin (from spyder 98.72.16 JB OTA JB 4.1.2)
-bin/ap_gain.bin
-bin/ap_gain_mmul.bin
+# system/bin
 bin/batch
 bin/battd
 bin/dbvc_atvc_property_set
@@ -9,15 +7,13 @@ bin/enc_mgt_tool
 bin/fips_loader
 bin/ftmipcd
 bin/libthermal-manager.cfg
-bin/logcatd
-bin/logcatd-blan
-bin/mount_cdrom.sh
+bin/mount_ext3.sh
 bin/startup_smc.sh
 bin/thermaldaemon
 bin/tty2ttyd
 bin/whisperd
 
-# system/etc (from spyder 98.72.16 JB OTA JB 4.1.2)
+# system/etc
 etc/ecryptfs.tab
 etc/encrypt.tab
 etc/smc_android_cfg.ini
@@ -26,26 +22,23 @@ etc/smc_pa_pk_4_8Mb_ipa.bin
 etc/smc_pa_pk_4_ipa.bin
 etc/firmware/ap_bt_data.bin
 
-# system/usr (from spyder 98.72.16 JB OTA JB 4.1.2)
+# system/usr
 usr/idc/Motorola_Mobility_Motorola_HD_Dock.idc
 usr/keylayout/cpcap-key.kl
 
-# system/lib/hw (from spyder 98.72.16 JB OTA JB 4.1.2)
+# system/lib/hw
 lib/hw/alsa.omap4.so
-lib/hw/audio.primary.omap4.so
-lib/hw/gps.spyder.so
 
-# system/lib (from spyder 98.72.16 JB OTA JB 4.1.2)
+# system/lib
 lib/libaudio_ext.so
+lib/libbattd.so
 lib/libdataencrypt_openssl.so
 lib/libdataencrypt_tpa.so
 lib/libdataencrypt_utils.so
 lib/libhdcp.so
 lib/libhdmi.so
 lib/libmot_atcmd.so
-lib/libmotodbgutils.so
 lib/libmoto_netutil.so
-lib/libnbgm_9.0.1.so
 lib/libnmea.so
 lib/libopenssl-smime.so
 lib/libOMX.ITTIAM.AAC.encode.so
@@ -74,43 +67,9 @@ etc/omapcam/module1_ee/cid1039_ov8820_ducati_gamma.bin
 etc/omapcam/module1_ee/cid1039_ov8820_ipipe_ee_dcc.bin
 etc/omapcam/module1_ee/cid1039_ov8820_ducati_nsf_ldc.bin
 
-# DRM blobs (from spyder 98.72.16 JB OTA JB 4.1.2)
+# DRM blobs
 lib/libWVphoneAPI.so
 vendor/lib/libwvdrm_L3.so
 vendor/lib/libwvm.so
 vendor/lib/libWVStreamControlAPI_L3.so
 vendor/lib/drm/libdrmwvmplugin.so
-
-# LTE RIL files need for maserati, spyder and targa (from spyder 98.72.16 JB OTA JB 4.1.2)
-bin/base64
-bin/extract-embedded-files
-bin/mm-wrigley-qc-dump.sh
-bin/oem-iptables-init.sh
-bin/vril-dump
-bin/wrigley-diag.sh
-bin/wrigley-dump.sh
-bin/wrigley-fetch-mpr.sh
-bin/wrigley-iptables.sh
-lib/libb64.so
-lib/libbabysit.so
-lib/libmotdb.so
-lib/lib-mot-lte-ril.so
-lib/libmoto_mdmctrl.so
-lib/libmoto_nwif_ril.so
-lib/libmoto_qmi_ril.so
-lib/libmoto_ril.so
-lib/librds_util.so
-lib/libril_rds.so
-lib/moto-ril-multimode.so
-lib/libims_client_jni.so
-
-# VZW blobs (from spyder 98.72.16 JB OTA JB 4.1.2)
-app/appdirectedsmspermission.apk
-app/VerizonSSOEngine.apk
-app/VZWAPNLib.apk
-app/vzwapnpermission.apk
-app/VZWAPNService.apk
-etc/permissions/com.vzw.hardware.ehrpd.xml
-etc/permissions/com.vzw.hardware.lte.xml
-etc/permissions/com.vzw.vzwapnlib.xml
-lib/libmotricity.so
