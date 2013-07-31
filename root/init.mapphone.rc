@@ -31,6 +31,7 @@ loglevel 8
     chown system radio /sys/class/radio/mdm6600/command
 
 on fs
+mount_all /fstab.mapphone_cdma
 # begin SS3 setup
     mount rootfs rootfs / rw remount
     mkdir /ss 0777 root root

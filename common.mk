@@ -162,13 +162,17 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/etc/audio_policy.conf:system/etc/audio_policy.conf
 
 # Root files
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/root/default.prop:/root/default.prop \
-    $(COMMON_FOLDER)/root/init.mapphone.rc:/root/init.mapphone_cdma.rc \
-    $(COMMON_FOLDER)/root/init.mapphone.rc:/root/init.mapphone_umts.rc \
-    $(COMMON_FOLDER)/root/init.usb.rc:/root/init.usb.rc \
-    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_cdma.rc \
-    $(COMMON_FOLDER)/root/ueventd.mapphone.rc:/root/ueventd.mapphone_umts.rc
+PRODUCT_PACKAGES += \
+    default.prop \
+    init.mapphone_cdma.rc \
+    init.mapphone_umts.rc \
+    init.usb.rc \
+    ueventd.mapphone_cdma.rc \
+    ueventd.mapphone_umts.rc
+
+ifneq ($(filter maserati solana spyder umts_spyder,$(TARGET_DEVICE)),)
+PRODUCT_PACKAGES += fstab.mapphone_cdma
+endif
 
 # Kexec files
 PRODUCT_COPY_FILES += \
