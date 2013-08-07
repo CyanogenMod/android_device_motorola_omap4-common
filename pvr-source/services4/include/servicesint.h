@@ -49,7 +49,6 @@ extern "C" {
 
 #include "services.h"
 #include "sysinfo.h"
-#include "sysconfig.h"
 
 #define HWREC_DEFAULT_TIMEOUT	(500)
 

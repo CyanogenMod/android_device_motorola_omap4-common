@@ -312,6 +312,13 @@ ifeq ($(is_at_least_jellybean),0)
 PVR_ANDROID_COMPOSITOR_WAIT_FOR_RENDER := 1
 endif
 
+##############################################################################
+# JB added a new corkscrew API for userland backtracing.
+#
+ifeq ($(is_at_least_jellybean),1)
+PVR_ANDROID_HAS_CORKSCREW_API := 1
+endif
+
 # Placeholder for future version handling
 #
 ifeq ($(is_future_version),1)

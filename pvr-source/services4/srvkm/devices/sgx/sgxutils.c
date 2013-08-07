@@ -172,9 +172,11 @@ IMG_VOID SGXTestActivePowerEvent (PVRSRV_DEVICE_NODE	*psDeviceNode,
 			((psSGXHostCtl->ui32InterruptFlags & PVRSRV_USSE_EDM_INTERRUPT_IDLE) != 0))
 		{
 			psSGXHostCtl->ui32InterruptClearFlags |= PVRSRV_USSE_EDM_INTERRUPT_IDLE;
-			psDevInfo->bSGXIdle = IMG_TRUE;
-
-			SysSGXIdleEntered();
+			if (psDevInfo->bSGXIdle == IMG_FALSE)
+			{
+				psDevInfo->bSGXIdle = IMG_TRUE;
+				SysSGXIdleEntered();
+			}
 		}
 
 		/*
@@ -709,9 +711,6 @@ PVRSRV_ERROR SGXScheduleCCBCommandKM(PVRSRV_DEVICE_NODE		*psDeviceNode,
 	/* Note that a power-up has been dumped in the init phase. */
 	PDUMPSUSPEND();
 
-	SysSGXCommandPending(psDevInfo->bSGXIdle);
-	psDevInfo->bSGXIdle = IMG_FALSE;
-
 	/* Ensure that SGX is powered up before kicking the ukernel. */
 	eError = PVRSRVSetDevicePowerStateKM(psDeviceNode->sDevId.ui32DeviceIndex,
 										 PVRSRV_DEV_POWER_STATE_ON);
@@ -728,6 +727,9 @@ PVRSRV_ERROR SGXScheduleCCBCommandKM(PVRSRV_DEVICE_NODE		*psDeviceNode,
 				 "ui32CallerID:%d eError:%u", ui32CallerID, eError));
 		return eError;
 	}
+
+	SysSGXCommandPending(psDevInfo->bSGXIdle);
+	psDevInfo->bSGXIdle = IMG_FALSE;
 
 	eError = SGXScheduleCCBCommand(psDeviceNode, eCmdType, psCommandData, ui32CallerID, ui32PDumpFlags, hDevMemContext, bLastInScene);
 

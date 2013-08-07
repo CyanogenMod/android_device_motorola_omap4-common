@@ -50,7 +50,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "ocpdefs.h"
 
+#if (SGX_CORE_REV == 105)
 #define OMAP5430_CORE_REV	0x10005
+#elif (SGX_CORE_REV == 116)
+#define OMAP5430_CORE_REV	0x10106
+#endif
 
 /* top level system data anchor point*/
 SYS_DATA* gpsSysData = (SYS_DATA*)IMG_NULL;
