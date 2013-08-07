@@ -145,6 +145,8 @@ ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
 ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
 
 # Recovery
+TARGET_RECOVERY_FSTAB = $(COMMON_FOLDER)/root/fstab.mapphone_cdma
+RECOVERY_FSTAB_VERSION = 2
 BOARD_HAS_LOCKED_BOOTLOADER := true
 TARGET_PREBUILT_RECOVERY_KERNEL := device/motorola/omap4-common/recovery-kernel
 BOARD_HAS_NO_SELECT_BUTTON := true
