@@ -11,7 +11,7 @@ include $(BUILD_PREBUILT)
 
 ifneq ($(filter maserati solana spyder umts_spyder,$(TARGET_DEVICE)),)
 include $(CLEAR_VARS)
-LOCAL_MODULE       := fstab.maphone_cdma
+LOCAL_MODULE       := fstab.mapphone_cdma
 LOCAL_MODULE_TAGS  := optional eng
 LOCAL_MODULE_CLASS := ETC
 LOCAL_SRC_FILES    := fstab.mapphone_cdma
