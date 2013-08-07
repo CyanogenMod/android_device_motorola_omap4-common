@@ -3,5 +3,8 @@
 # specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 #<src>                                              <mnt_point>      <type>  <mnt_flags and options>    <fs_mgr_flags>
 
+/dev/block/system                                   /system          ext3    rw,nodev,noatime,errors=continue,barrier=1 wait
+/dev/block/userdata                                 /data            ext3    rw,nosuid,nodev,noatime,errors=continue    wait,check,encryptable=footer
+/dev/block/cache                                    /cache           ext3    rw,nosuid,nodev,noatime,errors=continue    wait,check
 /devices/platform/omap/omap_hsmmc.1/mmc_host/mmc1   /storage/sdcard0 vfat    defaults                   voldmanaged=sdcard0:25,nonremovable
 /devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0   /storage/sdcard1 vfat    defaults                   voldmanaged=sdcard1:auto
