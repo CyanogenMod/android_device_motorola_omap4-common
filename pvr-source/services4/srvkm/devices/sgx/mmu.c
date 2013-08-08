@@ -1434,6 +1434,7 @@ _DeferredAllocPagetables(MMU_HEAP *pMMUHeap, IMG_DEV_VIRTADDR DevVAddr, IMG_UINT
 			PVR_ASSERT(pui32PDEntry[i] == 0);
 #endif
 #endif
+			sDevPAddr.uiAddr = 0;
 			if(_AllocPageTableMemory (pMMUHeap, ppsPTInfoList[i], &sDevPAddr) != IMG_TRUE)
 			{
 				PVR_DPF((PVR_DBG_ERROR, "_DeferredAllocPagetables: ERROR call to _AllocPageTableMemory failed"));
