@@ -166,9 +166,11 @@ PRODUCT_PACKAGES += \
     default.prop \
     init.mapphone_cdma.rc \
     init.mapphone_umts.rc \
-    init.usb.rc \
     ueventd.mapphone_cdma.rc \
     ueventd.mapphone_umts.rc
+
+PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/root/init.usb.rc:/root/init.usb.rc
 
 ifneq ($(filter maserati solana spyder umts_spyder,$(TARGET_DEVICE)),)
 PRODUCT_PACKAGES += fstab.mapphone_cdma
