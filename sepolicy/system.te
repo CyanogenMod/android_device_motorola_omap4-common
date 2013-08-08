@@ -1,0 +1,2 @@
+allow system self:capability sys_module;
+allow system self:netlink_socket { write getattr setopt read bind create };

@@ -1,0 +1,5 @@
+# PDS partition
+type pds_file, file_type;
+
+# ducati
+type firmware_ducati, file_type;

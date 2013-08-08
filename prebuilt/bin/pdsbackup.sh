@@ -43,6 +43,7 @@ if [ ! -f $PDS_FILE ] ; then
     busybox find -group 9004 -exec chgrp 1000 {} \;
     busybox find -group 9007 -exec chgrp 1000 {} \;
     busybox find -group 9009 -exec chgrp 1000 {} \;
+    restorecon -R /pds
 
     echo "PDS Backed up, permissions fixed and mounted"
 
@@ -56,6 +57,7 @@ else
 
     #mount the existing pds backup
     mount_pds_image
+    restorecon -R /pds
 
     if [ -d /pds/public ] ; then
         echo "PDS partition mounted from data image."

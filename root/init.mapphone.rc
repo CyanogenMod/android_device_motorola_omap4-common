@@ -135,6 +135,8 @@ on post-fs
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
     chmod 0660 /sys/class/rfkill/rfkill0/state
+    restorecon /sys/class/rfkill/rfkill0/state
+    restorecon /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt_stack /dev/ttyO1
     chmod 0660 /dev/ttyO1
     # create the lost+found directories, so as to enforce our permissions
@@ -672,6 +674,7 @@ service pvrsrv /system/vendor/bin/pvrsrvinit
     class core
     user root
     group root
+    seclabel u:r:pvrsrvinit:s0
     oneshot
 service pppd-ril /system/bin/pppd-ril /dev/ttyUSB0 call pppd-ril.options plugin /system/lib/libpppd_plugin-ril.so
     class main
