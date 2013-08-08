@@ -170,11 +170,10 @@ PRODUCT_PACKAGES += \
     ueventd.mapphone_umts.rc
 
 PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/root/init.rc:/root/init.rc \
     $(COMMON_FOLDER)/root/init.usb.rc:/root/init.usb.rc
 
-ifneq ($(filter maserati solana spyder umts_spyder,$(TARGET_DEVICE)),)
 PRODUCT_PACKAGES += fstab.mapphone_cdma
-endif
 
 # Kexec files
 PRODUCT_COPY_FILES += \
