@@ -7,7 +7,7 @@
 #       your device, like battery calibration, wifi and baseband
 #
 
-export PATH=/system/xbin:$PATH
+export PATH=/system/xbin:/system/bin:$PATH
 PDS_FILE=/data/pdsdata.img
 
 mount_pds_image() {
