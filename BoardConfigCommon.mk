@@ -229,18 +229,19 @@ BOARD_PROVIDES_LIBRIL := true
 LEGACY_RIL := true
 
 BOARD_SEPOLICY_DIRS += \
-        device/motorola/omap4-common/sepolicy
+    device/motorola/omap4-common/sepolicy
 
 BOARD_SEPOLICY_UNION += \
-        file_contexts \
-        device.te \
-        dhcp.te \
-        domain.te \
-        file.te \
-        init_shell.te \
-        mediaserver.te \
-        pvrsrvinit.te \
-        rild.te \
-        system.te \
-        tee.te \
-        vold.te
+    debuggered.te \
+    file_contexts \
+    device.te \
+    dhcp.te \
+    domain.te \
+    file.te \
+    init_shell.te \
+    mediaserver.te \
+    pvrsrvinit.te \
+    rild.te \
+    system.te \
+    tee.te \
+    vold.te
