@@ -90,11 +90,6 @@ on post-fs
     write /sys/class/rtc/rtc0/unsecured_rtc on
     # Disable a system-wide task dump on OOM in default
     write /proc/sys/vm/oom_dump_tasks 0
-    write /proc/sys/fs/suid_dumpable 2
-    # Set core pattern
-    write /proc/sys/kernel/core_pattern "|/system/bin/coredump %e %p %t"
-    # Set core filter
-    write /proc/self/coredump_filter "0x7f"
     # Power Management
     write /sys/devices/w1\ bus\ master/w1_master_search 2
     write /sys/devices/system/cpu/cpu0/cpuidle/enable_state 1
@@ -168,11 +163,6 @@ on post-fs
     exec /system/bin/motobox swapon /dev/block/zram0
 on post-fs-data
     mkdir /data/tmp 0777 system system
-    copy /proc/apanic_app_threads /data/dontpanic/apanic_app_threads
-    chown root log /data/dontpanic/apanic_app_threads
-    chmod 0660 /data/dontpanic/apanic_app_threads
-# To remove apanic proc entry
-    write /proc/apanic_console 1
     chown system system /mnt/sdcard # Feature 34534
     chmod 0777 /mnt/sdcard # Feature 34534
 #Set the default value for bluedroid_ref
