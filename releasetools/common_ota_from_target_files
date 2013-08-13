@@ -418,10 +418,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
-  script.Mount("/cache");
-  script.DeleteRecursive("/cache");
-  script.Mount("/data")  
-  script.DeleteRecursive("/data/dalvik-cache")
   script.Mount("/system")
   script.DeleteRecursive("/system")
   #script.UnpackPackageDir("recovery", "/system")
