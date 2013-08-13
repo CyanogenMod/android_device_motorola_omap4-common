@@ -147,6 +147,7 @@ on post-fs
 # Permission for USB
     chown root mot_usb /proc/mtpctl
     chmod 0660 /proc/mtpctl
+    restorecon /system/etc/firmware/ducati-m3.bin
 # Install kernel modules
 # Install product specific kernel modules
     exec /system/bin/load_modules.sh

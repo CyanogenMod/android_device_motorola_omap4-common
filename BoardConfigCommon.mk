@@ -240,6 +240,7 @@ BOARD_SEPOLICY_UNION += \
     file.te \
     init_shell.te \
     mediaserver.te \
+    netd.te \
     pvrsrvinit.te \
     rild.te \
     system.te \
