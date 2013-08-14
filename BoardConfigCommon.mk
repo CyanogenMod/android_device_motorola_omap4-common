@@ -231,6 +231,7 @@ BOARD_SEPOLICY_DIRS += \
     device/motorola/omap4-common/sepolicy
 
 BOARD_SEPOLICY_UNION += \
+    bluetooth.te \
     debuggered.te \
     file_contexts \
     device.te \

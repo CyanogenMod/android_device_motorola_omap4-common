@@ -14,3 +14,4 @@ allow pvrsrvinit init:unix_stream_socket connectto;
 allow pvrsrvinit labeledfs:filesystem remount;
 allow pvrsrvinit system_file:dir { write add_name };
 allow pvrsrvinit system_file:lnk_file create;
+allow pvrsrvinit default_prop:property_service set;
