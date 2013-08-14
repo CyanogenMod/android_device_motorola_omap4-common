@@ -283,7 +283,3 @@ class EdifyGenerator(object):
       data = open(os.path.join(input_path, "updater")).read()
     common.ZipWriteStr(output_zip, "META-INF/com/google/android/update-binary",
                        data, perms=0755)
-
-  def CopyDataLocalProp(self):
-    self.script.append('package_extract_file("system/etc/localprop", "/data/local.prop");')
-    self.script.append('set_perm(1000, 1000, 0644, "/data/local.prop");')

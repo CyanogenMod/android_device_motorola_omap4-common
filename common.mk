@@ -24,7 +24,6 @@ PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/bin/wifical.sh:system/bin/wifical.sh \
     $(COMMON_FOLDER)/prebuilt/bin/wificalcheck.sh:system/bin/wificalcheck.sh \
     $(COMMON_FOLDER)/prebuilt/etc/gps.conf:system/etc/gps.conf \
-    $(COMMON_FOLDER)/prebuilt/etc/localprop:system/etc/localprop \
     $(COMMON_FOLDER)/prebuilt/etc/wifi/wlan_fem.ini:system/etc/wifi/wlan_fem.ini
 
 # Device overlay
@@ -86,8 +85,7 @@ PRODUCT_PACKAGES += \
 
 # Misc
 PRODUCT_PACKAGES += \
-    com.android.future.usb.accessory \
-    OMAP4Parts
+    com.android.future.usb.accessory
 
 # Motorola Binaries
 PRODUCT_PACKAGES += \
