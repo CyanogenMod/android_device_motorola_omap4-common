@@ -225,7 +225,6 @@ BOARD_USES_SECURE_SERVICES := true
 BOARD_HAS_MAPPHONE_SWITCH := true
 USE_IPV6_ROUTE := true
 BOARD_PROVIDES_LIBRIL := true
-LEGACY_RIL := true
 
 BOARD_SEPOLICY_DIRS += \
     device/motorola/omap4-common/sepolicy
