@@ -152,9 +152,6 @@ on post-fs
     insmod /system/lib/modules/cfg80211.ko
     insmod /system/lib/modules/mac80211.ko
     insmod /system/lib/modules/wl12xx.ko
-    write /sys/block/zram0/disksize 178257920
-    exec /system/bin/motobox mkswap /dev/block/zram0
-    exec /system/bin/motobox swapon /dev/block/zram0
 on post-fs-data
     mkdir /data/tmp 0777 system system
     chown system system /mnt/sdcard # Feature 34534
@@ -462,6 +459,9 @@ on boot
     mkdir /cache/trace 0777 root root
     chown root root /cache/trace
     chmod 0777 /cache/trace
+
+# ZRam setup
+    setprop persist.service.zram 18
 
 # Start services
     exec /system/bin/mot_boot_mode
