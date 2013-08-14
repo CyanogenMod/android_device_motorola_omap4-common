@@ -175,10 +175,13 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += fstab.mapphone_cdma
 
 # Kexec files
+ifndef TARGET_USES_CUSTOM_KEXECFILES
 PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/kexec/arm_kexec.ko:system/etc/kexec/arm_kexec.ko \
     $(COMMON_FOLDER)/kexec/kexec.ko:system/etc/kexec/kexec.ko \
-    $(COMMON_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko \
+    $(COMMON_FOLDER)/kexec/uart.ko:system/etc/kexec/uart.ko
+endif
+PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/kexec/atags:system/etc/kexec/atags \
     $(COMMON_FOLDER)/kexec/kexec:system/etc/kexec/kexec
 
