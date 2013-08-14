@@ -516,12 +516,6 @@ on property:sys.chargeonly.mode=1
     start whisperd
     start charge_only_mode
 # Power up to suspend
-
-service dnsmasq /system/bin/logwrapper /system/bin/dnsmasq -C/data/misc/wifi/dns.conf -k
-    class main
-    group wifi
-    disabled
-    oneshot
 #start console for userdebug and eng builds
 on property:ro.debuggable=1
     start console
@@ -564,52 +558,6 @@ service uim /system/bin/uim-sysfs
     class core
     user  root
     group bluetooth net_bt_admin
-service hciattach /system/bin/hciattach -l
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-service nap /system/bin/sdptool add NAP
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-service del_nap /system/bin/sdptool remove NAP
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-service panu /system/bin/sdptool add PANU
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-service del_panu /system/bin/sdptool remove PANU
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-service napics /system/bin/sh /system/bin/napics.sh
-    class main
-    user root
-    disabled
-    oneshot
-service btdhcpd /system/bin/dnsmasq -C /system/etc/btpan.conf
-    class main
-    user root
-    disabled
-    oneshot
-service map /system/bin/sdptool add --channel=20 --network=2 MAP
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
 # Ecompass daemon
 service akmd8975 /system/bin/akmd8975
     class main
@@ -697,26 +645,10 @@ service aplogd /system/bin/aplogd
     # to log plus those groups after preserving CAP_SYS_ADMIN, which is required
     # for kernel logging.
     disabled
-service fmradio /system/bin/fmradioserver
-    class main
-    user system
-    group bluetooth net_bt_admin net_raw net_admin misc
-    disabled
 service ftmipcd /system/bin/ftmipcd
     class main
     user radio
     group radio inet
-service qbplogd /system/bin/qbplogd
-    class main
-    user radio
-    group sdcard_rw radio inet
-    oneshot
-    disabled
-service dund_dialup /system/bin/dund --listen --channel=6 --nodetach --dialup
-    class main
-    group net_bt net_bt_admin
-    disabled
-    oneshot
 on property:dev.bootcomplete=1
 #    start loadpreinstalls
 service gadget-lte-modem /system/bin/tty2ttyd ril.wrigley.modem.tty /dev/ttyGS1 0 512
