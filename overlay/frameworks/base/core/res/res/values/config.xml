@@ -256,5 +256,7 @@
     <!-- We dont have different firmware for wifi modes, prevent reloading it -->	
     <bool name="config_wifiApFirmwareReload">false</bool>
 
+    <!-- Is the device capable of hot swapping an UICC Card -->
+    <bool name="config_hotswapCapable">true</bool>
 </resources>
 
