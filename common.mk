@@ -234,6 +234,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Radio and Telephony
 PRODUCT_PROPERTY_OVERRIDES += \
+    ro.telephony.ril_class = MotorolaMapphoneRIL \
     keyguard.no_require_sim = true \
     persist.ril.mux.noofchannels=10 \
     ro.cdma.otaspnumschema=SELC,1,80,99 \
