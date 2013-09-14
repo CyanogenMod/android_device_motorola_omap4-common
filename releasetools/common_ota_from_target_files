@@ -59,6 +59,9 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
   --override_device <device>
       Override device-specific asserts. Can be a comma-separated list.
 
+  --no_assert <true|false>
+      Including this will turn device asserts off.
+
 """
 
 import sys
@@ -97,6 +100,7 @@ OPTIONS.aslr_mode = True
 OPTIONS.worker_threads = 3
 OPTIONS.backuptool = True
 OPTIONS.override_device = 'auto'
+OPTIONS.no_assert = False
 
 def MostPopularKey(d, default):
   """Given a dict, return the key corresponding to the largest
@@ -422,6 +426,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.DeleteRecursive("/system")
   #script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+  script.CopyFile("changelog.txt", "/system/etc/changelog.txt")
   script.DeleteFiles(["system/bin/applypatch"] +
                      ["system/bin/recovery"])
 
@@ -777,6 +782,11 @@ def main(argv):
       OPTIONS.omit_prereq = True
     elif o in ("-e", "--extra_script"):
       OPTIONS.extra_script = a
+    elif o in ("--no_assert"):
+      if a in ("on", "On", "true", "True", "yes", "Yes"):
+        OPTIONS.no_assert = True
+      else:
+        OPTIONS.no_assert = False
     elif o in ("-a", "--aslr_mode"):
       if a in ("on", "On", "true", "True", "yes", "Yes"):
         OPTIONS.aslr_mode = True
@@ -796,6 +806,7 @@ def main(argv):
                              extra_opts="b:k:i:d:wne:a:",
                              extra_long_opts=["board_config=",
                                               "package_key=",
+                                              "no_assert=",
                                               "incremental_from=",
                                               "wipe_user_data",
                                               "no_prereq",

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">デバイス設定</string>
+    <string name="category_storage">ストレージ</string>
+    <string name="reboot_summary">設定を反映するためには再起動が必要です</string>
+    <string name="storage_switch_title">外部ストレージを使用</string>
+    <string name="storage_switch_summary_off">拡張内部ストレージにアプリ/メディアデータを格納する</string>
+    <string name="storage_switch_summary_on">SDカードにアプリ/メディアデータを格納する</string>
+    <string name="storage_switch_unavailable">この端末は拡張内部ストレージを使用できません</string>
+    <string name="category_telephony">GSM通信オプション</string>
+    <string name="gsm_signalstrength_title">GSM電波強度表示</string>
+    <string name="gsm_signalstrength_summary_off">CDMA/LTE電波強度を表示する</string>
+    <string name="gsm_signalstrength_summary_on">GSM電波強度を表示する</string>
+    <string name="gsm_signalstrength_unavailable">無効: この端末はGSMのみ</string>
+    <string name="reboot_prompt_title">要再起動</string>
+    <string name="reboot_prompt_message">設定を反映するためには再起動が必要です。\n\n今すぐ再起動しますか？</string>
+    <string name="yes">はい</string>
+    <string name="no">いいえ</string>
+</resources>
