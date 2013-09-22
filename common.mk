@@ -149,10 +149,10 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
 
 # WLAN firmware
-PRODUCT_COPY_FILES += \
-    $(COMMON_FOLDER)/firmware/ti-connectivity/wl128x-fw-4-mr.bin:system/etc/firmware/ti-connectivity/wl128x-fw-4-mr.bin \
-    $(COMMON_FOLDER)/firmware/ti-connectivity/wl128x-fw-4-plt.bin:system/etc/firmware/ti-connectivity/wl128x-fw-4-plt.bin \
-    $(COMMON_FOLDER)/firmware/ti-connectivity/wl128x-fw-4-sr.bin:system/etc/firmware/ti-connectivity/wl128x-fw-4-sr.bin
+PRODUCT_PACKAGES += \
+    wl128x-fw-4-sr.bin \
+    wl128x-fw-4-mr.bin \
+    wl128x-fw-4-plt.bin
 
 # system/etc Prebuilts
 PRODUCT_COPY_FILES += \
