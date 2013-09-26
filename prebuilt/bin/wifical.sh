@@ -1,6 +1,7 @@
 #! /system/bin/sh
 
 WIFION=`getprop init.svc.p2p_supplicant`
+WL12xx_MODULE=/system/lib/modules/wl12xx_sdio.ko
 
 case "$WIFION" in
   "running") echo " ****************************************"
@@ -17,7 +18,6 @@ PDS_NVS_FILE=/pds/wifi/nvs_map.bin
 TARGET_FW_DIR=/system/etc/firmware/ti-connectivity
 TARGET_NVS_FILE=$TARGET_FW_DIR/wl1271-nvs.bin
 TARGET_INI_FILE=/system/etc/wifi/wlan_fem.ini
-WL12xx_MODULE=/system/lib/modules/wl12xx_sdio.ko
 
 if [ -e $WL12xx_MODULE ];
 then
@@ -61,3 +61,6 @@ case "$WIFION" in
              echo " *************************"
              svc wifi enable;;
 esac
+
+# Remount system partition as ro
+mount -o remount ro /system
