@@ -2,6 +2,9 @@
 
 WIFION=`getprop init.svc.p2p_supplicant`
 WL12xx_MODULE=/system/lib/modules/wl12xx_sdio.ko
+PDS_NVS_FILE=/pds/wifi/nvs_map.bin
+TARGET_FW_DIR=/system/etc/firmware/ti-connectivity
+TARGET_NVS_FILE=$TARGET_FW_DIR/wl1271-nvs.bin
 
 case "$WIFION" in
   "running") echo " ****************************************"
@@ -13,11 +16,6 @@ case "$WIFION" in
              echo " * Starting Wi-Fi calibration *"
              echo " ******************************";;
 esac
-
-PDS_NVS_FILE=/pds/wifi/nvs_map.bin
-TARGET_FW_DIR=/system/etc/firmware/ti-connectivity
-TARGET_NVS_FILE=$TARGET_FW_DIR/wl1271-nvs.bin
-TARGET_INI_FILE=/system/etc/wifi/wlan_fem.ini
 
 if [ -e $WL12xx_MODULE ];
 then
@@ -32,24 +30,18 @@ fi
 # Remount system partition as rw
 mount -o remount rw /system
 
-# Remove old NVS file
+# Fresh install or update copy over the generic nvs
+cp $TARGET_FW_DIR/wl1271-nvs.bin_generic $TARGET_NVS_FILE
+
+# Set the MAC address if nvs_map exists in pds
 if [ -e $PDS_NVS_FILE ];
 then
-    if [ -e $TARGET_NVS_FILE ];
-    then
-        rm $TARGET_NVS_FILE
-    fi
-
-    # Actual calibration...
-    # calibrator plt autocalibrate <dev> <module path> <ini file1> <nvs file> <mac addr>
-    # Leaving mac address field empty for random mac
-    HW_MAC=`calibrator get nvs_mac /pds/wifi/nvs_map.bin | grep -o -E "([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}"`
-    calibrator plt autocalibrate wlan0 $WL12xx_MODULE $TARGET_INI_FILE $TARGET_NVS_FILE $HW_MAC
+    HW_MAC=`calibrator get nvs_mac $PDS_NVS_FILE | grep -o -E "([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}"`
+    calibrator set nvs_mac $TARGET_NVS_FILE $HW_MAC
 else
     echo "********************************************************"
-    echo "* /pds/wifi/nvs_map.bin not found !! Using generic NVS *"
+    echo "* /pds/wifi/nvs_map.bin not found !! Not setting MAC   *"
     echo "********************************************************"
-    cp $TARGET_FW_DIR/wl1271-nvs.bin_generic $TARGET_NVS_FILE
 fi
 
 echo " ******************************"
