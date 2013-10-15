@@ -460,9 +460,6 @@ on boot
     chown root root /cache/trace
     chmod 0777 /cache/trace
 
-# ZRam setup
-    setprop persist.service.zram 18
-
 # Start services
     exec /system/bin/mot_boot_mode
     start wifical_check
