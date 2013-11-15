@@ -150,7 +150,7 @@ PRODUCT_COPY_FILES += \
 
 # WLAN firmware
 PRODUCT_PACKAGES += \
-    wl1271-nvs.bin_generic \
+    wl1271-nvs_128x.bin \
     wl128x-fw-4-sr.bin \
     wl128x-fw-4-mr.bin \
     wl128x-fw-4-plt.bin

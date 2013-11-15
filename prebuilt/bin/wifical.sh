@@ -31,7 +31,7 @@ fi
 mount -o remount rw /system
 
 # Fresh install or update copy over the generic nvs
-cp $TARGET_FW_DIR/wl1271-nvs.bin_generic $TARGET_NVS_FILE
+cp $TARGET_FW_DIR/wl1271-nvs_128x.bin $TARGET_NVS_FILE
 
 # Set the MAC address if nvs_map exists in pds
 if [ -e $PDS_NVS_FILE ];
