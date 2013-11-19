@@ -201,6 +201,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=240 \
     windowsmgr.max_events_per_sec=90 \
     com.ti.omap_enhancement=true \
+    ro.bq.gpu_to_cpu_unsupported=1 \
     hwui.render_dirty_regions=false \
     persist.sys.root_access=3 \
     ro.product.use_charge_counter=1 \
