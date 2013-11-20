@@ -27,7 +27,7 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := modemlog.c
-LOCAL_SHARED_LIBRARIES := libcutils
+LOCAL_SHARED_LIBRARIES := libcutils liblog
 LOCAL_MODULE := modemlog
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_EXECUTABLE)

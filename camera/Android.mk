@@ -108,6 +108,7 @@ TI_CAMERAHAL_COMMON_SHARED_LIBRARIES := \
     libbinder \
     libutils \
     libcutils \
+    liblog \
     libtiutils_custom \
     libcamera_client \
     libgui \
