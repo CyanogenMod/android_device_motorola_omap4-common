@@ -1,15 +1,15 @@
 /*
  *   mot_boot_mode - Check phone bootup mode, which will be
  *                   executed in init.rc to decide what kind
- *                   of services should be started during phone 
- *                   powerup.  
- *  
+ *                   of services should be started during phone
+ *                   powerup.
+ *
  *   Copyright Motorola 2009
- *  
+ *
  *   Date         Author      Comment
  *   01/03/2009   Motorola    Creat initial version
  *   17/04/2009   Motorola    Support Charge Only Mode
- *   					       
+ *   
  */
 
 #include <stdio.h>
@@ -22,7 +22,7 @@
 #include <cutils/properties.h>
 #include <cutils/log.h>
 
-#define MOTO_PU_REASON_CHARGE_ONLY    "0x00000100" 
+#define MOTO_PU_REASON_CHARGE_ONLY    "0x00000100"
 #define MOTO_PU_REASON_CPCAP_RESET    "0x00040000"
 #define MOTO_PU_REASON_KPANIC 	      "0x00020000"
 #define MOTO_PU_REASON_WDRESET        "0x00008000"
@@ -84,20 +84,20 @@ int check_bootinfo(const char * field, const char* value)
  * ******************************************************************/
 int check_abnormal_reboot(void)
 {
-    char abnormal_boot[32];
+    char abnormal_boot[PROPERTY_VALUE_MAX];
 
     memset(abnormal_boot, 0, 32);
 
     property_get("ro.bootmode", abnormal_boot, "unknown");
 
-    if((!strncmp(abnormal_boot, "kpanic", 6)) || 
+    if((!strncmp(abnormal_boot, "kpanic", 6)) ||
 	(!strncmp(abnormal_boot, "wdreset", 7)) ||
 	(!strncmp(abnormal_boot, "wdcpcap", 7))) {
         ALOGD("MOTO_PUPD: bootmode=%s\n", abnormal_boot);
 	return 1;
     } else {
-	if((check_bootinfo("POWERUPREASON", MOTO_PU_REASON_KPANIC)) || 
-	(check_bootinfo("POWERUPREASON", MOTO_PU_REASON_WDRESET)) || 
+	if((check_bootinfo("POWERUPREASON", MOTO_PU_REASON_KPANIC)) ||
+	(check_bootinfo("POWERUPREASON", MOTO_PU_REASON_WDRESET)) ||
 	(check_bootinfo("POWERUPREASON", MOTO_PU_REASON_CPCAP_RESET))) {
 		return 1;
 	} else {
@@ -112,7 +112,7 @@ int check_abnormal_reboot(void)
 char* mode[COM_MAX_MODE_LENGTH];
 
 /********************************************************************
- * Check previous phone mode before reset 
+ * Check previous phone mode before reset
  * Return value:
  * Type: int
  * 1: com mode
@@ -143,11 +143,11 @@ int check_com_reset(void)
  * Return value:
  * Type: int
  * 1: charge_only_mode
- * 0: NOT charge_only_mode 
+ * 0: NOT charge_only_mode
  ********************************************************************/
 int boot_reason_charge_only(void)
 {
-    char powerup_reason[32];
+    char powerup_reason[PROPERTY_VALUE_MAX];
 
     memset(powerup_reason, 0, 32);
 
@@ -157,7 +157,7 @@ int boot_reason_charge_only(void)
         ALOGD("MOTO_PUPD: bootmode=%s\n", powerup_reason);
         return 1;
     } else if(check_bootinfo("POWERUPREASON", MOTO_PU_REASON_CHARGE_ONLY)) {
-		return 1; 
+		return 1;
     } else if(check_abnormal_reboot() && check_com_reset()) {
 		return 1;
     } else {
@@ -174,7 +174,7 @@ int boot_reason_charge_only(void)
  * ******************************************************************/
 int check_cid_recover_boot(void)
 {
-    char cid_recover_boot[32];
+    char cid_recover_boot[PROPERTY_VALUE_MAX];
 
     memset(cid_recover_boot, 0, 32);
 
@@ -189,7 +189,7 @@ int check_cid_recover_boot(void)
 }
 
 /********************************************************************
- * Check 12m file is set or not (tcmd suspend related) 
+ * Check 12m file is set or not (tcmd suspend related)
  * return value:
  * Type: int
  * 1: 12m is set
@@ -209,7 +209,7 @@ int check_data_12m(void)
  * TODO: Is the priority/order right?
  ********************************************************************/
 int main(int argc, char **argv)
-{    
+{
     ALOGD("MOTO_PUPD: mot_boot_mode\n");
 
     if (check_cid_recover_boot()){

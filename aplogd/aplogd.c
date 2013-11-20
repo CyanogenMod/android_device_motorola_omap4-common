@@ -1,26 +1,26 @@
 /********************************************************************
  * Copyright (C) 2009 Motorola, All Rights Reserved
- * 
+ *
  * File Name: aplogd.c
  *
  * General Description: This file provides the core of the aplogd daemon.
  *
  * This program is licensed under a BSD license with the following terms:
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *    o Redistributions of source code must retain the above copyright notice,
- *      this list of conditions and the following disclaimer. 
- * 
+ *      this list of conditions and the following disclaimer.
+ *
  *    o Redistributions in binary form must reproduce the above copyright
  *      notice, this list of conditions and the following disclaimer in the
  *      documentation and/or other materials provided with the distribution.
- * 
+ *
  *    o Neither the name of Motorola nor the names of its
  *      contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -62,10 +62,10 @@
 #include <linux/capability.h>
 #include <linux/prctl.h>
 
-#include <cutils/logger.h>
-#include <cutils/logd.h>
-#include <cutils/logprint.h>
-#include <cutils/event_tag_map.h>
+#include <log/logger.h>
+#include <log/logd.h>
+#include <log/logprint.h>
+#include <log/event_tag_map.h>
 #include <cutils/properties.h>
 #include <private/android_filesystem_config.h>
 /* Motorola Includes */
@@ -126,7 +126,7 @@ char* g_output_path[STORAGE_MAX] = {NULL};
 
 /* setLogFormat(const char)
  *
- * Description: This function set the log output format 
+ * Description: This function set the log output format
  *
  * Return: (int) 0 on success; -1 on failure.
  *
@@ -136,7 +136,7 @@ static int setLogFormat(const char * formatString)
 {
 	static AndroidLogPrintFormat format;
 	g_logformat = android_log_format_new();
-	
+
 	format = android_log_formatFromString(formatString);
 
 	if (format == FORMAT_OFF) {
@@ -183,7 +183,7 @@ static void aplogd_signal_handler(int signal)
 
 void aplogd_config_load(void)
 {
- 	DPRINT("Enter aplogd_config_load.\n");
+   DPRINT("Enter aplogd_config_load.\n");
 	aplogd_io_array[APLOGD_INPUT_MAIN_POLL_INDEX].collect_flag = aplogd_is_collected('m');
 	aplogd_io_array[APLOGD_INPUT_RADIO_POLL_INDEX].collect_flag = aplogd_is_collected('r');
 	aplogd_io_array[APLOGD_INPUT_EVENTS_POLL_INDEX].collect_flag = aplogd_is_collected('e');

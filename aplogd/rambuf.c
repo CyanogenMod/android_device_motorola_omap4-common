@@ -1,26 +1,26 @@
 /********************************************************************
  * Copyright (C) 2009 Motorola, All Rights Reserved
- * 
+ *
  * File Name: rambuf.c
  *
  * General Description: This file provides RAM buffer functionality
  *
  * This program is licensed under a BSD license with the following terms:
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *    o Redistributions of source code must retain the above copyright notice,
- *      this list of conditions and the following disclaimer. 
- * 
+ *      this list of conditions and the following disclaimer.
+ *
  *    o Redistributions in binary form must reproduce the above copyright
  *      notice, this list of conditions and the following disclaimer in the
  *      documentation and/or other materials provided with the distribution.
- * 
+ *
  *    o Neither the name of Motorola nor the names of its
  *      contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -52,9 +52,9 @@
 #include <sys/stat.h>
 #include <sys/uio.h>
 #include <fcntl.h>
-#include <cutils/logger.h>
-#include <cutils/logd.h>
-#include <cutils/logprint.h>
+#include <log/logger.h>
+#include <log/logd.h>
+#include <log/logprint.h>
 
 /* Aplogd includes */
 #include "rambuf.h"
@@ -193,7 +193,7 @@ int aplogd_rambuf_output(int index)
 	while(need_written >0) {
 		size_written = write(aplogd_io_array[index].output_fd, (void*)aplogd_io_array[index].input_buf_base, need_written);
 		if (size_written < 0 )
-		{       
+		{
 			EPRINT("output write: size_written=%d, errno=%d\n", size_written, errno);
 			if (ENOSPC == errno)
 				aplogd_close_output();

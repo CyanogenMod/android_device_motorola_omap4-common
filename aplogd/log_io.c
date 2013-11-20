@@ -1,6 +1,6 @@
 /********************************************************************
  * Copyright (C) 2009 Motorola, All Rights Reserved
- * 
+ *
  * File Name: log_io.c
  *
  * General Description: This file provides the core of the aplogd daemon.
@@ -16,10 +16,10 @@
  * Includes
  ************************/
 /* "Standard" Includes */
-#include <cutils/logger.h>
-#include <cutils/logd.h>
-#include <cutils/logprint.h>
-#include <cutils/event_tag_map.h>
+#include <log/logger.h>
+#include <log/logd.h>
+#include <log/logprint.h>
+#include <log/event_tag_map.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -119,7 +119,7 @@ int LogfilterAndBuffering(
 	}
         len= aplogd_rambuf_space(index);
 	if(len >  totalLen ){
-		memcpy(aplogd_io_array[index].input_buf, outBuffer, totalLen); 
+		memcpy(aplogd_io_array[index].input_buf, outBuffer, totalLen);
 		aplogd_io_array[index].input_buf += totalLen;
 		ret_val=totalLen;
 		if(outBuffer !=defaultBuffer)
@@ -403,7 +403,7 @@ static void aplogd_io_cleanup(void)
 		aplogd_io_array[i].input_fd = -1;
 		if(aplogd_io_array[i].output_fd)
 			close(aplogd_io_array[i].output_fd);
-		aplogd_io_array[i].output_fd = -1;	
+		aplogd_io_array[i].output_fd = -1;
 	}
 
 	return;
@@ -516,12 +516,12 @@ static void aplogd_io_read_data(int poll_num)
 				exit(EXIT_FAILURE);
 			}
 			/* NOTE: driver guarantees we read exactly one full entry */
-			if(entry->len >=LOGGER_ENTRY_MAX_LEN) 
+			if(entry->len >=LOGGER_ENTRY_MAX_LEN)
 				entry->len=LOGGER_ENTRY_MAX_LEN-1;
 			entry->msg[entry->len] = '\0';
 			if(APLOGD_INPUT_EVENTS_POLL_INDEX == poll_num )
 				errno = android_log_processBinaryLogBuffer(entry, &log_entry, g_eventTagMap,binaryMsgBuf, sizeof(binaryMsgBuf));
-			else	
+			else
 				errno = android_log_processLogBuffer(entry, &log_entry);
 			if(errno <0) {
 				EPRINT("Error in android_log_processLogBuffer.\n");
@@ -550,12 +550,12 @@ static void aplogd_io_read_data(int poll_num)
 		        len = aplogd_rambuf_space(poll_num);
 			if(len > 0 && len >= ret && ret <= 255 ){
 				buf[ret]='\0';
-                		memcpy(aplogd_io_array[poll_num].input_buf, buf, ret );
-                		aplogd_io_array[poll_num].input_buf += ret;
-        		}else {
-                		WPRINT("no enough buffer to contain log messages.\n");
-				break;
-        		}
+                       memcpy(aplogd_io_array[poll_num].input_buf, buf, ret );
+                       aplogd_io_array[poll_num].input_buf += ret;
+               } else {
+                       WPRINT("no enough buffer to contain log messages.\n");
+                       break;
+               }
 			unwritten_bytes+=ret;
 			if(unwritten_bytes >= aplogd_output_buffering){
 				aplogd_rambuf_outputall();
@@ -565,7 +565,7 @@ static void aplogd_io_read_data(int poll_num)
 				aplogd_poll_timeout=60000;
 			}
 			ret=read(my_fd, buf, 255);
-		}	
+		}
 	}else {
 		int sock_fd= aplogd_io_array[APLOGD_VOLD_STATUS_POLL_INDEX].input_fd;
 		char buf[4096];
@@ -606,8 +606,8 @@ static void aplogd_io_read_data(int poll_num)
 
 
 /* aplogd_io_boot_finish()
- * 
- * Description: This function attempts to finish operations that may have been 
+ *
+ * Description: This function attempts to finish operations that may have been
  * affected by our early position in the boot order. This includes log file FS
  * setup.
  *
@@ -621,7 +621,7 @@ static int aplogd_io_boot_finish(void)
 	int ret_val = 0;
 	static int aplogd_config_finish = FALSE;
 	if (aplogd_config_finish == FALSE){
-		aplogd_config_load(); 
+		aplogd_config_load();
 		DPRINT("Finish config\n");
 		aplogd_config_finish = TRUE;
 	}
@@ -705,7 +705,7 @@ static int aplogd_io_handle_poll(int poll_offset)
 	{
 		VPRINT("fd %d poll returned 0x%0X\n",
 				aplogd_io_fd[poll_offset].fd,
-				aplogd_io_fd[poll_offset].revents); 
+				aplogd_io_fd[poll_offset].revents);
 		/* Read the data from the logger device */
 		aplogd_io_read_data(poll_offset);
 		/* We found one returned event; clean up */
@@ -798,7 +798,7 @@ void aplogd_log_save(STORAGE_T storage)
 /* aplogd_log_io()
  *
  * Description: This function provides the main log input / output
- * functionality. 
+ * functionality.
  *
  * Return: None
  *
@@ -830,12 +830,12 @@ void aplogd_log_io(void)
 			for(i=0;i<=  APLOGD_INPUT_LAST ;i++){
 				if(aplogd_io_array[i].collect_flag == 0)
 					aplogd_io_remove_poll_fd(i);
-				else 
+				else
 					if(aplogd_io_array[i].input_fd >= 0)
 						aplogd_io_add_poll_fd(aplogd_io_array[i].input_fd, POLLIN,i);
 			}
 		}
-		i=0;	
+		i=0;
 		poll_ret = poll(aplogd_io_fd, APLOGD_MAX_IO_FDS,aplogd_poll_timeout);
 		if(poll_ret ==0) {
 			aplogd_rambuf_outputall();
@@ -875,11 +875,11 @@ fail:
 
 /* aplogd_io_backup()
  *
- * Description: This function will rename the output file to .old and create a new fd. 
+ * Description: This function will rename the output file to .old and create a new fd.
  *
  * @index:(int) index of output_filename
- * 
- * Return: (int)New fd of output file description 
+ *
+ * Return: (int)New fd of output file description
  *
  * Notes: None
  */
