@@ -22,6 +22,4 @@
     <!-- This device implements a noise suppression device for in call audio-->
     <bool name="has_in_call_noise_suppression">true</bool>
 
-    <!-- CrystalTalk -->
-    <string name="voice_quality_param">motoVoiceQualityConfig</string>
 </resources>
