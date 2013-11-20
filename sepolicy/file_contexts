@@ -8,7 +8,6 @@
 /dev/msp430                     u:object_r:sensors_device:s0
 /dev/isl29030                   u:object_r:sensors_device:s0
 /dev/dsscomp                    u:object_r:video_device:s0
-/dev/pvrsrvkm                   u:object_r:powervr_device:s0
 /dev/tiler                      u:object_r:video_device:s0
 /dev/ttyGS0                     u:object_r:radio_device:s0
 /dev/ttyGS1                     u:object_r:radio_device:s0

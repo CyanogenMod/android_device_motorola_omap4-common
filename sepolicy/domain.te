@@ -1,6 +1,3 @@
-## Pvrsrvinit
-allow domain powervr_device:chr_file rw_file_perms;
-
 ## /dev/rfkill for wpa_supp
 allow wpa rfkill_device:chr_file rw_file_perms;
 
