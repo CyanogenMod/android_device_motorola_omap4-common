@@ -15,3 +15,4 @@ allow pvrsrvinit labeledfs:filesystem remount;
 allow pvrsrvinit system_file:dir { write add_name };
 allow pvrsrvinit system_file:lnk_file create;
 allow pvrsrvinit default_prop:property_service set;
+allow pvrsrvinit block_device:blk_file { read ioctl open };
