@@ -61,6 +61,8 @@ static void *vsync_loop(void *data)
     for (;;) {
         pthread_mutex_lock(&vsync_mutex);
         period = vsync_rate; /* re-read rate */
+        if (period <= 0)
+            period = 1000000000 / 60;
         while (!vsync_loop_active) {
             pthread_cond_wait(&vsync_cond, &vsync_mutex);
         }
