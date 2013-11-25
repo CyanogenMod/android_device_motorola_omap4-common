@@ -18,6 +18,10 @@
 
 COMMON_FOLDER := device/motorola/omap4-common
 
+# Boot animation (HACK 540.zip crashes PVR currently)
+TARGET_SCREEN_HEIGHT := 720
+TARGET_SCREEN_WIDTH := 480
+
 # The gps config appropriate for this device
 PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/bin/pdsbackup.sh:system/bin/pdsbackup.sh \
