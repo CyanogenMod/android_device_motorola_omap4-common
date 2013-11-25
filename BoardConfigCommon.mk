@@ -166,6 +166,7 @@ BOARD_EGL_CFG := device/motorola/omap4-common/prebuilt/etc/egl.cfg
 USE_OPENGL_RENDERER := true
 BOARD_USE_CUSTOM_LIBION := true
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
+TARGET_USES_OPENGLES_FOR_SCREEN_CAPTURE := true
 
 # Makefile variable and C/C++ macro to recognise DOMX version
 ifdef BOARD_USE_TI_ENHANCED_DOMX
