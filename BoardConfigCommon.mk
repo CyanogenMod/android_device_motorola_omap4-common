@@ -216,9 +216,6 @@ TARGET_PROVIDES_RELEASETOOLS := true
 TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT := device/motorola/omap4-common/releasetools/common_ota_from_target_files
 SKIP_SET_METADATA := true
 
-# Bootanimation
-TARGET_BOOTANIMATION_PRELOAD := true
-
 # Misc.
 BOARD_USE_BATTERY_CHARGE_COUNTER := true
 BOARD_FLASH_BLOCK_SIZE := 131072
