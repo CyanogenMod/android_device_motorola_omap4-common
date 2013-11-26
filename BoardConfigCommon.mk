@@ -229,6 +229,9 @@ BOARD_HAS_MAPPHONE_SWITCH := true
 USE_IPV6_ROUTE := true
 BOARD_RIL_NO_CELLINFOLIST := true
 
+# Override healthd HAL to use charge_counter for 1%
+BOARD_HAL_STATIC_LIBRARIES := libhealthd.omap4
+
 BOARD_SEPOLICY_DIRS += \
     device/motorola/omap4-common/sepolicy
 
