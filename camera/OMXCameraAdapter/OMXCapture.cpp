@@ -948,7 +948,7 @@ status_t OMXCameraAdapter::doBracketing(OMX_BUFFERHEADERTYPE *pBuffHeader,
             mBracketingBuffersQueued[nextBufferIdx] = true;
             mBracketingBuffersQueuedCount++;
             mLastBracetingBufferIdx = nextBufferIdx;
-            setFrameRefCount((CameraBuffer *)imgCaptureData->mBufferHeader[nextBufferIdx]->pAppPrivate, typeOfFrame, 1);
+            setFrameRefCountByType((CameraBuffer *)imgCaptureData->mBufferHeader[nextBufferIdx]->pAppPrivate, typeOfFrame, 1);
             returnFrame((CameraBuffer *)imgCaptureData->mBufferHeader[nextBufferIdx]->pAppPrivate, typeOfFrame);
             }
         }
