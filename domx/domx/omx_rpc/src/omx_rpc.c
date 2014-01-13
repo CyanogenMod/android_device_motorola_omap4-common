@@ -72,7 +72,7 @@
 
 #define RPC_MSGPIPE_SIZE (4)
 #define RPC_MSG_SIZE_FOR_PIPE (sizeof(OMX_PTR))
-
+#define MAX_ATTEMPTS 15
 
 #define RPC_getPacket(nPacketSize, pPacket) do { \
     pPacket = TIMM_OSAL_Malloc(nPacketSize, TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_INT); \
@@ -84,7 +84,7 @@
     if(pPacket != NULL) TIMM_OSAL_Free(pPacket); \
     } while(0)
 
-
+OMX_U8 pBufferError[RPC_PACKET_SIZE];
 
 void *RPC_CallbackThread(void *data);
 
@@ -129,7 +129,7 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
 	while (1)
 	{
 		pRPCCtx->fd_omx = open("/dev/rpmsg-omx1", O_RDWR);
-		if(pRPCCtx->fd_omx >= 0 || errno != ENOENT || nAttempts == 15)
+		if(pRPCCtx->fd_omx >= 0 || errno != ENOENT || nAttempts == MAX_ATTEMPTS)
 			break;
 		DOMX_DEBUG("errno from open= %d, REATTEMPTING OPEN!!!!",errno);
 		nAttempts++;
@@ -291,6 +291,7 @@ void *RPC_CallbackThread(void *data)
 	TIMM_OSAL_ERRORTYPE eError = TIMM_OSAL_ERR_NONE;
 	OMX_COMPONENTTYPE *hComp = NULL;
 	PROXY_COMPONENT_PRIVATE *pCompPrv = NULL;
+        OMX_PTR pBuff = pBufferError;
 
 	maxfd =
 	    (pRPCCtx->fd_killcb >
@@ -321,6 +322,13 @@ void *RPC_CallbackThread(void *data)
             {
                 if(errno == ENXIO)
                 {
+		    for(nFxnIdx = 0; nFxnIdx < RPC_OMX_MAX_FUNCTION_LIST; nFxnIdx++)
+		    {
+			((struct omx_packet *) pBufferError)->result = OMX_ErrorHardware;
+			TIMM_OSAL_WriteToPipe(pRPCCtx->pMsgPipe[nFxnIdx], &pBuff, RPC_MSG_SIZE_FOR_PIPE, TIMM_OSAL_SUSPEND);
+			if(eError != TIMM_OSAL_ERR_NONE)
+				DOMX_ERROR("Write to pipe failed");
+		    }
                     /*Indicate fatal error and exit*/
                     RPC_assert(0, RPC_OMX_ErrorHardware,
                     "Remote processor fatal error");
@@ -361,10 +369,26 @@ void *RPC_CallbackThread(void *data)
 				pBuffer = NULL;
 				break;
 			default:
-				eError =
-				    TIMM_OSAL_WriteToPipe(pRPCCtx->
-				    pMsgPipe[nFxnIdx], &pBuffer,
-				    RPC_MSG_SIZE_FOR_PIPE, TIMM_OSAL_SUSPEND);
+				if (((struct omx_packet *) pBuffer)->result == OMX_ErrorHardware)
+				{
+					//On a true OMX_ErrorHardware error, send the global error packet
+					//and release the local allocated packet to avoid memory leaks since
+					//the listener will not free the packet on OMX_ErrorHardware errors.
+					RPC_freePacket(pBuffer);
+					pBuffer = NULL;
+					((struct omx_packet *) pBufferError)->result = OMX_ErrorHardware;
+					eError = TIMM_OSAL_WriteToPipe(pRPCCtx->pMsgPipe[nFxnIdx],
+													&pBuff,
+													RPC_MSG_SIZE_FOR_PIPE,
+													TIMM_OSAL_SUSPEND);
+				}
+				else
+				{
+					eError = TIMM_OSAL_WriteToPipe(pRPCCtx->pMsgPipe[nFxnIdx],
+													&pBuffer,
+													RPC_MSG_SIZE_FOR_PIPE,
+													TIMM_OSAL_SUSPEND);
+				}
 				RPC_assert(eError == TIMM_OSAL_ERR_NONE,
 				    RPC_OMX_ErrorUndefined,
 				    "Write to pipe failed");

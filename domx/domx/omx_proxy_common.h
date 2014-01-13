@@ -71,6 +71,7 @@ extern "C"
 #include "omx_rpc.h"
 #include "omx_rpc_internal.h"
 #include "omx_rpc_utils.h"
+#include "memplugin.h"
 
 /****************************************************************
  * PUBLIC DECLARATIONS Defined here, used elsewhere
@@ -94,7 +95,7 @@ extern "C"
 #define PROXY_paramCheck(C, V, S) do {\
     if (!(C)) { eError = V;\
     if(S) DOMX_ERROR("failed check:" #C" - returning error: 0x%x - %s",V,S);\
-    else DOMX_ERROR("failed check:" #C" - returning error: 0x%x",C, V); \
+    else DOMX_ERROR("failed check:" #C" - returning error: 0x%x",V); \
     goto EXIT; }\
     } while(0)
 
@@ -110,6 +111,46 @@ extern "C"
                   OMX_ErrorVersionMismatch, NULL); \
     } while(0)
 
+#define PROXY_checkRpcError() do { \
+    if (eRPCError == RPC_OMX_ErrorNone) \
+    { \
+        DOMX_DEBUG("Corresponding RPC function executed successfully"); \
+        eError = eCompReturn; \
+        PROXY_assert((eError == OMX_ErrorNone) || (eError == OMX_ErrorNoMore), eError, "Error returned from OMX API in ducati"); \
+    } else \
+    { \
+        DOMX_ERROR("RPC function returned error 0x%x", eRPCError); \
+        switch (eRPCError) \
+        { \
+            case RPC_OMX_ErrorHardware: \
+                eError = OMX_ErrorHardware; \
+            break; \
+            case RPC_OMX_ErrorInsufficientResources: \
+                eError = OMX_ErrorInsufficientResources; \
+            break; \
+            case RPC_OMX_ErrorBadParameter: \
+                eError = OMX_ErrorBadParameter; \
+            break; \
+            case RPC_OMX_ErrorUnsupportedIndex: \
+                eError = OMX_ErrorUnsupportedIndex; \
+            break; \
+            case RPC_OMX_ErrorTimeout: \
+                eError = OMX_ErrorTimeout; \
+            break; \
+            default: \
+                eError = OMX_ErrorUndefined; \
+        } \
+        PROXY_assert((eError == OMX_ErrorNone), eError, "Error returned from OMX API in ducati"); \
+    } \
+} while(0)
+
+#define MEMPLUGIN_BUFFER_PARAMS_INIT(MEMPLUGIN_bufferinfo) do {\
+        MEMPLUGIN_bufferinfo.eBuffer_type = DEFAULT;\
+        MEMPLUGIN_bufferinfo.nHeight = 1;\
+        MEMPLUGIN_bufferinfo.nWidth  = -1;\
+        MEMPLUGIN_bufferinfo.bMap   = OMX_FALSE;\
+        MEMPLUGIN_bufferinfo.eTiler_format = -1;\
+} while(0)
 
 	typedef OMX_ERRORTYPE(*PROXY_EMPTYBUFFER_DONE) (OMX_HANDLETYPE
 	    hComponent, OMX_U32 remoteBufHdr, OMX_U32 nfilledLen,
@@ -134,18 +175,16 @@ extern "C"
  * @param pBufHeader         : This is a pointer to the A9 bufferheader.
  *
  * @param pBufHeaderRemote   : This is pointer to Ducati side bufferheader.
+ *
+ * @param bufferAccessors[]	: This array contains the accessors {handle,reg handle, fd}
+ * 							  for Y,UV and metadata buffer in elements [0] [1] [2]
  */
 /*===============================================================*/
 	typedef struct PROXY_BUFFER_INFO
 	{
 		OMX_BUFFERHEADERTYPE *pBufHeader;
 		OMX_U32 pBufHeaderRemote;
-		OMX_PTR pYBuffer;
-		OMX_PTR pMetaDataBuffer;
-#ifdef USE_ION
-		int mmap_fd;
-		int mmap_fd_metadata_buff;
-#endif
+		MEMPLUGIN_BUFFER_ACCESSOR bufferAccessors[3];
 	} PROXY_BUFFER_INFO;
 
 /*===============================================================*/
@@ -158,7 +197,8 @@ extern "C"
 		VirtualPointers,   /*Used when buffer pointers come from the normal A9 virtual space */
 		GrallocPointers,   /*Used when buffer pointers come from Gralloc allocations */
 		IONPointers,       /*Used when buffer pointers come from ION allocations */
-		EncoderMetadataPointers		/*Used when buffer pointers come from Stagefright in camcorder usecase */
+		EncoderMetadataPointers,		/*Used when buffer pointers come from Stagefright in camcorder usecase */
+		BufferDescriptorVirtual2D          /*Virtual unpacked buffers passed via OMX_TI_BUFFERDESCRIPTOR_TYPE */
 	} PROXY_BUFFER_TYPE;
 
 /*===============================================================*/
@@ -172,10 +212,39 @@ extern "C"
 		OMX_U32 IsBuffer2D;   /*Used when buffer pointers come from Gralloc allocations */
 	} PROXY_PORT_TYPE;
 
+#ifdef ENABLE_RAW_BUFFERS_DUMP_UTILITY
+/*===============================================================*/
+/** DebugFrame_Dump     : Structure holding the info about frames to dump
+ *  @param fromFrame: From which frame to start dumping
+ *  @param toFrame:  till which frame to dump
+ *  @param frame_width: Width of the frame
+ *  @param frame_height: Height of the frame
+ *  @param padded_width: Width of the buffer
+ *  @param padded_height: Height of the buffer
+ *  @param stride: Stride of the Buffer
+ *  @param runningFrame: running counter to track the frames
+ */
+/*===============================================================*/
+	typedef struct DebugFrame_Dump
+	{
+		OMX_S32 fromFrame;
+		OMX_S32 toFrame;
+		OMX_U32 frame_width;
+		OMX_U32 frame_height;
+		OMX_U32 frame_xoffset;
+		OMX_U32 frame_yoffset;
+		OMX_U32 decoded_height;
+		OMX_U32 stride;
+		OMX_S32 runningFrame;
+		OMX_U32 *y_uv[2];
+	}DebugFrame_Dump;
+#endif
+
 /* ========================================================================== */
 /**
-* PROXY_COMPONENT_PRIVATE
-*
+* struct PROXY_COMPONENT_PRIVATE
+*		@param nMemmgr_client_desc: Memory manager client descriptor
+* 		@param bMapBuffers: buffers need to be mapped or not
 */
 /* ========================================================================== */
 	typedef struct PROXY_COMPONENT_PRIVATE
@@ -202,10 +271,11 @@ extern "C"
 #ifdef ANDROID_QUIRK_LOCK_BUFFER
 		gralloc_module_t const *grallocModule;
 #endif
-#ifdef USE_ION
-		int ion_fd;
-		OMX_BOOL bUseIon;
-		OMX_BOOL bMapIonBuffers;
+		OMX_U32 nMemmgrClientDesc;
+		OMX_BOOL bMapBuffers;
+		OMX_PTR  pMemPluginHandle;
+#ifdef ENABLE_RAW_BUFFERS_DUMP_UTILITY
+		DebugFrame_Dump debugframeInfo;
 #endif
 		int secure_misc_drv_fd;
 	} PROXY_COMPONENT_PRIVATE;

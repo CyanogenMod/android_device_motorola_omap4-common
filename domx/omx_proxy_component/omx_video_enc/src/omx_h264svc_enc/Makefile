@@ -1,18 +1,16 @@
-#  
-#  Copyright (C) Texas Instruments - http://www.ti.com/
-#  
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  
-#        http://www.apache.org/licenses/LICENSE-2.0
-#  
-#   Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-#  
+# ======================================================================
+#   Copyright (C) 2010 Texas Instruments Incorporated
+#
+#   All rights reserved. Property of Texas Instruments Incorporated.
+#   Restricted rights to use, duplicate or disclose this code are
+#   granted through contract.
+#
+#   The program may not be used without the written permission
+#   of Texas Instruments Incorporated or against the terms and conditions
+#   stipulated in the agreement under which this program has been
+#   supplied.
+# ====================================================================
+#
 #  ----------------------------------------------------------------------------
 #  Revision History
 #
@@ -48,7 +46,7 @@ SH_LIB_ARGS    =
 # shared library soname (SH_LIB): filename.so.maj_ver.min_ver
 # executable            (EXEC)  : filename.out
 
-TARGETNAME  = libOMX.TI.DUCATI1.VIDEO.MPEG4E.so
+TARGETNAME  = libOMX.TI.DUCATI1.VIDEO.H264SVCE.so
 
 
 # TARGETTYPE must be EXEC, ST_LIB or SH_LIB in upper case.
@@ -68,7 +66,7 @@ SUBMODULES  = \
 # Filename must not begin with '.', '/' or '\'
 
 SOURCES     = \
-src/omx_proxy_mpeg4enc.c \
+src/omx_proxy_h264svcenc.c \
 
 
 

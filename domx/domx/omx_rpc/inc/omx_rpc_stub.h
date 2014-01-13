@@ -76,7 +76,7 @@ extern "C"
 
 	RPC_OMX_ERRORTYPE RPC_SetParameter(OMX_HANDLETYPE hRPCCtx,
 	    OMX_INDEXTYPE nParamIndex, OMX_PTR pCompParam,
-	    OMX_PTR pLocBufNeedMap, OMX_ERRORTYPE * nCmdStatus);
+	    OMX_PTR pLocBufNeedMap, OMX_U32 nNumOfLocalBuf, OMX_ERRORTYPE * nCmdStatus);
 
 	RPC_OMX_ERRORTYPE RPC_GetParameter(OMX_HANDLETYPE hRPCCtx,
 	    OMX_INDEXTYPE nParamIndex, OMX_PTR pCompParam,

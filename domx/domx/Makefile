@@ -71,11 +71,11 @@ SOURCES     = \
 omx_rpc/src/omx_rpc.c \
 omx_rpc/src/omx_rpc_skel.c \
 omx_rpc/src/omx_rpc_stub.c \
-omx_rpc/src/omx_rpc_config.c \
-omx_rpc/src/omx_rpc_platform.c \
-omx_proxy_common/src/omx_proxy_common.c
-
-
+omx_proxy_common/src/omx_proxy_common.c \
+profiling/profile.c
+# The below files are currently empty, so removed them from building
+# omx_rpc/src/omx_rpc_config.c \
+# omx_rpc/src/omx_rpc_platform.c \
 
 # Search path for include files
 

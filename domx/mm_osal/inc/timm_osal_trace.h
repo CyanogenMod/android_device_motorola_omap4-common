@@ -74,6 +74,17 @@ extern "C"
 		TIMM_OSAL_TRACEGRP_SIMCOPALGOS = (1 << 8)
 	} TIMM_OSAL_TRACEGRP;
 
+	typedef enum TIMM_OSAL_TRACE_LEVEL_TYPE
+	{
+		TIMM_OSAL_TRACE_LEVEL_ERROR = 1,
+		TIMM_OSAL_TRACE_LEVEL_WARNING = 2,
+		TIMM_OSAL_TRACE_LEVEL_PROFILING = 3,
+		TIMM_OSAL_TRACE_LEVEL_INFO = 4,
+		TIMM_OSAL_TRACE_LEVEL_DEBUG = 5,
+		TIMM_OSAL_TRACE_LEVEL_ENTERING = 6,
+		TIMM_OSAL_TRACE_LEVEL_EXITING = TIMM_OSAL_TRACE_LEVEL_ENTERING
+	} TIMM_OSAL_TRACE_LEVEL;
+
 
 /**
 * The OSAL debug trace level can be set at runtime by defining the environment
@@ -82,9 +93,10 @@ extern "C"
 * Level 0 - No trace
 * Level 1 - Error   [Errors]
 * Level 2 - Warning [Warnings that are useful to know about]
-* Level 3 - Info    [General information]
-* Level 4 - Debug   [most-commonly used statement for us developers]
-* Level 5 - Trace   ["ENTERING <function>" and "EXITING <function>" statements]
+* Level 3 - Profiling [performance analysis trace that must not impact use case perf]
+* Level 4 - Info    [General information]
+* Level 5 - Debug   [most-commonly used statement for us developers]
+* Level 6 - Trace   ["ENTERING <function>" and "EXITING <function>" statements]
 *
 * Example: if TIMM_OSAL_DEBUG_TRACE_LEVEL=3, then level 1,2 and 3 traces messages
 * are enabled.
@@ -102,6 +114,13 @@ extern "C"
 		const short level;
 		const short tracegrp;	/* TIMM_OSAL_TRACEGRP */
 	} __TIMM_OSAL_TRACE_LOCATION;
+
+
+/**
+ * Trace level update function.  Updates trace level if env variable
+ * or Android property is set. Env variable has precedence over it
+ */
+	void TIMM_OSAL_UpdateTraceLevel(void);
 
 /**
  * Trace implementation function.  Not part of public API.  Default
@@ -133,6 +152,11 @@ extern "C"
 #define TIMM_OSAL_Warning(fmt,...)  TIMM_OSAL_WarningExt(TIMM_OSAL_TRACEGRP_SYSTEM, fmt, ##__VA_ARGS__)
 
 /**
+* TIMM_OSAL_Profiling() -- performance analysis trace that must not impact use case perf]
+*/
+#define TIMM_OSAL_Profiling(fmt,...)  TIMM_OSAL_ProfilingExt(TIMM_OSAL_TRACEGRP_SYSTEM, fmt, ##__VA_ARGS__)
+
+/**
 * TIMM_OSAL_Info() -- general information
 */
 #define TIMM_OSAL_Info(fmt,...)  TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_SYSTEM, fmt, ##__VA_ARGS__)
@@ -156,29 +180,34 @@ extern "C"
 /**
 * TIMM_OSAL_ErrorExt() -- Fatal errors
 */
-#define TIMM_OSAL_ErrorExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(1, tracegrp, "ERROR: "fmt, ##__VA_ARGS__)
+#define TIMM_OSAL_ErrorExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(TIMM_OSAL_TRACE_LEVEL_ERROR, tracegrp, "ERROR: "fmt, ##__VA_ARGS__)
 
 /**
 * TIMM_OSAL_WarningExt() -- Warnings that are useful to know about
 */
-#define TIMM_OSAL_WarningExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(2, tracegrp, "WARNING: "fmt, ##__VA_ARGS__)
+#define TIMM_OSAL_WarningExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(TIMM_OSAL_TRACE_LEVEL_WARNING, tracegrp, "WARNING: "fmt, ##__VA_ARGS__)
+
+/**
+* TIMM_OSAL_ProfilingExt() -- performance analysis trace that must not impact use case perf]
+*/
+#define TIMM_OSAL_ProfilingExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(TIMM_OSAL_TRACE_LEVEL_PROFILING, tracegrp, "PROFILING: "fmt, ##__VA_ARGS__)
 
 /**
 * TIMM_OSAL_InfoExt() -- general information
 */
-#define TIMM_OSAL_InfoExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(3, tracegrp, "INFO: "fmt, ##__VA_ARGS__)
+#define TIMM_OSAL_InfoExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(TIMM_OSAL_TRACE_LEVEL_INFO, tracegrp, "INFO: "fmt, ##__VA_ARGS__)
 
 /**
 * TIMM_OSAL_DebugExt() -- most-commonly used statement for us developers
 */
-#define TIMM_OSAL_DebugExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(4, tracegrp, "TRACE: "fmt, ##__VA_ARGS__)
+#define TIMM_OSAL_DebugExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(TIMM_OSAL_TRACE_LEVEL_DEBUG, tracegrp, "TRACE: "fmt, ##__VA_ARGS__)
 
 /**
 * TIMM_OSAL_EnteringExt() -- "ENTERING <function>" statements
 * TIMM_OSAL_ExitingExt()  -- "EXITING <function>" statements
 */
-#define TIMM_OSAL_EnteringExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(5, tracegrp, "ENTER: "fmt, ##__VA_ARGS__)
-#define TIMM_OSAL_ExitingExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(5, tracegrp, "EXIT: "fmt, ##__VA_ARGS__)
+#define TIMM_OSAL_EnteringExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(TIMM_OSAL_TRACE_LEVEL_ENTERING, tracegrp, "ENTER: "fmt, ##__VA_ARGS__)
+#define TIMM_OSAL_ExitingExt(tracegrp, fmt, ...)  __TIMM_OSAL_Trace(TIMM_OSAL_TRACE_LEVEL_EXITING, tracegrp, "EXIT: "fmt, ##__VA_ARGS__)
 
 
 #ifdef __cplusplus

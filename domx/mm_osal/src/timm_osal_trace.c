@@ -59,6 +59,7 @@
 #ifdef _Android
 #define LOG_TAG "DOMX"
 #include <utils/Log.h>
+#include <cutils/properties.h>
 #endif
 
 /**
@@ -73,7 +74,7 @@
 #define TIMM_OSAL_DEBUG_TRACE_DETAIL 2
 #endif
 
-#define DEFAULT_TRACE_LEVEL 1
+#define DEFAULT_TRACE_LEVEL TIMM_OSAL_TRACE_LEVEL_ERROR
 
 static int trace_level = -1;
 
@@ -88,6 +89,34 @@ static const char *simplify_path(const char *file)
 		file++;
 	}
 	return file;
+}
+
+void TIMM_OSAL_UpdateTraceLevel(void)
+{
+	char *val = getenv("TIMM_OSAL_DEBUG_TRACE_LEVEL");
+
+	if (val)
+	{
+		trace_level = strtol(val, NULL, 0);
+	}
+	else
+	{
+#ifdef _Android
+		char value[PROPERTY_VALUE_MAX];
+		int val;
+
+		property_get("debug.domx.trace_level", value, "0");
+		val = atoi(value);
+		if ( (!val) || (val < 0) )
+		{
+			trace_level = DEFAULT_TRACE_LEVEL;
+		}
+		else
+			trace_level = val;
+#else
+		trace_level = DEFAULT_TRACE_LEVEL;
+#endif
+	}
 }
 
 void __TIMM_OSAL_TraceFunction(const __TIMM_OSAL_TRACE_LOCATION * loc,
@@ -108,23 +137,36 @@ void __TIMM_OSAL_TraceFunction(const __TIMM_OSAL_TRACE_LOCATION * loc,
 
 #ifdef _Android
 
+#if 0 // Original for reference
 #if ( TIMM_OSAL_DEBUG_TRACE_DETAIL > 1 )
-		ALOGD("%s:%d\t%s()\t", simplify_path(loc->file), loc->line,
+		LOG_PRI(ANDROID_LOG_DEBUG, LOG_TAG, "%s:%d\t%s()\t", simplify_path(loc->file), loc->line,
 		    loc->function);
 #endif
-		char string[1000];
-		vsprintf(string, fmt, ap);
-		ALOGD("%s",string);
+#else // Prints function_name for ERROR, WARNING and ENTRY/EXIT
+	if ( (loc->level == TIMM_OSAL_TRACE_LEVEL_ERROR) || (loc->level == TIMM_OSAL_TRACE_LEVEL_WARNING) || (loc->level == TIMM_OSAL_TRACE_LEVEL_ENTERING) )
+		LOG_PRI(ANDROID_LOG_DEBUG, LOG_TAG, "%s:%d\t%s()\t", simplify_path(loc->file), loc->line,
+		    loc->function);
+#endif
+
+		LOG_PRI_VA(ANDROID_LOG_DEBUG, LOG_TAG, fmt, ap);
 
 #else
 
+#if 0 // Original for reference
 #if ( TIMM_OSAL_DEBUG_TRACE_DETAIL > 1 )
 		printf("%s:%d\t%s()\t", simplify_path(loc->file), loc->line,
 		    loc->function);
 #endif
+#else // Prints function_name for ERROR, WARNING and ENTRY/EXIT
+		if ( (loc->level == 1) || (loc->level == 2) || (loc->level == 5) )
+			printf("%s:%d\t%s()\t", simplify_path(loc->file), loc->line,
+		    loc->function);
+#endif
+
 		vprintf(fmt, ap);
 
 #endif
+
 		va_end(ap);
 	}
 }

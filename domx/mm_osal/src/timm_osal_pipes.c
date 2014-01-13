@@ -322,8 +322,8 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_ReadFromPipe(TIMM_OSAL_PTR pPipe,
 		bReturnStatus = TIMM_OSAL_ERR_PIPE_EMPTY;
 		goto EXIT;
 	}
-	if ((timeout != TIMM_OSAL_NO_SUSPEND) &&
-	    (timeout != TIMM_OSAL_SUSPEND))
+	if ((timeout !=TIMM_OSAL_NO_SUSPEND) &&
+	    (timeout != (TIMM_OSAL_S32)TIMM_OSAL_SUSPEND))
 	{
 		TIMM_OSAL_Warning("Only infinite or no timeouts \
 			supported. Going to read with infinite timeout now");
@@ -361,22 +361,8 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_ClearPipe(TIMM_OSAL_PTR pPipe)
 {
 	TIMM_OSAL_ERRORTYPE bReturnStatus = TIMM_OSAL_ERR;
 
-#if 0
-	TIMM_OSAL_ERRORTYPE bReturnStatus = TIMM_OSAL_ERR_NONE;
-	STATUS status = NU_SUCCESS;
+	TIMM_OSAL_Warning("This function is currently not implemented");
 
-	TIMM_OSAL_PIPE *pHandle = (TIMM_OSAL_PIPE *) pPipe;
-
-	status = NU_Reset_Pipe(&(pHandle->pipe));
-
-	if (NU_SUCCESS != status)
-	{
-		TIMM_OSAL_Error("NU_Reset_Pipe failed!!!");
-		bReturnStatus =
-		    TIMM_OSAL_ERR_CREATE(TIMM_OSAL_ERR, TIMM_OSAL_COMP_PIPES,
-		    status);
-	}
-#endif
 	return bReturnStatus;
 }
 
@@ -394,19 +380,6 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_IsPipeReady(TIMM_OSAL_PTR pPipe)
 {
 	TIMM_OSAL_ERRORTYPE bReturnStatus = TIMM_OSAL_ERR;
 	TIMM_OSAL_PIPE *pHandle = (TIMM_OSAL_PIPE *) pPipe;
-
-#if 0
-	TIMM_OSAL_PIPE *pHandle = (TIMM_OSAL_PIPE *) pPipe;
-	PI_PCB *pipe = (PI_PCB *) & (pHandle->pipe);
-
-	if (0 != pipe->pi_messages)
-	{
-		return TIMM_OSAL_ERR_NONE;
-	} else
-	{
-		return TIMM_OSAL_ERR_NOT_READY;
-	}
-#endif
 
 	if (pHandle->messageCount <= 0)
 	{
@@ -435,14 +408,6 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_GetPipeReadyMessageCount(TIMM_OSAL_PTR pPipe,
 {
 	TIMM_OSAL_ERRORTYPE bReturnStatus = TIMM_OSAL_ERR_NONE;
 	TIMM_OSAL_PIPE *pHandle = (TIMM_OSAL_PIPE *) pPipe;
-#if 0
-
-	TIMM_OSAL_PIPE *pHandle = (TIMM_OSAL_PIPE *) pPipe;
-	PI_PCB *pipe = (PI_PCB *) & (pHandle->pipe);
-
-	*count = pipe->pi_messages;
-
-#endif
 
 	*count = pHandle->messageCount;
 	return bReturnStatus;

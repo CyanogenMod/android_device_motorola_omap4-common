@@ -208,6 +208,128 @@ typedef struct OMX_TI_PARAM_METADATABUFFERINFO {
     OMX_U32 nMetaDataSize;
 } OMX_TI_PARAM_METADATABUFFERINFO;
 
+/*===============================================================*/
+/** OMX_TI_BUFFERTYPE                 : This enumberation defines the type of
+ *                                      buffer that is exchanged with the OMX
+ *                                      component port
+ *
+ *  OMX_TI_BufferTypeDefault          : Default buffer type accessed via a 
+ *                                      single virtual address
+ *  OMX_TI_BufferTypeVirtual2D        : Multiple virtual buffers describing a
+ *                                      2D buffer
+ *  OMX_TI_BufferTypePlatform1D       : Platform specific 1D buffer handle
+ *  OMX_TI_BufferTypePlatform2D       : Platform specific buffer handles
+ *                                      describing a 2D buffer
+ *  OMX_TI_BufferTypePhysicalPageList : List of a given number of physical pages
+ *  OMX_TI_BufferTypeHardwareReserved1D:Harware reserve space only that can
+ *                                      accomodate a 1D buffer by mapping memory
+ *                                      to it
+ */
+/*===============================================================*/
+typedef enum OMX_TI_BUFFERTYPE {
+    OMX_TI_BufferTypeDefault = 0,
+    OMX_TI_BufferTypeVirtual2D,
+    OMX_TI_BufferTypePlatform1D,
+    OMX_TI_BufferTypePlatform2D,
+    OMX_TI_BufferTypePhysicalPageList,
+    OMX_TI_BufferTypeHardwareReserved1D,
+    OMX_TI_BufferTypeMax = 0x7FFFFFFF
+} OMX_TI_BUFFERTYPE;
+
+/*===============================================================*/
+/** OMX_TI_BUFFERDESCRIPTOR_TYPE      : This buffer descriptor structure is used
+ *                                      to convey additional buffer information
+ *                                      when OMX_TI_IndexUseBufferDescriptor is
+ *                                      enabled and it is passed via pBuffer
+ *                                      in OMX_BUFFERHEADERTYPE
+ *
+ *  @ param nSize                     : Size of the structure.
+ *  @ param eBufType                  : Specifies type of buffer
+ *  @ param nNumOfBuf                 : Number of component buffers of eBufType
+ *  @ param pBuf                      : Array of buffers of type eBufType
+ */
+/*===============================================================*/
+typedef struct OMX_TI_BUFFERDESCRIPTOR_TYPE {
+    OMX_U32 nSize;
+    OMX_TI_BUFFERTYPE eBufType;
+    OMX_U32 nNumOfBuf;
+    OMX_PTR pBuf[3];
+} OMX_TI_BUFFERDESCRIPTOR_TYPE;
+
+/*===============================================================*/
+/** OMX_TI_PARAM_USEBUFFERDESCRIPTOR  : This parameter is used to enable/disable
+ *                                      buffer descriptor mode. When enabled,
+ *                                      the pBuffer in OMX buffer header points
+ *                                      to a buffer descriptor structure
+ *                                      OMX_TI_BUFFERDESCRIPTOR_TYPE instead of
+ *                                      the buffer directly.
+ *
+ *  @ param nSize                     : Size of the structure.
+ *  @ param nVersion                  : Version.
+ *  @ param nPortIndex                : Port index on which the parameter will
+ *                                      be applied.
+ *  @ param bEnabled                  : Whether buffer descriptor mode is
+ *                                      enabled or not. Set to FALSE (disabled)
+ *                                      by default.
+ */
+/*===============================================================*/
+typedef struct OMX_TI_PARAM_USEBUFFERDESCRIPTOR {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_BOOL bEnabled;
+    OMX_TI_BUFFERTYPE eBufferType;
+} OMX_TI_PARAM_USEBUFFERDESCRIPTOR;
+
+
+/*===============================================================*/
+/** OMX_TI_PARAM_COMPONENTBUFALLOCTYPE :This parameter is used to query/set
+ *                                      internal buffers used by OMX component
+ *                                      after allocation by the user of OMX
+ *                                      component during regular OMX buffer
+ *                                      allocation/free life cycle
+ *
+ *  @ param nSize                     : Size of the structure.
+ *  @ param nVersion                  : Version.
+ *  @ param nPortIndex                : Port index on which the parameter will
+ *                                      be applied.
+ *  @ param nIndex                    : Present buffer number whose requirement
+ *                                      is queried and then set
+ *  @ param eBufType                  : Present nIndex'ed buffer type
+ *  @ param pBuf                      : Buffer communication
+ *  @ param nAllocWidth               : Size of buffer (Width in case of 2D)
+ *  @ param nAllocLines               : Size of buffer (1 in case of 1D)
+ *  @ param nOffset                   : Offset from which buffer communicated is
+ *                                      valid
+ */
+/*===============================================================*/
+typedef struct OMX_TI_PARAM_COMPONENTBUFALLOCTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32 nIndex;
+    OMX_TI_BUFFERTYPE eBufType;
+    OMX_PTR pBuf[3];
+    OMX_U32 nAllocWidth;
+    OMX_U32 nAllocLines;
+    OMX_U32 nOffset;
+} OMX_TI_PARAM_COMPONENTBUFALLOCTYPE;
+
+/*===============================================================*/
+/** OMX_TI_COMPONENT_HANDLE           : This parameter is used to retrieve
+ *                                      the component handle by the client.
+ *
+ *  @ param nSize                     : Size of the structure.
+ *  @ param nVersion                  : Version.
+ *  @ param pHandle                   : Component Handle
+ */
+/*===============================================================*/
+typedef struct OMX_TI_COMPONENT_HANDLE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_HANDLETYPE pHandle;
+} OMX_TI_COMPONENT_HANDLE;
+
 /*******************************************************************
  * PRIVATE DECLARATIONS: defined here, used only here
  *******************************************************************/

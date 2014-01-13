@@ -38,17 +38,13 @@
 #include "OMX_ComponentRegistry.h"
 
 #include "OMX_Core_Wrapper.h"
-#include <utils/Log.h>
+#include "timm_osal_trace.h"
 #undef LOG_TAG
 #define LOG_TAG "OMX_CORE"
 
 /** determine capabilities of a component before acually using it */
-#if 0
-#include "ti_omx_config_parser.h"
-#else
 extern OMX_BOOL TIOMXConfigParser(OMX_PTR aInputParameters,
     OMX_PTR aOutputParameters);
-#endif
 
 #endif
 
@@ -58,12 +54,12 @@ extern OMX_BOOL TIOMXConfigParser(OMX_PTR aInputParameters,
 OMX_BOOL TIOMXConfigParserRedirect(OMX_PTR aInputParameters,
     OMX_PTR aOutputParameters)
 {
-	ALOGV("OMXConfigParserRedirect +\n");
+	TIMM_OSAL_Entering("OMXConfigParserRedirect +\n");
 	OMX_BOOL Status = OMX_FALSE;
 
 	Status = TIOMXConfigParser(aInputParameters, aOutputParameters);
 
-	ALOGV("OMXConfigParserRedirect -\n");
+	TIMM_OSAL_Exiting("OMXConfigParserRedirect -\n");
 	return Status;
 }
 #endif
@@ -92,14 +88,14 @@ OMX_ERRORTYPE TIComponentTable_FillBufferDone(OMX_OUT OMX_HANDLETYPE
 
 OMX_API OMX_ERRORTYPE TIOMX_Init(void)
 {
-	ALOGV("TIOMX_Init\n");
+	TIMM_OSAL_Entering("TIOMX_Init\n");
 
 	return OMX_Init();
 }
 
 OMX_API OMX_ERRORTYPE TIOMX_Deinit(void)
 {
-	ALOGV("TIOMX_Deinit\n");
+	TIMM_OSAL_Entering("TIOMX_Deinit\n");
 
 	return OMX_Deinit();
 }
@@ -108,7 +104,7 @@ OMX_API OMX_ERRORTYPE TIOMX_ComponentNameEnum(OMX_OUT OMX_STRING
     cComponentName, OMX_IN OMX_U32 nNameLength, OMX_IN OMX_U32 nIndex)
 {
 
-	ALOGV("TIOMX_ComponentNameEnum\n");
+	TIMM_OSAL_Entering("TIOMX_ComponentNameEnum\n");
 
 	return OMX_ComponentNameEnum(cComponentName, nNameLength, nIndex);
 }
@@ -118,14 +114,14 @@ OMX_API OMX_ERRORTYPE TIOMX_GetHandle(OMX_OUT OMX_HANDLETYPE * pHandle,
     OMX_IN OMX_PTR pAppData, OMX_IN OMX_CALLBACKTYPE * pCallBacks)
 {
 
-	ALOGV("TIOMX_GetHandle\n");
+	TIMM_OSAL_Entering("TIOMX_GetHandle\n");
 
 	return OMX_GetHandle(pHandle, cComponentName, pAppData, pCallBacks);
 }
 
 OMX_API OMX_ERRORTYPE TIOMX_FreeHandle(OMX_IN OMX_HANDLETYPE hComponent)
 {
-	ALOGV("TIOMX_FreeHandle\n");
+	TIMM_OSAL_Entering("TIOMX_FreeHandle\n");
 
 	return OMX_FreeHandle(hComponent);
 }
@@ -134,7 +130,7 @@ OMX_API OMX_ERRORTYPE TIOMX_GetComponentsOfRole(OMX_IN OMX_STRING role,
     OMX_INOUT OMX_U32 * pNumComps, OMX_INOUT OMX_U8 ** compNames)
 {
 
-	ALOGV("TIOMX_GetComponentsOfRole\n");
+	TIMM_OSAL_Entering("TIOMX_GetComponentsOfRole\n");
 
 	return OMX_GetComponentsOfRole(role, pNumComps, compNames);
 }
@@ -143,7 +139,7 @@ OMX_API OMX_ERRORTYPE TIOMX_GetRolesOfComponent(OMX_IN OMX_STRING compName,
     OMX_INOUT OMX_U32 * pNumRoles, OMX_OUT OMX_U8 ** roles)
 {
 
-	ALOGV("TIOMX_GetRolesOfComponent\n");
+	TIMM_OSAL_Entering("TIOMX_GetRolesOfComponent\n");
 
 	return OMX_GetRolesOfComponent(compName, pNumRoles, roles);
 }
@@ -153,7 +149,7 @@ OMX_API OMX_ERRORTYPE TIOMX_SetupTunnel(OMX_IN OMX_HANDLETYPE hOutput,
     OMX_IN OMX_HANDLETYPE hInput, OMX_IN OMX_U32 nPortInput)
 {
 
-	ALOGV("TIOMX_SetupTunnel\n");
+	TIMM_OSAL_Entering("TIOMX_SetupTunnel\n");
 
 	return OMX_SetupTunnel(hOutput, nPortOutput, hInput, nPortInput);
 }
@@ -162,7 +158,7 @@ OMX_API OMX_ERRORTYPE TIOMX_GetContentPipe(OMX_OUT OMX_HANDLETYPE * hPipe,
     OMX_IN OMX_STRING szURI)
 {
 
-	ALOGV("TIOMX_GetContentPipe\n");
+	TIMM_OSAL_Entering("TIOMX_GetContentPipe\n");
 
 	//return OMX_GetContentPipe(
 	//      hPipe,
