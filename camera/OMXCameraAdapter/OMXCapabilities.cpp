@@ -2439,7 +2439,7 @@ status_t OMXCameraAdapter::getCaps(const int sensorId, CameraProperties::Propert
     OMX_INIT_STRUCT_PTR (&sharedBuffer, OMX_TI_CONFIG_SHAREDBUFFER);
     sharedBuffer.nPortIndex = OMX_ALL;
     sharedBuffer.nSharedBuffSize = caps_size;
-    sharedBuffer.pSharedBuff = (OMX_U8 *) caps; //camera_buffer_get_omx_ptr (&bufferlist[0]);
+    sharedBuffer.pSharedBuff = (OMX_U8 *) camera_buffer_get_omx_ptr (&bufferlist[0]);
 
     // Get capabilities from OMX Camera
     eError =  OMX_GetConfig(handle, (OMX_INDEXTYPE) OMX_TI_IndexConfigCamCapabilities, &sharedBuffer);

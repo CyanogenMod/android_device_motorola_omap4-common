@@ -146,7 +146,7 @@ OMX_ERRORTYPE DCCHandler::sendDCCBufPtr(OMX_HANDLETYPE hComponent,
 
     uribufparam.nPortIndex = OMX_ALL;
     uribufparam.nSharedBuffSize = dccBuffer->size;
-    uribufparam.pSharedBuff = (OMX_U8 *) dccBuffer->opaque; //camera_buffer_get_omx_ptr(dccBuffer)
+    uribufparam.pSharedBuff = (OMX_U8 *) camera_buffer_get_omx_ptr(dccBuffer);
 
     eError = OMX_SetParameter(hComponent,
                                 ( OMX_INDEXTYPE )OMX_TI_IndexParamDccUriBuffer,

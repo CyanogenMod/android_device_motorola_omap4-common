@@ -317,7 +317,7 @@ status_t OMXCameraAdapter::UseBuffersReprocess(CameraBuffer *bufArr, int num)
                                mCameraAdapterParameters.mVideoInPortIndex,
                                0,
                                portData->mBufSize,
-                               (OMX_U8*)bufArr[index].opaque); // camera_buffer_get_omx_ptr(&bufArr[index])
+                               (OMX_U8*)camera_buffer_get_omx_ptr(&bufArr[index]));
 
         CAMHAL_LOGDB("OMX_UseBuffer = 0x%x", eError);
         GOTO_EXIT_IF(( eError != OMX_ErrorNone ), eError);

@@ -591,7 +591,7 @@ status_t OmxFrameDecoder::allocateBuffersOutput() {
         android::sp<MediaBuffer>& outBuffer = mOutBuffers->editItemAt(i);
         android::AutoMutex lock(outBuffer->getLock());
         CameraBuffer* cb = static_cast<CameraBuffer*>(outBuffer->buffer);
-        OMX_U8 * outPtr = static_cast<OMX_U8*>(cb->opaque); // camera_buffer_get_omx_ptr(cb)
+        OMX_U8 * outPtr = static_cast<OMX_U8*>(camera_buffer_get_omx_ptr(cb));
         CAMHAL_LOGV("Try to set OMX_UseBuffer [0x%x] for output port with length %d ", outPtr, def.nBufferSize);
         eError = OMX_UseBuffer(mHandleComp, &pOutBufHdr,  PortIndexOutput, (void*)i, def.nBufferSize, outPtr);
 
