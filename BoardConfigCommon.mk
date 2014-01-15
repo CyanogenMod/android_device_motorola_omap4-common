@@ -110,7 +110,7 @@ BOARD_MTP_DEVICE := "/dev/mtp"
 # Connectivity - Wi-Fi
 USES_TI_MAC80211 := true
 ifdef USES_TI_MAC80211
-WPA_SUPPLICANT_VERSION           := VER_0_8_X
+WPA_SUPPLICANT_VERSION           := VER_0_8_X_TI
 BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wl12xx
 BOARD_HOSTAPD_DRIVER             := NL80211
@@ -121,6 +121,7 @@ BOARD_SOFTAP_DEVICE              := wl12xx_mac80211
 WIFI_DRIVER_MODULE_PATH          := "/system/lib/modules/wl12xx_sdio.ko"
 WIFI_DRIVER_MODULE_NAME          := "wl12xx_sdio"
 WIFI_FIRMWARE_LOADER             := ""
+BOARD_WIFI_SKIP_CAPABILITIES     := true
 COMMON_GLOBAL_CFLAGS += -DUSES_TI_MAC80211
 endif
 
