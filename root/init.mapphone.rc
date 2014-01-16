@@ -142,6 +142,11 @@ on post-fs
     chown mot_tpapi mot_tpapi /pds/security/keymaptable.dat
     # Create wmdrm directory
     mkdir /pds/wmdrm 0775 mot_drm mot_drm
+# create the pds dir for battd with proper permissions
+    mkdir /pds/public/battd 0750 mot_accy mot_accy
+    chown mot_accy mot_accy /pds/public/battd/batt_offset_data
+    chown mot_accy mot_accy /pds/public/battd/batt_phasing_data
+    chown mot_accy mot_accy /pds/public/battd/batt_tuning_data
 # Permission for USB
     chown root mot_usb /proc/mtpctl
     chmod 0660 /proc/mtpctl
