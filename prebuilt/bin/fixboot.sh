@@ -6,7 +6,7 @@
 /sbin/bbx chmod 777 /ss
 
 # mount safestrap partition
-/sbin/bbx mount -t vfat /dev/block/emstorage /ss
+/sbin/bbx mount -t vfat -o uid=1023,gid=1023 /dev/block/emstorage /ss
 
 SLOT_LOC=$(/sbin/bbx cat /ss/safestrap/active_slot)
 

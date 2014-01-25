@@ -6,5 +6,5 @@
 /dev/block/system                                   /system          ext3    rw,noatime,nodiratime,errors=continue,barrier=1                wait
 /dev/block/userdata                                 /data            ext3    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check,encryptable=footer
 /dev/block/cache                                    /cache           ext3    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check
-/devices/platform/omap/omap_hsmmc.1/mmc_host/mmc1   auto             vfat    defaults                                                       voldmanaged=sdcard0:25,nonremovable
-/devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0   auto             vfat    defaults                                                       voldmanaged=sdcard1:auto
+/devices/platform/omap/omap_hsmmc.1/mmc_host/mmc1   auto             vfat    defaults                                                       voldmanaged=sdcard0:25,nonremovable,noemulatedsd
+/devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0   auto             vfat    defaults                                                       voldmanaged=sdcard1:auto,noemulatedsd
