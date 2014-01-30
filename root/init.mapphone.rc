@@ -1,6 +1,6 @@
 on init
 
-loglevel 8
+loglevel 3
 
     export EXTERNAL_STORAGE /storage/sdcard0
     export SECONDARY_STORAGE /storage/sdcard1
