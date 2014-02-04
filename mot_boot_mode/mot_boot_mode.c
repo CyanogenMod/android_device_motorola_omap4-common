@@ -109,7 +109,7 @@ int check_abnormal_reboot(void)
 #define COM_FS_PATH "/data/chargeonlymode"
 #define COM_MAX_MODE_LENGTH 20
 
-char* mode[COM_MAX_MODE_LENGTH];
+char mode[COM_MAX_MODE_LENGTH];
 
 /********************************************************************
  * Check previous phone mode before reset
