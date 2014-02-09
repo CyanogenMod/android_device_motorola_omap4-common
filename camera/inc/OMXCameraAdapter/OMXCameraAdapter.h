@@ -783,14 +783,11 @@ private:
     status_t setMechanicalMisalignmentCorrection(bool enable);
 
     // DCC file data save
-// FIXME-HASH: REMOVED FOR NOW
-#if 0
     status_t initDccFileDataSave(OMX_HANDLETYPE* omxHandle, int portIndex);
     status_t sniffDccFileDataSave(OMX_BUFFERHEADERTYPE* pBuffHeader);
     status_t saveDccFileDataSave();
     status_t closeDccFileDataSave();
     status_t fseekDCCuseCasePos(FILE *pFile);
-#endif
     FILE * fopenCameraDCC(const char *dccFolderPath);
     FILE * parseDCCsubDir(DIR *pDir, char *path);
 
@@ -1215,7 +1212,7 @@ private:
 
     bool mSetFormatDone;
 
-//    OMX_TI_DCCDATATYPE mDccData;
+    OMX_TI_DCCDATATYPE mDccData;
     android::Mutex mDccDataLock;
 
     int mMaxZoomSupported;

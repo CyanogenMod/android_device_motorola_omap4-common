@@ -74,6 +74,8 @@ OMX_ERRORTYPE DCCHandler::initDCC(OMX_HANDLETYPE hComponent)
 
         if (eError == OMX_ErrorNone) {
             CAMHAL_LOGD("DCC URI's %s ", param.sDCCURI);
+//STARGO: Motorola does stuff differently
+#if 0
             android::String8 *dccDir = new android::String8();
             if ( NULL != dccDir ) {
                 dccDir->clear();
@@ -86,6 +88,47 @@ OMX_ERRORTYPE DCCHandler::initDCC(OMX_HANDLETYPE hComponent)
                 eError = OMX_ErrorInsufficientResources;
                 goto EXIT;
             }
+#else
+            //STARGO: Motorola-specific begin
+            android::String8 dccCfg;
+            FILE *cfg;
+            char buf[512];
+
+            dccCfg.clear();
+            dccCfg.append(DCCPath);
+            dccCfg.append((const char *) param.sDCCURI);
+            dccCfg.append(".cfg");
+
+            cfg = fopen(dccCfg.string(), "r");
+            if (cfg == NULL) {
+                CAMHAL_LOGD("Can't open DCC config %s", dccCfg.string());
+                continue;
+            }
+            memset(buf, 0, sizeof(buf));
+            while(fgets(buf, sizeof(buf) - 1, cfg) != NULL) {
+                if (strlen(buf) && (buf[strlen(buf)-1] == '\n'))
+                    buf[strlen(buf)-1] = '\0';
+
+                if (strlen(buf) == 0)
+                    continue;
+
+                CAMHAL_LOGD("Adding DCC-dir '%s'", buf);
+                android::String8 *dccDir = new android::String8();
+                if ( NULL != dccDir ) {
+                    dccDir->clear();
+                    dccDir->append(buf);
+                    dccDirs.add(dccDir);
+                } else {
+                    CAMHAL_LOGE("DCC URI not allocated");
+                    eError = OMX_ErrorInsufficientResources;
+                    fclose(cfg);
+                    goto EXIT;
+                }
+                memset(buf, 0, sizeof(buf));
+            }
+            fclose(cfg);
+            //STARGO: Motorola-specific end
+#endif
         }
     }
 

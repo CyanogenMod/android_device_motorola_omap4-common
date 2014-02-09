@@ -53,19 +53,15 @@ status_t OMXCameraAdapter::initDccFileDataSave(OMX_HANDLETYPE* omxHandle, int po
         ret =  NO_INIT;
         }
 
-#if 0
     if (mDccData.pData) {
         free(mDccData.pData);
         mDccData.pData = NULL;
     }
-#endif
     LOG_FUNCTION_NAME_EXIT;
 
     return ret;
 }
 
-// FIXME-HASH: REMOVED FOR NOW
-#if 0
 status_t OMXCameraAdapter::sniffDccFileDataSave(OMX_BUFFERHEADERTYPE* pBuffHeader)
 {
     OMX_OTHER_EXTRADATATYPE *extraData;
@@ -129,7 +125,6 @@ status_t OMXCameraAdapter::sniffDccFileDataSave(OMX_BUFFERHEADERTYPE* pBuffHeade
 
     return ret;
 }
-#endif
 
 // Recursively searches given directory contents for the correct DCC file.
 // The directory must be opened and its stream pointer + path passed

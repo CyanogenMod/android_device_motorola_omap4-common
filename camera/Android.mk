@@ -95,9 +95,8 @@ TI_CAMERAHAL_OMX_SRC := \
     OMXCameraAdapter/OMXFocus.cpp \
     OMXCameraAdapter/OMXMetadata.cpp \
     OMXCameraAdapter/OMXZoom.cpp \
+    OMXCameraAdapter/OMXDccDataSave.cpp \
     OMXCameraAdapter/OMXDCC.cpp
-
-#    OMXCameraAdapter/OMXDccDataSave.cpp \
 
 TI_CAMERAHAL_USB_SRC := \
     V4LCameraAdapter/V4LCameraAdapter.cpp \
