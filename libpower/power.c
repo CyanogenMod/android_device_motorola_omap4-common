@@ -155,6 +155,8 @@ static int boostpulse_open(struct omap_power_module *omap_device) {
                 ALOGE("Error opening %s: %s\n", BOOSTPULSE_PATH, buf);
                 omap_device->boostpulse_warned = 1;
             }
+        } else {
+            omap_device->boostpulse_warned = 0;
         }
     }
 
@@ -192,6 +194,8 @@ static void omap_power_hint(struct power_module *module, power_hint_t hint, void
             if (len < 0) {
                 strerror_r(errno, buf, sizeof(buf));
                 ALOGE("Error writing to %s: %s\n", BOOSTPULSE_PATH, buf);
+                close(omap_device->boostpulse_fd);
+                omap_device->boostpulse_fd = -1;
             }
         }
         break;
