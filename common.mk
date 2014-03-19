@@ -214,6 +214,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     com.ti.omap_enhancement=true \
     ro.bq.gpu_to_cpu_unsupported=1 \
     hwui.render_dirty_regions=false \
+    persist.demo.hdmirotationlock=true \
     persist.sys.root_access=3 \
     ro.product.use_charge_counter=1 \
     persist.sys.usb.config=mtp,adb \
