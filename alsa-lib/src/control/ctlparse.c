@@ -33,8 +33,17 @@
 
 /* Function to convert from percentage to volume. val = percentage */
 
+#ifdef HAVE_SOFT_FLOAT
+static inline long int convert_prange1(long val, long min, long max)
+{
+	long temp = val * (max - min);
+	return temp / 100 + min + ((temp % 100) == 0 ? 0 : 1);
+}
+#else
+
 #define convert_prange1(val, min, max) \
 	ceil((val) * ((max) - (min)) * 0.01 + (min))
+#endif
 
 #define check_range(val, min, max) \
 	((val < min) ? (min) : ((val > max) ? (max) : (val)))
@@ -134,21 +143,19 @@ char *snd_ctl_ascii_elem_id_get(snd_ctl_elem_id_t *id)
 	return strdup(buf);
 }
 
-/**
- * \brief parse ASCII string as CTL element identifier
- * \param dst destination CTL identifier
- * \param str source ASCII string
- * \return zero on success, otherwise a negative error code
- */
-int snd_ctl_ascii_elem_id_parse(snd_ctl_elem_id_t *dst, const char *str)
+#ifndef DOC_HIDDEN
+/* used by UCM parser, too */
+int __snd_ctl_ascii_elem_id_parse(snd_ctl_elem_id_t *dst, const char *str,
+				  const char **ret_ptr)
 {
 	int c, size, numid;
+	int err = -EINVAL;
 	char *ptr;
 
-	while (*str == ' ' || *str == '\t')
+	while (isspace(*str))
 		str++;
 	if (!(*str))
-		return -EINVAL;
+		goto out;
 	snd_ctl_elem_id_set_interface(dst, SND_CTL_ELEM_IFACE_MIXER);	/* default */
 	while (*str) {
 		if (!strncasecmp(str, "numid=", 6)) {
@@ -156,7 +163,7 @@ int snd_ctl_ascii_elem_id_parse(snd_ctl_elem_id_t *dst, const char *str)
 			numid = atoi(str);
 			if (numid <= 0) {
 				fprintf(stderr, "amixer: Invalid numid %d\n", numid);
-				return -EINVAL;
+				goto out;
 			}
 			snd_ctl_elem_id_set_numid(dst, atoi(str));
 			while (isdigit(*str))
@@ -182,7 +189,7 @@ int snd_ctl_ascii_elem_id_parse(snd_ctl_elem_id_t *dst, const char *str)
 				snd_ctl_elem_id_set_interface(dst, SND_CTL_ELEM_IFACE_SEQUENCER);
 				str += 9;
 			} else {
-				return -EINVAL;
+				goto out;
 			}
 		} else if (!strncasecmp(str, "name=", 5)) {
 			char buf[64];
@@ -230,11 +237,33 @@ int snd_ctl_ascii_elem_id_parse(snd_ctl_elem_id_t *dst, const char *str)
 		if (*str == ',') {
 			str++;
 		} else {
+			/* when ret_ptr is given, allow to terminate gracefully
+			 * at the next space letter
+			 */
+			if (ret_ptr && isspace(*str))
+				break;
 			if (*str)
-				return -EINVAL;
+				goto out;
 		}
 	}			
-	return 0;
+	err = 0;
+
+ out:
+	if (ret_ptr)
+		*ret_ptr = str;
+	return err;
+}
+#endif
+
+/**
+ * \brief parse ASCII string as CTL element identifier
+ * \param dst destination CTL identifier
+ * \param str source ASCII string
+ * \return zero on success, otherwise a negative error code
+ */
+int snd_ctl_ascii_elem_id_parse(snd_ctl_elem_id_t *dst, const char *str)
+{
+	return __snd_ctl_ascii_elem_id_parse(dst, str, NULL);
 }
 
 static int get_ctl_enum_item_index(snd_ctl_t *handle,
@@ -268,10 +297,14 @@ static int get_ctl_enum_item_index(snd_ctl_t *handle,
 
 /**
  * \brief parse ASCII string as CTL element value
+ * \param handle CTL handle
  * \param dst destination CTL element value
  * \param info CTL element info structure
  * \param value source ASCII string
  * \return zero on success, otherwise a negative error code
+ *
+ * Note: For toggle command, the dst must contain previous (current)
+ * state (do the #snd_ctl_elem_read call to obtain it).
  */
 int snd_ctl_ascii_value_parse(snd_ctl_t *handle,
 			      snd_ctl_elem_value_t *dst,

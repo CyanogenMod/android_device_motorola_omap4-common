@@ -743,7 +743,7 @@ int snd_mixer_poll_descriptors_revents(snd_mixer_t *mixer, struct pollfd *pfds, 
 	if (nfds == 0)
 		return -EINVAL;
 	res = 0;
-	for (idx = 0; idx < nfds; idx++)
+	for (idx = 0; idx < nfds; idx++, pfds++)
 		res |= pfds->revents & (POLLIN|POLLERR|POLLNVAL);
 	*revents = res;
 	return 0;
@@ -1062,7 +1062,7 @@ int snd_mixer_class_set_private(snd_mixer_class_t *obj, void *private_data)
  * \param private_free Mixer class private data free callback
  * \return zero if success, otherwise a negative error code
  */
-int snd_mixer_class_set_private_free(snd_mixer_class_t *obj, void (*private_free)(snd_mixer_class_t *class))
+int snd_mixer_class_set_private_free(snd_mixer_class_t *obj, void (*private_free)(snd_mixer_class_t *))
 {
 	assert(obj);
 	obj->private_free = private_free;

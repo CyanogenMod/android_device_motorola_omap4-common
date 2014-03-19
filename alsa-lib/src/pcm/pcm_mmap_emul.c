@@ -160,7 +160,7 @@ static int snd_pcm_mmap_emul_hw_params(snd_pcm_t *pcm,
 	snd_pcm_access_mask_t *pmask;
 	int err;
 
-	err = _snd_pcm_hw_params(map->gen.slave, params);
+	err = _snd_pcm_hw_params_internal(map->gen.slave, params);
 	if (err >= 0) {
 		map->mmap_emul = 0;
 		return err;
@@ -186,7 +186,7 @@ static int snd_pcm_mmap_emul_hw_params(snd_pcm_t *pcm,
 	default:
 		goto _err;
 	}
-	err = _snd_pcm_hw_params(map->gen.slave, params);
+	err = _snd_pcm_hw_params_internal(map->gen.slave, params);
 	if (err < 0)
 		goto _err;
 
@@ -211,6 +211,9 @@ static int snd_pcm_mmap_emul_sw_params(snd_pcm_t *pcm,
 {
 	mmap_emul_t *map = pcm->private_data;
 	int err;
+
+	if (!map->mmap_emul)
+		return snd_pcm_generic_sw_params(pcm, params);
 
 	map->start_threshold = params->start_threshold;
 
@@ -317,9 +320,9 @@ snd_pcm_mmap_emul_mmap_commit(snd_pcm_t *pcm, snd_pcm_uframes_t offset,
 	mmap_emul_t *map = pcm->private_data;
 	snd_pcm_t *slave = map->gen.slave;
 
+	snd_pcm_mmap_appl_forward(pcm, size);
 	if (!map->mmap_emul)
 		return snd_pcm_mmap_commit(slave, offset, size);
-	snd_pcm_mmap_appl_forward(pcm, size);
 	if (pcm->stream == SND_PCM_STREAM_PLAYBACK)
 		sync_slave_write(pcm);
 	return size;
@@ -329,13 +332,8 @@ static snd_pcm_sframes_t snd_pcm_mmap_emul_avail_update(snd_pcm_t *pcm)
 {
 	mmap_emul_t *map = pcm->private_data;
 	snd_pcm_t *slave = map->gen.slave;
-	snd_pcm_sframes_t avail;
 
-	avail = snd_pcm_avail_update(slave);
-	if (!map->mmap_emul)
-		return avail;
-
-	if (pcm->stream == SND_PCM_STREAM_PLAYBACK)
+	if (!map->mmap_emul || pcm->stream == SND_PCM_STREAM_PLAYBACK)
 		map->hw_ptr = *slave->hw.ptr;
 	else
 		sync_slave_read(pcm);
@@ -368,6 +366,9 @@ static const snd_pcm_ops_t snd_pcm_mmap_emul_ops = {
 	.async = snd_pcm_generic_async,
 	.mmap = snd_pcm_generic_mmap,
 	.munmap = snd_pcm_generic_munmap,
+	.query_chmaps = snd_pcm_generic_query_chmaps,
+	.get_chmap = snd_pcm_generic_get_chmap,
+	.set_chmap = snd_pcm_generic_set_chmap,
 };
 
 static const snd_pcm_fast_ops_t snd_pcm_mmap_emul_fast_ops = {
@@ -399,6 +400,7 @@ static const snd_pcm_fast_ops_t snd_pcm_mmap_emul_fast_ops = {
 	.poll_descriptors = snd_pcm_generic_poll_descriptors,
 	.poll_descriptors_count = snd_pcm_generic_poll_descriptors_count,
 	.poll_revents = snd_pcm_generic_poll_revents,
+	.may_wait_for_avail_min = snd_pcm_generic_may_wait_for_avail_min,
 };
 
 #ifndef DOC_HIDDEN

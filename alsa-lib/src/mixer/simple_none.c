@@ -672,7 +672,6 @@ static int simple_update(snd_mixer_elem_t *melem)
 	unsigned int caps, pchannels, cchannels;
 	long pmin, pmax, cmin, cmax;
 	selem_ctl_t *ctl;
-	const char *name;
 
 	caps = 0;
 	pchannels = 0;
@@ -683,7 +682,6 @@ static int simple_update(snd_mixer_elem_t *melem)
 	cmax = LONG_MIN;
 	assert(snd_mixer_elem_get_type(melem) == SND_MIXER_ELEM_SIMPLE);
 	simple = snd_mixer_elem_get_private(melem);
-	name = snd_mixer_selem_get_name(melem);
 	ctl = &simple->ctls[CTL_SINGLE];
 	if (ctl->elem) {
 		pchannels = cchannels = ctl->values;
@@ -937,7 +935,12 @@ static int base_len(const char *name, selem_ctl_type_t *type)
 		*type = CTL_CAPTURE_ROUTE;
 		return strlen(name);
 	}
-
+	if (strstr(name, "3D Control")) {
+		if (strstr(name, "Depth")) {
+			*type = CTL_PLAYBACK_VOLUME;
+			return strlen(name);
+		}
+	}
 	return 0;
 }
 

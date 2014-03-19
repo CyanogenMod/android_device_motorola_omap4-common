@@ -789,6 +789,24 @@ int snd_pcm_direct_munmap(snd_pcm_t *pcm ATTRIBUTE_UNUSED)
 	return 0;
 }
 
+snd_pcm_chmap_query_t **snd_pcm_direct_query_chmaps(snd_pcm_t *pcm)
+{
+	snd_pcm_direct_t *dmix = pcm->private_data;
+	return snd_pcm_query_chmaps(dmix->spcm);
+}
+
+snd_pcm_chmap_t *snd_pcm_direct_get_chmap(snd_pcm_t *pcm)
+{
+	snd_pcm_direct_t *dmix = pcm->private_data;
+	return snd_pcm_get_chmap(dmix->spcm);
+}
+
+int snd_pcm_direct_set_chmap(snd_pcm_t *pcm, const snd_pcm_chmap_t *map)
+{
+	snd_pcm_direct_t *dmix = pcm->private_data;
+	return snd_pcm_set_chmap(dmix->spcm, map);
+}
+
 int snd_pcm_direct_resume(snd_pcm_t *pcm)
 {
 	snd_pcm_direct_t *dmix = pcm->private_data;
@@ -1435,7 +1453,7 @@ static int _snd_pcm_direct_get_slave_ipc_offset(snd_config_t *root,
 						int hop)
 {
 	snd_config_iterator_t i, next;
-	snd_config_t *pcm_conf;
+	snd_config_t *pcm_conf, *pcm_conf2;
 	int err;
 	long card = 0, device = 0, subdevice = 0;
 	const char *str;
@@ -1466,14 +1484,28 @@ static int _snd_pcm_direct_get_slave_ipc_offset(snd_config_t *root,
 	}
 #endif
 
-	if (snd_config_search(sconf, "slave", &pcm_conf) >= 0 &&
-	    (snd_config_search(pcm_conf, "pcm", &pcm_conf) >= 0 ||
-	    (snd_config_get_string(pcm_conf, &str) >= 0 &&
-	    snd_config_search_definition(root, "pcm_slave", str, &pcm_conf) >= 0 &&
-	    snd_config_search(pcm_conf, "pcm", &pcm_conf) >= 0)))
-		return _snd_pcm_direct_get_slave_ipc_offset(root, pcm_conf,
-							    direction,
-							    hop + 1);
+	if (snd_config_search(sconf, "slave", &pcm_conf) >= 0) {
+		if (snd_config_search(pcm_conf, "pcm", &pcm_conf) >= 0) {
+			return _snd_pcm_direct_get_slave_ipc_offset(root,
+								   pcm_conf,
+								   direction,
+								   hop + 1);
+		} else {
+			if (snd_config_get_string(pcm_conf, &str) >= 0 &&
+			    snd_config_search_definition(root, "pcm_slave",
+						    str, &pcm_conf) >= 0) {
+				if (snd_config_search(pcm_conf, "pcm",
+							&pcm_conf2) >= 0) {
+					err =
+					 _snd_pcm_direct_get_slave_ipc_offset(
+					     root, pcm_conf2, direction, hop + 1);
+					snd_config_delete(pcm_conf);
+					return err;
+				}
+				snd_config_delete(pcm_conf);
+			}
+		}
+	}
 
 	snd_config_for_each(i, next, sconf) {
 		snd_config_t *n = snd_config_iterator_entry(i);
@@ -1611,13 +1643,20 @@ int snd_pcm_direct_parse_open_conf(snd_config_t *root, snd_config_t *conf,
 				continue;
 			}
 			if (isdigit(*group) == 0) {
-				struct group *grp = getgrnam(group);
-				if (grp == NULL) {
+				long clen = sysconf(_SC_GETGR_R_SIZE_MAX);
+				size_t len = (clen == -1) ? 1024 : (size_t)clen;
+				struct group grp, *pgrp;
+				char *buffer = (char *)malloc(len);
+				if (buffer == NULL)
+					return -ENOMEM;
+				int st = getgrnam_r(group, &grp, buffer, len, &pgrp);
+				if (st != 0 || !pgrp) {
 					SNDERR("The field ipc_gid must be a valid group (create group %s)", group);
-					free(group);
+					free(buffer);
 					return -EINVAL;
 				}
-				rec->ipc_gid = grp->gr_gid;
+				rec->ipc_gid = pgrp->gr_gid;
+				free(buffer);
 			} else {
 				rec->ipc_gid = strtol(group, &endp, 10);
 			}

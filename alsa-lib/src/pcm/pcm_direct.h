@@ -122,6 +122,7 @@ struct snd_pcm_direct {
 	mode_t ipc_perm;		/* IPC socket permissions */
 	int ipc_gid;			/* IPC socket gid */
 	int semid;			/* IPC global semaphore identification */
+	int locked[DIRECT_IPC_SEMS];	/* local lock counter */
 	int shmid;			/* IPC global shared memory identification */
 	snd_pcm_direct_share_t *shmptr;	/* pointer to shared memory area */
 	snd_pcm_t *spcm; 		/* slave PCM handle */
@@ -235,6 +236,12 @@ struct snd_pcm_direct {
 	snd1_pcm_direct_open_secondary_client
 #define snd_pcm_direct_parse_open_conf \
 	snd1_pcm_direct_parse_open_conf
+#define snd_pcm_direct_query_chmaps \
+	snd1_pcm_direct_query_chmaps
+#define snd_pcm_direct_get_chmap \
+	snd1_pcm_direct_get_chmap
+#define snd_pcm_direct_set_chmap \
+	snd1_pcm_direct_set_chmap
 
 int snd_pcm_direct_semaphore_create_or_connect(snd_pcm_direct_t *dmix);
 
@@ -251,13 +258,26 @@ static inline int snd_pcm_direct_semaphore_discard(snd_pcm_direct_t *dmix)
 static inline int snd_pcm_direct_semaphore_down(snd_pcm_direct_t *dmix, int sem_num)
 {
 	struct sembuf op[2] = { { sem_num, 0, 0 }, { sem_num, 1, SEM_UNDO } };
-	return semop(dmix->semid, op, 2);
+	int err = semop(dmix->semid, op, 2);
+	if (err == 0) dmix->locked[sem_num]++;
+	return err;
 }
 
 static inline int snd_pcm_direct_semaphore_up(snd_pcm_direct_t *dmix, int sem_num)
 {
 	struct sembuf op = { sem_num, -1, SEM_UNDO | IPC_NOWAIT };
-	return semop(dmix->semid, &op, 1);
+	int err = semop(dmix->semid, &op, 1);
+	if (err == 0) dmix->locked[sem_num]--;
+	return err;
+}
+
+static inline int snd_pcm_direct_semaphore_final(snd_pcm_direct_t *dmix, int sem_num)
+{
+	if (dmix->locked[sem_num] != 1) {
+		assert(dmix->locked[sem_num] != 1);
+		abort();
+	}
+	return snd_pcm_direct_semaphore_up(dmix, sem_num);
 }
 
 int snd_pcm_direct_shm_create_or_connect(snd_pcm_direct_t *dmix);
@@ -289,6 +309,10 @@ int snd_pcm_direct_timer_stop(snd_pcm_direct_t *dmix);
 void snd_pcm_direct_clear_timer_queue(snd_pcm_direct_t *dmix);
 int snd_pcm_direct_set_timer_params(snd_pcm_direct_t *dmix);
 int snd_pcm_direct_open_secondary_client(snd_pcm_t **spcmp, snd_pcm_direct_t *dmix, const char *client_name);
+
+snd_pcm_chmap_query_t **snd_pcm_direct_query_chmaps(snd_pcm_t *pcm);
+snd_pcm_chmap_t *snd_pcm_direct_get_chmap(snd_pcm_t *pcm);
+int snd_pcm_direct_set_chmap(snd_pcm_t *pcm, const snd_pcm_chmap_t *map);
 
 int snd_timer_async(snd_timer_t *timer, int sig, pid_t pid);
 struct timespec snd_pcm_hw_fast_tstamp(snd_pcm_t *pcm);

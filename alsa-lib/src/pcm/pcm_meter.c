@@ -419,7 +419,7 @@ static int snd_pcm_meter_hw_refine_slave(snd_pcm_t *pcm, snd_pcm_hw_params_t *pa
 static int snd_pcm_meter_hw_params_slave(snd_pcm_t *pcm, snd_pcm_hw_params_t *params)
 {
 	snd_pcm_meter_t *meter = pcm->private_data;
-	return _snd_pcm_hw_params(meter->gen.slave, params);
+	return _snd_pcm_hw_params_internal(meter->gen.slave, params);
 }
 
 static int snd_pcm_meter_hw_refine(snd_pcm_t *pcm, snd_pcm_hw_params_t *params)
@@ -514,6 +514,9 @@ static const snd_pcm_ops_t snd_pcm_meter_ops = {
 	.async = snd_pcm_generic_async,
 	.mmap = snd_pcm_generic_mmap,
 	.munmap = snd_pcm_generic_munmap,
+	.query_chmaps = snd_pcm_generic_query_chmaps,
+	.get_chmap = snd_pcm_generic_get_chmap,
+	.set_chmap = snd_pcm_generic_set_chmap,
 };
 
 static const snd_pcm_fast_ops_t snd_pcm_meter_fast_ops = {
@@ -542,6 +545,7 @@ static const snd_pcm_fast_ops_t snd_pcm_meter_fast_ops = {
 	.poll_descriptors_count = snd_pcm_generic_poll_descriptors_count,
 	.poll_descriptors = snd_pcm_generic_poll_descriptors,
 	.poll_revents = snd_pcm_generic_poll_revents,
+	.may_wait_for_avail_min = snd_pcm_generic_may_wait_for_avail_min,
 };
 
 /**

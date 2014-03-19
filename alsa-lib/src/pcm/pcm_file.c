@@ -602,7 +602,7 @@ static int snd_pcm_file_hw_params(snd_pcm_t *pcm, snd_pcm_hw_params_t * params)
 	snd_pcm_file_t *file = pcm->private_data;
 	unsigned int channel;
 	snd_pcm_t *slave = file->gen.slave;
-	int err = _snd_pcm_hw_params(slave, params);
+	int err = _snd_pcm_hw_params_internal(slave, params);
 	if (err < 0)
 		return err;
 	file->buffer_bytes = snd_pcm_frames_to_bytes(slave, slave->buffer_size);
@@ -669,6 +669,9 @@ static const snd_pcm_ops_t snd_pcm_file_ops = {
 	.async = snd_pcm_generic_async,
 	.mmap = snd_pcm_generic_mmap,
 	.munmap = snd_pcm_generic_munmap,
+	.query_chmaps = snd_pcm_generic_query_chmaps,
+	.get_chmap = snd_pcm_generic_get_chmap,
+	.set_chmap = snd_pcm_generic_set_chmap,
 };
 
 static const snd_pcm_fast_ops_t snd_pcm_file_fast_ops = {

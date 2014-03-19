@@ -218,9 +218,9 @@ static snd_pcm_sframes_t snd_pcm_plugin_rewind(snd_pcm_t *pcm, snd_pcm_uframes_t
 		snd_atomic_write_end(&plugin->watom);
 		return sframes;
 	}
-	snd_pcm_mmap_appl_backward(pcm, (snd_pcm_uframes_t) frames);
+	snd_pcm_mmap_appl_backward(pcm, (snd_pcm_uframes_t) sframes);
 	snd_atomic_write_end(&plugin->watom);
-	return (snd_pcm_sframes_t) frames;
+	return (snd_pcm_sframes_t) sframes;
 }
 
 static snd_pcm_sframes_t snd_pcm_plugin_forwardable(snd_pcm_t *pcm)
@@ -569,6 +569,7 @@ const snd_pcm_fast_ops_t snd_pcm_plugin_fast_ops = {
 	.poll_descriptors_count = snd_pcm_generic_poll_descriptors_count,
 	.poll_descriptors = snd_pcm_generic_poll_descriptors,
 	.poll_revents = snd_pcm_generic_poll_revents,
+	.may_wait_for_avail_min = snd_pcm_generic_may_wait_for_avail_min,
 };
 
 #endif

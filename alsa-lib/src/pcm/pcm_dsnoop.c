@@ -223,6 +223,7 @@ static int snd_pcm_dsnoop_delay(snd_pcm_t *pcm, snd_pcm_sframes_t *delayp)
 		err = snd_pcm_dsnoop_sync_ptr(pcm);
 		if (err < 0)
 			return err;
+		/* Fall through */
 	case SNDRV_PCM_STATE_PREPARED:
 	case SNDRV_PCM_STATE_SUSPENDED:
 		*delayp = snd_pcm_mmap_capture_hw_avail(pcm);
@@ -390,10 +391,11 @@ static int snd_pcm_dsnoop_close(snd_pcm_t *pcm)
  		snd_pcm_direct_server_discard(dsnoop);
  	if (dsnoop->client)
  		snd_pcm_direct_client_discard(dsnoop);
-	if (snd_pcm_direct_shm_discard(dsnoop))
-		snd_pcm_direct_semaphore_discard(dsnoop);
-	else
-		snd_pcm_direct_semaphore_up(dsnoop, DIRECT_IPC_SEM_CLIENT);
+	if (snd_pcm_direct_shm_discard(dsnoop)) {
+		if (snd_pcm_direct_semaphore_discard(dsnoop))
+			snd_pcm_direct_semaphore_final(dsnoop, DIRECT_IPC_SEM_CLIENT);
+	} else
+		snd_pcm_direct_semaphore_final(dsnoop, DIRECT_IPC_SEM_CLIENT);
 	free(dsnoop->bindings);
 	pcm->private_data = NULL;
 	free(dsnoop);
@@ -457,6 +459,7 @@ static int snd_pcm_dsnoop_htimestamp(snd_pcm_t *pcm,
 			break;
 		*avail = avail1;
 		*tstamp = snd_pcm_hw_fast_tstamp(dsnoop->spcm);
+		ok = 1;
 	}
 	return 0;
 }
@@ -487,6 +490,9 @@ static const snd_pcm_ops_t snd_pcm_dsnoop_ops = {
 	.async = snd_pcm_direct_async,
 	.mmap = snd_pcm_direct_mmap,
 	.munmap = snd_pcm_direct_munmap,
+	.query_chmaps = snd_pcm_direct_query_chmaps,
+	.get_chmap = snd_pcm_direct_get_chmap,
+	.set_chmap = snd_pcm_direct_set_chmap,
 };
 
 static const snd_pcm_fast_ops_t snd_pcm_dsnoop_fast_ops = {

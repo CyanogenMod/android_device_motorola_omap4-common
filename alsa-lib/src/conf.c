@@ -417,6 +417,7 @@ beginning:</P>
 #include <stdarg.h>
 #include <limits.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include <locale.h>
 #include "local.h"
 #ifdef HAVE_LIBPTHREAD
@@ -495,7 +496,7 @@ static int safe_strtoll(const char *str, long long *val)
 	if (!*str)
 		return -EINVAL;
 	errno = 0;
-	if (sscanf(str, "%Li%n", &v, &endidx) < 1)
+	if (sscanf(str, "%lli%n", &v, &endidx) < 1)
 		return -EINVAL;
 	if (str[endidx])
 		return -EINVAL;
@@ -1377,7 +1378,7 @@ static int _snd_config_save_node_value(snd_config_t *n, snd_output_t *out,
 		snd_output_printf(out, "%ld", n->u.integer);
 		break;
 	case SND_CONFIG_TYPE_INTEGER64:
-		snd_output_printf(out, "%Ld", n->u.integer64);
+		snd_output_printf(out, "%lld", n->u.integer64);
 		break;
 	case SND_CONFIG_TYPE_REAL:
 		snd_output_printf(out, "%-16g", n->u.real);
@@ -2629,7 +2630,7 @@ int snd_config_get_ascii(const snd_config_t *config, char **ascii)
 		{
 			char res[32];
 			int err;
-			err = snprintf(res, sizeof(res), "%Li", config->u.integer64);
+			err = snprintf(res, sizeof(res), "%lli", config->u.integer64);
 			if (err < 0 || err == sizeof(res)) {
 				assert(0);
 				return -ENOMEM;
@@ -3268,6 +3269,7 @@ static int snd_config_hooks_call(snd_config_t *root, snd_config_t *config, snd_c
 		snd_config_iterator_t i, next;
 		if (snd_config_get_type(func_conf) != SND_CONFIG_TYPE_COMPOUND) {
 			SNDERR("Invalid type for func %s definition", str);
+			err = -EINVAL;
 			goto _err;
 		}
 		snd_config_for_each(i, next, func_conf) {
@@ -3372,6 +3374,42 @@ static int snd_config_hooks(snd_config_t *config, snd_config_t *private_data)
 	return err;
 }
 
+static int config_filename_filter(const struct dirent *dirent)
+{
+	size_t flen;
+
+	if (dirent == NULL)
+		return 0;
+	if (dirent->d_type == DT_DIR)
+		return 0;
+
+	flen = strlen(dirent->d_name);
+	if (flen <= 5)
+		return 0;
+
+	if (strncmp(&dirent->d_name[flen-5], ".conf", 5) == 0)
+		return 1;
+
+	return 0;
+}
+
+static int config_file_open(snd_config_t *root, const char *filename)
+{
+	snd_input_t *in;
+	int err;
+
+	err = snd_input_stdio_open(&in, filename, "r");
+	if (err >= 0) {
+		err = snd_config_load(root, in);
+		snd_input_close(in);
+		if (err < 0)
+			SNDERR("%s may be old or corrupted: consider to remove or fix it", filename);
+	} else
+		SNDERR("cannot access file %s", filename);
+
+	return err;
+}
+
 /**
  * \brief Loads and parses the given configurations files.
  * \param[in] root Handle to the root configuration node.
@@ -3456,20 +3494,46 @@ int snd_config_hook_load(snd_config_t *root, snd_config_t *config, snd_config_t 
 		}
 	} while (hit);
 	for (idx = 0; idx < fi_count; idx++) {
-		snd_input_t *in;
+		struct stat st;
 		if (!errors && access(fi[idx].name, R_OK) < 0)
 			continue;
-		err = snd_input_stdio_open(&in, fi[idx].name, "r");
-		if (err >= 0) {
-			err = snd_config_load(root, in);
-			snd_input_close(in);
-			if (err < 0) {
-				SNDERR("%s may be old or corrupted: consider to remove or fix it", fi[idx].name);
-				goto _err;
-			}
-		} else {
-			SNDERR("cannot access file %s", fi[idx].name);
+		if (stat(fi[idx].name, &st) < 0) {
+			SNDERR("cannot stat file/directory %s", fi[idx].name);
+			continue;
 		}
+		if (S_ISDIR(st.st_mode)) {
+			struct dirent **namelist;
+			int n;
+
+#ifndef DOC_HIDDEN
+#ifdef _GNU_SOURCE
+#define SORTFUNC	versionsort
+#else
+#define SORTFUNC	alphasort
+#endif
+#endif
+			n = scandir(fi[idx].name, &namelist, config_filename_filter, SORTFUNC);
+			if (n > 0) {
+				int j;
+				err = 0;
+				for (j = 0; j < n; ++j) {
+					if (err >= 0) {
+						int sl = strlen(fi[idx].name) + strlen(namelist[j]->d_name) + 2;
+						char *filename = malloc(sl);
+						snprintf(filename, sl, "%s/%s", fi[idx].name, namelist[j]->d_name);
+						filename[sl-1] = '\0';
+
+						err = config_file_open(root, filename);
+						free(filename);
+					}
+					free(namelist[j]);
+				}
+				free(namelist);
+				if (err < 0)
+					goto _err;
+			}
+		} else if ((err = config_file_open(root, fi[idx].name)) < 0)
+			goto _err;
 	}
 	*dst = NULL;
 	err = 0;

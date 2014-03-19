@@ -51,7 +51,11 @@ PRODUCT_PACKAGES += \
     audio_policy.omap4 \
     libasound \
     libaudioutils \
-    libaudiohw_legacy
+    libaudiohw_legacy \
+    tinyplay \
+    tinycap \
+    tinymix \
+    tinypcminfo
 
 # BlueZ test tools
 PRODUCT_PACKAGES += \

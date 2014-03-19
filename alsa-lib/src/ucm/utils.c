@@ -9,9 +9,9 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software  
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  *  Support for the verb/device/modifier core logic and API,
  *  command line tool and file parser was kindly sponsored by
@@ -99,13 +99,13 @@ void uc_mgr_free_value(struct list_head *base)
 	}
 }
 
-void uc_mgr_free_dev_list(struct list_head *base)
+void uc_mgr_free_dev_list(struct dev_list *dev_list)
 {
 	struct list_head *pos, *npos;
-	struct dev_list *dlist;
+	struct dev_list_node *dlist;
 	
-	list_for_each_safe(pos, npos, base) {
-		dlist = list_entry(pos, struct dev_list, list);
+	list_for_each_safe(pos, npos, &dev_list->list) {
+		dlist = list_entry(pos, struct dev_list_node, list);
 		free(dlist->name);
 		list_del(&dlist->list);
 		free(dlist);
@@ -189,6 +189,7 @@ void uc_mgr_free_device(struct list_head *base)
 		uc_mgr_free_sequence(&dev->enable_list);
 		uc_mgr_free_sequence(&dev->disable_list);
 		uc_mgr_free_transition(&dev->transition_list);
+		uc_mgr_free_dev_list(&dev->dev_list);
 		uc_mgr_free_value(&dev->value_list);
 		list_del(&dev->list);
 		free(dev);

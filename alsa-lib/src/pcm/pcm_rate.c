@@ -1234,6 +1234,7 @@ static const snd_pcm_fast_ops_t snd_pcm_rate_fast_ops = {
 	.poll_descriptors_count = snd_pcm_generic_poll_descriptors_count,
 	.poll_descriptors = snd_pcm_generic_poll_descriptors,
 	.poll_revents = snd_pcm_rate_poll_revents,
+	.may_wait_for_avail_min = snd_pcm_generic_may_wait_for_avail_min,
 };
 
 static const snd_pcm_ops_t snd_pcm_rate_ops = {
@@ -1249,6 +1250,9 @@ static const snd_pcm_ops_t snd_pcm_rate_ops = {
 	.async = snd_pcm_generic_async,
 	.mmap = snd_pcm_generic_mmap,
 	.munmap = snd_pcm_generic_munmap,
+	.query_chmaps = snd_pcm_generic_query_chmaps,
+	.get_chmap = snd_pcm_generic_get_chmap,
+	.set_chmap = snd_pcm_generic_set_chmap,
 };
 
 /**
@@ -1391,12 +1395,14 @@ int snd_pcm_rate_open(snd_pcm_t **pcmp, const char *name,
 		}
 	} else {
 		SNDERR("Invalid type for rate converter");
-		snd_pcm_close(pcm);
+		snd_pcm_free(pcm);
+		free(rate);
 		return -EINVAL;
 	}
 	if (err < 0) {
 		SNDERR("Cannot find rate converter");
-		snd_pcm_close(pcm);
+		snd_pcm_free(pcm);
+		free(rate);
 		return -ENOENT;
 	}
 #else
@@ -1404,7 +1410,8 @@ int snd_pcm_rate_open(snd_pcm_t **pcmp, const char *name,
 	open_func = SND_PCM_RATE_PLUGIN_ENTRY(linear);
 	err = open_func(SND_PCM_RATE_PLUGIN_VERSION, &rate->obj, &rate->ops);
 	if (err < 0) {
-		snd_pcm_close(pcm);
+		snd_pcm_free(pcm);
+		free(rate);
 		return err;
 	}
 #endif
@@ -1412,7 +1419,8 @@ int snd_pcm_rate_open(snd_pcm_t **pcmp, const char *name,
 	if (! rate->ops.init || ! (rate->ops.convert || rate->ops.convert_s16) ||
 	    ! rate->ops.input_frames || ! rate->ops.output_frames) {
 		SNDERR("Inproper rate plugin %s initialization", type);
-		snd_pcm_close(pcm);
+		snd_pcm_free(pcm);
+		free(rate);
 		return err;
 	}
 

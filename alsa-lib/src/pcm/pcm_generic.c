@@ -40,7 +40,7 @@ int snd_pcm_generic_close(snd_pcm_t *pcm)
 	if (generic->close_slave)
 		err = snd_pcm_close(generic->slave);
 	free(generic);
-	return 0;
+	return err;
 }
 
 int snd_pcm_generic_nonblock(snd_pcm_t *pcm, int nonblock)
@@ -100,7 +100,7 @@ int snd_pcm_generic_hw_refine(snd_pcm_t *pcm, snd_pcm_hw_params_t *params)
 int snd_pcm_generic_hw_params(snd_pcm_t *pcm, snd_pcm_hw_params_t *params)
 {
 	snd_pcm_generic_t *generic = pcm->private_data;
-	return _snd_pcm_hw_params(generic->slave, params);
+	return _snd_pcm_hw_params_internal(generic->slave, params);
 }
 
 int snd_pcm_generic_prepare(snd_pcm_t *pcm)
@@ -320,6 +320,30 @@ int snd_pcm_generic_munmap(snd_pcm_t *pcm)
 		pcm->stopped_areas = NULL;
 	}
 	return 0;
+}
+
+snd_pcm_chmap_query_t **snd_pcm_generic_query_chmaps(snd_pcm_t *pcm)
+{
+	snd_pcm_generic_t *generic = pcm->private_data;
+	return snd_pcm_query_chmaps(generic->slave);
+}
+
+snd_pcm_chmap_t *snd_pcm_generic_get_chmap(snd_pcm_t *pcm)
+{
+	snd_pcm_generic_t *generic = pcm->private_data;
+	return snd_pcm_get_chmap(generic->slave);
+}
+
+int snd_pcm_generic_set_chmap(snd_pcm_t *pcm, const snd_pcm_chmap_t *map)
+{
+	snd_pcm_generic_t *generic = pcm->private_data;
+	return snd_pcm_set_chmap(generic->slave, map);
+}
+
+int snd_pcm_generic_may_wait_for_avail_min(snd_pcm_t *pcm, snd_pcm_uframes_t avail ATTRIBUTE_UNUSED)
+{
+	snd_pcm_generic_t *generic = pcm->private_data;
+	return snd_pcm_may_wait_for_avail_min(generic->slave, snd_pcm_mmap_avail(generic->slave));
 }
 
 #endif /* DOC_HIDDEN */

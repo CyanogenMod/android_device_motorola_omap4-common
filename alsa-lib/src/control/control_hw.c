@@ -148,6 +148,11 @@ static int snd_ctl_hw_elem_info(snd_ctl_t *handle, snd_ctl_elem_info_t *info)
 static int snd_ctl_hw_elem_add(snd_ctl_t *handle, snd_ctl_elem_info_t *info)
 {
 	snd_ctl_hw_t *hw = handle->private_data;
+
+	if (info->type == SNDRV_CTL_ELEM_TYPE_ENUMERATED &&
+	    hw->protocol < SNDRV_PROTOCOL_VERSION(2, 0, 7))
+		return -ENXIO;
+
 	if (ioctl(hw->fd, SNDRV_CTL_IOCTL_ELEM_ADD, info) < 0)
 		return -errno;
 	return 0;
@@ -156,6 +161,11 @@ static int snd_ctl_hw_elem_add(snd_ctl_t *handle, snd_ctl_elem_info_t *info)
 static int snd_ctl_hw_elem_replace(snd_ctl_t *handle, snd_ctl_elem_info_t *info)
 {
 	snd_ctl_hw_t *hw = handle->private_data;
+
+	if (info->type == SNDRV_CTL_ELEM_TYPE_ENUMERATED &&
+	    hw->protocol < SNDRV_PROTOCOL_VERSION(2, 0, 7))
+		return -ENXIO;
+
 	if (ioctl(hw->fd, SNDRV_CTL_IOCTL_ELEM_REPLACE, info) < 0)
 		return -errno;
 	return 0;
@@ -207,7 +217,7 @@ static int snd_ctl_hw_elem_tlv(snd_ctl_t *handle, int op_flag,
 {
 	int inum;
 	snd_ctl_hw_t *hw = handle->private_data;
-	struct sndrv_ctl_tlv *xtlv;
+	struct snd_ctl_tlv *xtlv;
 	
 	/* we don't support TLV on protocol ver 2.0.3 or earlier */
 	if (hw->protocol < SNDRV_PROTOCOL_VERSION(2, 0, 4))
@@ -219,7 +229,7 @@ static int snd_ctl_hw_elem_tlv(snd_ctl_t *handle, int op_flag,
 	case 1:	inum = SNDRV_CTL_IOCTL_TLV_WRITE; break;
 	default: return -EINVAL;
 	}
-	xtlv = malloc(sizeof(struct sndrv_ctl_tlv) + tlv_size);
+	xtlv = malloc(sizeof(struct snd_ctl_tlv) + tlv_size);
 	if (xtlv == NULL)
 		return -ENOMEM; 
 	xtlv->numid = numid;
@@ -372,7 +382,7 @@ int snd_ctl_hw_open(snd_ctl_t **handle, const char *name, int card, int mode)
 
 	*handle = NULL;	
 
-	if (CHECK_SANITY(card < 0 || card >= 32)) {
+	if (CHECK_SANITY(card < 0 || card >= SND_MAX_CARDS)) {
 		SNDMSG("Invalid card index %d", card);
 		return -EINVAL;
 	}
@@ -414,6 +424,7 @@ int snd_ctl_hw_open(snd_ctl_t **handle, const char *name, int card, int mode)
 	if (err < 0) {
 		close(fd);
 		free(hw);
+		return err;
 	}
 	ctl->ops = &snd_ctl_hw_ops;
 	ctl->private_data = hw;

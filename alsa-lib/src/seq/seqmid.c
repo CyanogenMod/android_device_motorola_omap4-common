@@ -378,9 +378,13 @@ int snd_seq_sync_output_queue(snd_seq_t *seq)
  * \return 0 on success or negative error code
  *
  * This function parses the sequencer client and port numbers from the given string.
- * The client and port tokes are separated by either colon or period, e.g. 128:1.
+ * The client and port tokens are separated by either colon or period, e.g. 128:1.
  * When \a seq is not NULL, the function accepts also a client name not only
  * digit numbers.
+ * Actually \a arg need to be only a prefix of the wanted client.
+ * That is, if a client named "Foobar XXL Master 2012" with number 128 is available,
+ * then parsing "Foobar" will return the address 128:0 if no other client is
+ * an exact match.
  */
 int snd_seq_parse_address(snd_seq_t *seq, snd_seq_addr_t *addr, const char *arg)
 {
@@ -412,13 +416,23 @@ int snd_seq_parse_address(snd_seq_t *seq, snd_seq_addr_t *addr, const char *arg)
 			return -EINVAL;
 		if (len <= 0)
 			return -EINVAL;
+		client = -1;
 		cinfo.client = -1;
 		while (snd_seq_query_next_client(seq, &cinfo) >= 0) {
-			if ((strlen(cinfo.name) == len) &&
-				! strncmp(arg, cinfo.name, len)) {
-				addr->client = cinfo.client;
-				return 0;
+			if (!strncmp(arg, cinfo.name, len)) {
+				if (strlen(cinfo.name) == (size_t)len) {
+					/* exact match */
+					addr->client = cinfo.client;
+					return 0;
+				}
+				if (client < 0)
+					client = cinfo.client;
 			}
+		}
+		if (client >= 0) {
+			/* prefix match */
+			addr->client = client;
+			return 0;
 		}
 		return -ENOENT; /* not found */
 	}

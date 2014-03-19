@@ -322,8 +322,13 @@ int snd_pcm_mmap(snd_pcm_t *pcm)
 		snd_pcm_channel_info_t *i = &pcm->mmap_channels[c];
 		i->channel = c;
 		err = snd_pcm_channel_info(pcm, i);
-		if (err < 0)
+		if (err < 0) {
+			free(pcm->mmap_channels);
+			free(pcm->running_areas);
+			pcm->mmap_channels = NULL;
+			pcm->running_areas = NULL;
 			return err;
+		}
 	}
 	for (c = 0; c < pcm->channels; ++c) {
 		snd_pcm_channel_info_t *i = &pcm->mmap_channels[c];
@@ -623,6 +628,7 @@ snd_pcm_sframes_t snd_pcm_read_mmap(snd_pcm_t *pcm, snd_pcm_uframes_t offset,
 			err = _snd_pcm_readn(pcm->fast_op_arg, bufs, frames);
 			if (err >= 0)
 				frames = err;
+			break;
 		}
 		default:
 			SNDMSG("invalid access type %d", pcm->access);

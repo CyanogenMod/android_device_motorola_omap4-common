@@ -781,9 +781,9 @@ static int snd_pcm_dmix_close(snd_pcm_t *pcm)
  	shm_sum_discard(dmix);
 	if (snd_pcm_direct_shm_discard(dmix)) {
 		if (snd_pcm_direct_semaphore_discard(dmix))
-			snd_pcm_direct_semaphore_up(dmix, DIRECT_IPC_SEM_CLIENT);
+			snd_pcm_direct_semaphore_final(dmix, DIRECT_IPC_SEM_CLIENT);
 	} else
-		snd_pcm_direct_semaphore_up(dmix, DIRECT_IPC_SEM_CLIENT);
+		snd_pcm_direct_semaphore_final(dmix, DIRECT_IPC_SEM_CLIENT);
 	free(dmix->bindings);
 	pcm->private_data = NULL;
 	free(dmix);
@@ -853,6 +853,7 @@ static int snd_pcm_dmix_htimestamp(snd_pcm_t *pcm,
 			break;
 		*avail = avail1;
 		*tstamp = snd_pcm_hw_fast_tstamp(dmix->spcm);
+		ok = 1;
 	}
 	return 0;
 }
@@ -892,6 +893,9 @@ static const snd_pcm_ops_t snd_pcm_dmix_ops = {
 	.async = snd_pcm_direct_async,
 	.mmap = snd_pcm_direct_mmap,
 	.munmap = snd_pcm_direct_munmap,
+	.query_chmaps = snd_pcm_direct_query_chmaps,
+	.get_chmap = snd_pcm_direct_get_chmap,
+	.set_chmap = snd_pcm_direct_set_chmap,
 };
 
 static const snd_pcm_fast_ops_t snd_pcm_dmix_fast_ops = {
