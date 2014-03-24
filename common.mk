@@ -240,7 +240,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.media.capture.flashIntensity=100 \
     ro.media.capture.classification=classF \
     ro.media.panorama.defres=3264x1840 \
-    ro.media.panorama.frameres=1280x720
+    ro.media.panorama.frameres=1280x720 \
+    media.stagefright.cache-params=18432/20480/15
 
 # OpenglES
 PRODUCT_PROPERTY_OVERRIDES += \
