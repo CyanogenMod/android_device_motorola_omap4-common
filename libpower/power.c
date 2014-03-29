@@ -182,20 +182,30 @@ static void omap_power_hint(struct power_module *module, power_hint_t hint, void
     struct omap_power_module *omap_device = (struct omap_power_module *) module;
     char buf[80];
     int len;
+    int duration = 1;
 
     if (!omap_device->inited)
         return;
 
     switch (hint) {
     case POWER_HINT_INTERACTION:
+    case POWER_HINT_CPU_BOOST:
         if (boostpulse_open(omap_device) >= 0) {
-            len = write(omap_device->boostpulse_fd, "1", 1);
+            if (data != NULL)
+                duration = (int) data;
+
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%d", duration);
+            len = write(omap_device->boostpulse_fd, buf, strlen(buf));
 
             if (len < 0) {
                 strerror_r(errno, buf, sizeof(buf));
                 ALOGE("Error writing to %s: %s\n", BOOSTPULSE_PATH, buf);
+                pthread_mutex_lock(&omap_device->lock);
                 close(omap_device->boostpulse_fd);
                 omap_device->boostpulse_fd = -1;
+                omap_device->boostpulse_warned = 0;
+                pthread_mutex_unlock(&omap_device->lock);
             }
         }
         break;
