@@ -128,7 +128,8 @@ on post-fs
     chmod 0660 /sys/class/rfkill/rfkill0/state
     restorecon /sys/class/rfkill/rfkill0/state
     restorecon /sys/class/rfkill/rfkill0/type
-    chown bluetooth net_bt_stack /dev/ttyO1
+    # whisper dock service
+    chown mot_whisper mot_whisper /dev/ttyO1
     chmod 0660 /dev/ttyO1
     # change permissions for rfkill
     chmod 0666 /dev/rfkill
