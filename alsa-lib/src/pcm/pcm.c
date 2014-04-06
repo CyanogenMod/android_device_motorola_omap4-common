@@ -2414,6 +2414,15 @@ int snd_pcm_wait_nocheck(snd_pcm_t *pcm, int timeout)
 		return -EIO;
 	}
 	do {
+//STARGO - make sure to eventually timeout
+		if (timeout < 0) {
+			err_poll = poll(pfd, npfds, 2000);
+			if (err_poll == 0) {
+				err_poll = -1;
+				errno = ENODEV;
+			}
+		} else
+//STARGO - end
 		err_poll = poll(pfd, npfds, timeout);
 		if (err_poll < 0) {
 		        if (errno == EINTR && !PCMINABORT(pcm))
