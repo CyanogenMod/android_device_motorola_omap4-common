@@ -903,13 +903,17 @@ static int set_best_hdmi_mode(omap_hwc_device_t *hwc_dev, uint32_t xres, uint32_
         if (d.modedb[i].flag & (FB_FLAG_RATIO_4_3 | FB_FLAG_RATIO_16_9))
             score = 1;
 
+        if (d.modedb[i].flag & FB_FLAG_PREFERRED)
+            score = 2;
+
         /* prefer the same mode as we use for mirroring to avoid mode change */
         score = (score << 1) | (i == ~ext->mirror_mode && ext->avoid_mode_change);
 
         score = add_scaling_score(score, xres, yres, 60, ext_fb_xres, ext_fb_yres,
                                   mode_xres, mode_yres, d.modedb[i].refresh ? : 1);
 
-        ALOGD("#%d: %dx%d %dHz", i, mode_xres, mode_yres, d.modedb[i].refresh);
+        ALOGD("#%d: %dx%d %dHz%s", i, mode_xres, mode_yres, d.modedb[i].refresh,
+            (d.modedb[i].flag & FB_FLAG_PREFERRED) ? " (preferred)" : "");
         if (debug)
             ALOGD("  score=0x%x adj.res=%dx%d", score, ext_fb_xres, ext_fb_yres);
         if (best_score < score) {
@@ -2227,6 +2231,9 @@ static void handle_hotplug(omap_hwc_device_t *hwc_dev)
         ext->mirror.hflip = (atoi(value) & EXT_HFLIP) > 0;
         ext->mirror.docking = 0;
 
+//STARGO - dock does not work, disable for now
+        ext->force_dock = 0;
+//STARGO - end
         if (ext->force_dock) {
             /* restrict to docking with no transform */
             ext->mirror.enabled = 0;
