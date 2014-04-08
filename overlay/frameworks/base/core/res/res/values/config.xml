@@ -257,5 +257,9 @@
 
     <!-- Device supports LED flashlight -->
     <bool name="config_enableTorch">true</bool>
+
+    <!-- Use analog dock-connector if device is connected (auto-sensing) -->
+    <bool name="config_forceAnalogDeskDock">true</bool>
+    <bool name="config_forceAnalogCarDock">true</bool>
 </resources>
 
