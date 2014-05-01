@@ -261,5 +261,8 @@
     <!-- Use analog dock-connector if device is connected (auto-sensing) -->
     <bool name="config_forceAnalogDeskDock">true</bool>
     <bool name="config_forceAnalogCarDock">true</bool>
+
+    <!-- Allow the device to suspend when the screen is off due to the proximity sensor. -->
+    <bool name="config_suspendWhenScreenOffDueToProximity">true</bool>
 </resources>
 
