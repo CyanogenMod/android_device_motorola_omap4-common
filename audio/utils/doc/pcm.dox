@@ -1,0 +1,143 @@
+/**
+
+\page pcmdoc PCM ports: the data interface
+
+[ThreadBase]: \ref tiaudioutils::ThreadBase "ThreadBase"
+[SlotMap]: \ref tiaudioutils::SlotMap "SlotMap"
+[BufferAdaptor]: \ref tiaudioutils::BufferAdaptor "BufferAdaptor"
+[BufferProvider]: \ref tiaudioutils::BufferProvider "BufferProvider"
+[Buffer]: \ref tiaudioutils::BufferProvider::Buffer "Buffer"
+[Resampler]: \ref tiaudioutils::Resampler "Resampler"
+[PcmParams]: \ref tiaudioutils::PcmParams "PcmParams"
+[PcmPort]: \ref tiaudioutils::PcmPort "PcmPort"
+[PcmInPort]: \ref tiaudioutils::PcmInPort "PcmInPort"
+[PcmOutPort]: \ref tiaudioutils::PcmOutPort "PcmOutPort"
+[NullInPort]: \ref tiaudioutils::NullInPort "NullInPort"
+[NullOutPort]: \ref tiaudioutils::NullOutPort "NullOutPort"
+[ALSAInPort]: \ref tiaudioutils::ALSAInPort "ALSAInPort"
+[ALSAOutPort]: \ref tiaudioutils::ALSAOutPort "ALSAOutPort"
+[ALSAControl]: \ref tiaudioutils::ALSAControl "ALSAControl"
+[ALSAMixer]: \ref tiaudioutils::ALSAMixer "ALSAMixer"
+[SimpleInStream]: \ref tiaudioutils::SimpleInStream "SimpleInStream"
+[SimpleOutStream]: \ref tiaudioutils::SimpleOutStream "SimpleOutStream"
+[SimpleReader]: \ref tiaudioutils::SimpleReader "SimpleReader"
+[ReaderProvider]: \ref tiaudioutils::SimpleReader::ReaderProvider "ReaderProvider"
+[SimpleWriter]: \ref tiaudioutils::SimpleWriter "SimpleWriter"
+[InStream]: \ref tiaudioutils::InStream "InStream"
+[AdaptedInStream]: \ref tiaudioutils::AdaptedInStream "AdaptedInStream"
+[BufferedInStream]: \ref tiaudioutils::BufferedInStream "BufferedInStream"
+[OutStream]: \ref tiaudioutils::OutStream "OutStream"
+[AdaptedOutStream]: \ref tiaudioutils::AdaptedOutStream "AdaptedOutStream"
+[BufferedOutStream]: \ref tiaudioutils::BufferedOutStream "BufferedOutStream"
+[PcmReader]: \ref tiaudioutils::PcmReader "PcmReader"
+[PcmWriter]: \ref tiaudioutils::PcmWriter "PcmWriter"
+[Merge]: \ref tiaudioutils::Merge "Merge"
+[UnMerge]: \ref tiaudioutils::UnMerge "UnMerge"
+[MonoPipe]: \ref tiaudioutils::MonoPipe "MonoPipe"
+[PipeReader]: \ref tiaudioutils::PipeReader "PipeReader"
+[PipeWriter]: \ref tiaudioutils::PipeWriter "PipeWriter"
+
+[ALSA]: http://www.alsa-project.org/main/index.php/Main_Page "ALSA"
+[tinyalsa]: https://github.com/tinyalsa/tinyalsa "tinyalsa"
+
+# Data and Mixer Interfaces # {#PcmAndMixer}
+
+## PCM interface ## {#PCMInterface}
+
+The PCM audio interface consists of the audio ports that are used to capture
+data from an audio input device or play back data to an output device. The
+[PcmPort], [PcmInPort] and [PcmOutPort] classes represent the abstraction of the
+PCM interface in the library.
+
+The PCM ports transfer data in buffers that contain multiple audio frames.
+An audio frame contains one or more samples that correspond to the channels
+in the stream. The terms *sample* and *channel* are used interchangeably
+throughout the library.
+
+The configuration of a PCM port is done with the [PcmParams] class through the
+following parameters:
+
+- Channels. The number of channels or samples in an audio frame.
+- Bits per sample. The number of bits in an audio sample. The format per se is
+  not specified (e.g. little-endian, big-endian) but is assumed to be aligned
+  between the reader or writer and the PCM port implementation.
+- Sampling rate. The number of audio frames in a second.
+- Buffer size. The number of frames in an audio buffer.
+
+The basic operations on the PCM ports include:
+[open](\ref tiaudioutils::PcmPort::open),
+[read](\ref tiaudioutils::PcmInPort::read) or
+[write](\ref tiaudioutils::PcmOutPort::write), and
+[close](\ref tiaudioutils::PcmPort::close).
+
+## Null PCM ## {#NullPCM}
+
+The null PCM classes ([NullInPort] and [NullOutPort]) are dummy PCM ports that
+produce silence (capture) or consume the data (playback) at the same pace that
+an actual hardware port does for a given configuration. They can be useful when
+hardware ports are not available but data needs to be produced/consumed to
+satisfy the requirements of upper layers.
+
+## ALSA PCM interface ## {#ALSAPcm}
+
+The [Advance Linux Sound Architecture][ALSA] (ALSA) provides audio functionality
+to the Linux operating system. Android uses [tinyalsa] to interface with ALSA in
+the Linux kernel.
+
+The ALSA PCM interface in this library uses tinyalsa to implement the interface
+described in the [PCM interface](#PCMInterface) section. It consists of the
+[ALSAInPort] and [ALSAOutPort] classes for capture and playback, respectively.
+
+The ALSA PCM interface implementation allows setting only the most significant
+parameters, like the number of channels, sampling rate, bits per sample, period
+size and period count. All of them are set in the [PcmParams] passed to the
+corresponding ALSA port when it's opened, except for the period count that is
+set during the ALSA port construction. Other parameters like the start and stop
+thresholds are not configurable, they are set to one frame for capture and one
+period for playback. These are typical values used in Android Audio HALs.
+
+The ALSA PCM classes support the same parameters that tinyalsa does, that is:
+
+- Formats: 8, 16, 24 and 32-bits little-endian, no compressed formats supported.
+- Channels: mono, stereo or multichannel.
+- Sampling rate: those supported by ALSA.
+
+## ALSA mixer interface ## {#ALSAMixer}
+
+The mixer interface of ALSA allows configuring the sound card settings like the
+audio routes and volumes. The [ALSAMixer] class represents the abstraction of
+the mixer interface and offers helpful mechanisms to set mixer controls.
+
+Two mechanisms are available to set the ALSA controls:
+
+- Named control(s). [ALSAControl] class is used to describe a single ALSA mixer
+  control consisting of a name and a target value. The target value can be
+  an integer for boolean, integer and byte control types, or a string for
+  enum controls. The [ALSAControl]s can then be set (to its target value) or
+  cleared (to 0 or "Off" depending the control type) through the
+  [set()](\ref tiaudioutils::ALSAMixer::set) methods.
+
+- Paths. This mechanism is built on top of Android's libaudioroute, an XML-based
+  solution. The XML file name is derived from the card name (e.g. dra7evm_paths.xml)
+  and contains:
+
+  - Card defaults section. Controls in this section are set when the [ALSAMixer]
+    object is created or by explicitly calling the
+    [initRoutes()](\ref tiaudioutils::ALSAMixer::initRoutes) method. It can be
+    useful for:
+    - Controls that are not going to change dynamically.
+    - Set the inactive state of controls that will change dynamically, e.g. when
+      calling [setPath()](\ref tiaudioutils::ALSAMixer::setPath) to reset a path.
+
+  - One or multiple path sections. The path sections are identified by a name
+    which can be used to set the path through the
+    [setPath()](\ref tiaudioutils::ALSAMixer::setPath) method. A helpful way to
+    simplify setting the mixer controls in the Audio HAL consists of naming the
+    XML path sections after the Android audio devices (e.g. AUDIO_DEVICE_OUT_SPEAKER)
+    and use [setPath()](\ref tiaudioutils::ALSAMixer::setPath) directly with the
+    device (or devices) to set the path for, without the need to translate audio
+    devices values to the path name strings.
+
+Go to the [next](\ref streamdoc) section or return to the [index](index.html).
+
+*/

@@ -32,6 +32,6 @@ typedef struct _hdmi_audio_caps {
 #define CEA_SPKR_RLCRRC (1 << 6)
 
 /* Defined in file hdmi_audio_utils.c */
-int hdmi_query_audio_caps(const char* edid_path, hdmi_audio_caps_t *caps);
+int hdmi_query_audio_caps(hdmi_audio_caps_t *caps);
 
 #endif /* TI_HDMI_AUDIO_HAL */

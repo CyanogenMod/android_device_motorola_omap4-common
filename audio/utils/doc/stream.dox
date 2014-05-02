@@ -1,0 +1,288 @@
+/**
+
+\page streamdoc Streams: writing and reading audio data
+
+[ThreadBase]: \ref tiaudioutils::ThreadBase "ThreadBase"
+[SlotMap]: \ref tiaudioutils::SlotMap "SlotMap"
+[BufferAdaptor]: \ref tiaudioutils::BufferAdaptor "BufferAdaptor"
+[BufferProvider]: \ref tiaudioutils::BufferProvider "BufferProvider"
+[Buffer]: \ref tiaudioutils::BufferProvider::Buffer "Buffer"
+[Resampler]: \ref tiaudioutils::Resampler "Resampler"
+[PcmParams]: \ref tiaudioutils::PcmParams "PcmParams"
+[PcmPort]: \ref tiaudioutils::PcmPort "PcmPort"
+[PcmInPort]: \ref tiaudioutils::PcmInPort "PcmInPort"
+[PcmOutPort]: \ref tiaudioutils::PcmOutPort "PcmOutPort"
+[NullInPort]: \ref tiaudioutils::NullInPort "NullInPort"
+[NullOutPort]: \ref tiaudioutils::NullOutPort "NullOutPort"
+[ALSAInPort]: \ref tiaudioutils::ALSAInPort "ALSAInPort"
+[ALSAOutPort]: \ref tiaudioutils::ALSAOutPort "ALSAOutPort"
+[ALSAControl]: \ref tiaudioutils::ALSAControl "ALSAControl"
+[ALSAMixer]: \ref tiaudioutils::ALSAMixer "ALSAMixer"
+[SimpleInStream]: \ref tiaudioutils::SimpleInStream "SimpleInStream"
+[SimpleOutStream]: \ref tiaudioutils::SimpleOutStream "SimpleOutStream"
+[SimpleReader]: \ref tiaudioutils::SimpleReader "SimpleReader"
+[ReaderProvider]: \ref tiaudioutils::SimpleReader::ReaderProvider "ReaderProvider"
+[SimpleWriter]: \ref tiaudioutils::SimpleWriter "SimpleWriter"
+[InStream]: \ref tiaudioutils::InStream "InStream"
+[AdaptedInStream]: \ref tiaudioutils::AdaptedInStream "AdaptedInStream"
+[BufferedInStream]: \ref tiaudioutils::BufferedInStream "BufferedInStream"
+[OutStream]: \ref tiaudioutils::OutStream "OutStream"
+[AdaptedOutStream]: \ref tiaudioutils::AdaptedOutStream "AdaptedOutStream"
+[BufferedOutStream]: \ref tiaudioutils::BufferedOutStream "BufferedOutStream"
+[PcmReader]: \ref tiaudioutils::PcmReader "PcmReader"
+[PcmWriter]: \ref tiaudioutils::PcmWriter "PcmWriter"
+[Merge]: \ref tiaudioutils::Merge "Merge"
+[UnMerge]: \ref tiaudioutils::UnMerge "UnMerge"
+[MonoPipe]: \ref tiaudioutils::MonoPipe "MonoPipe"
+[PipeReader]: \ref tiaudioutils::PipeReader "PipeReader"
+[PipeWriter]: \ref tiaudioutils::PipeWriter "PipeWriter"
+
+[ALSA]: http://www.alsa-project.org/main/index.php/Main_Page "ALSA"
+[tinyalsa]: https://github.com/tinyalsa/tinyalsa "tinyalsa"
+
+# PCM stream readers and writers # {#PCMReaderAndWriter}
+
+Audio capture or playback is achieved using streams which are registered to PCM
+readers or writers. The life cycle of a PCM stream and its reader/writer is as
+follows:
+
+1. Create a PCM reader/writer for a given PCM input/output port.
+2. Create a PCM stream and register it to the reader/writer.
+3. Start the stream.
+4. Read/write data using the stream object, if applicable. Some stream types
+   don't require explicit read() or write() calls, instead buffers are acquired
+   using the [BufferProvider] interface.
+5. Stop the stream.
+6. Unregister the stream and destroy it if needed.
+7. Destroy the PCM reader/writer if no more streams are registered and active.
+
+All the stream types supported by this library can transparently do sample rate
+conversion if the stream sampling rate differs from the PCM port's.
+
+The [buffer provider][BufferProvider] interface describes the mechanism used to
+[acquire](\ref tiaudioutils::BufferProvider::getNextBuffer) and
+[release](\ref tiaudioutils::BufferProvider::releaseBuffer) buffers.
+An [audio buffer][Buffer] is defined in terms of its size (in frames) and its
+location in memory. The life cycle of the audio buffer delivered by a provider
+is as follows:
+
+1. The PCM reader/writer requests a new buffer through the
+   [getNextBuffer()](\ref tiaudioutils::BufferProvider::getNextBuffer) method.
+   The requestor must specify a valid buffer size by setting the buffer's frame
+   count field.
+2. The provider gets the buffer request and determines whether the requested
+   size can be delivered or not, if not the buffer frame count is updated.
+   The provider also sets the pointer to the actual buffer in memory.
+3. The PCM reader/writer uses the buffer and releases it through the
+   [releaseBuffer()](\ref tiaudioutils::BufferProvider::releaseBuffer) method.
+4. The provider gets the buffer release call and reuses or frees the buffer.
+
+The buffer provider mechanism is used by the non-simple streams described in
+the [Merge Stream](#MStream) and [Un-Merge Stream](#UMStream) sections.
+
+
+## Simple stream ## {#SimpleStream}
+
+Simple stream classes can be used when the data going to or coming from the
+hardware doesn't need any additional processing, that is, when the audio stream
+is connected directly to a PCM port.
+
+\dot
+digraph SimpleDiag {
+        node [shape=box,fontsize=10,height=0.25];
+        AudioFrameCabin [label="Audio Frame"];
+        AudioFrameBS1 [label="Audio Frame"];
+        AudioFrameBS2 [label="Audio Frame"];
+        Cabin -> AudioFrameCabin -> PcmOutPort1;
+        BackSeat1 -> AudioFrameBS1 -> PcmOutPort2;
+        BackSeat2 -> AudioFrameBS2 -> PcmOutPort3;
+}
+\enddot
+
+### Capture ### {#SimpleStreamCapture}
+
+Audio capture is carried out by the [SimpleInStream] and the [SimpleReader].
+
+The simple PCM reader ([SimpleReader]) is in charge of receiving the audio data
+from the underlying [PCM port][PCMInPort] and passing it to a simple PCM stream.
+The PCM stream needs to be registered before use and unregistered if another
+stream will use the reader or if the reader is going to be destroyed.
+
+The simple PCM input stream ([SimpleInStream]) can be directly used in the Audio
+HAL to read data from the hardware through the stream's
+[read()](\ref tiaudioutils::SimpleInStream::read) method. The audio data is
+actually read from the PCM input port by the reader that the stream is registered
+to.
+
+### Playback ### {#SimpleStreamPlayback}
+
+Audio playback is carried out by the [SimpleOutStream] and the [SimpleWriter].
+
+The simple PCM writer ([SimpleWriter]) is in charge of taking data from a simple
+PCM stream and writing it to an underlying [PCM port][PCMOutPort]. The PCM stream
+needs to be registered before use and unregistered if another stream will use the
+writer or if the writer is going to be destroyed.
+
+The simple PCM output stream ([SimpleOutStream]) can be directly used in the
+Audio HAL to write data to the hardware through the stream's
+[write()](\ref tiaudioutils::SimpleOutStream::write) method. The audio data
+is actually written to the PCM output port by the writer that the stream is
+registered to.
+
+
+## Un-Merge Stream ## {#UMStream}
+
+The un-merge capable reader can be used when a single audio input port contains
+data for multiple input streams. The data for each stream comes into specific
+slots of the incoming hardware data stream.
+
+\dot
+digraph UnMergeDiag {
+        node [shape=box,fontsize=10,height=0.25];
+        AudioFrame [shape=record,label="{Audio\ Frame|{<f0>0|<f1>1|<f2>2|<f3>3|<f4>4|<f5>5}}"];
+        Stream1 [label="Stream 1"];
+        Stream2 [label="Stream 2"];
+        PcmInPort -> AudioFrame;
+        "AudioFrame":f0:s -> Stream1;
+        "AudioFrame":f1:s -> Stream1;
+        "AudioFrame":f2:s -> Stream2;
+        "AudioFrame":f2:s -> Stream2;
+}
+\enddot
+
+Audio capture is carried out by the [PcmReader] and an input stream: [InStream],
+[AdaptedInStream] or [BufferedInStream].
+
+### PCM reader ### {#PCMReader}
+
+The PCM reader ([PcmReader]) is in charge of receiving the audio data from the
+the underlying [PCM port][PcmInPort], extracting the corresponding channels from
+the incoming stream and copying them to the registered streams.
+
+The un-merge operation is performed by the [UnMerge] class which uses a
+source-to-destination [slot map][SlotMap] to determine the channels to be
+un-merged and the order and/or position.  Slots that don't have any stream active
+at a given time are filled with zeros. The [UnMerge] class is flexible enough to
+allow channel duplication (one channel in the source to multiple channels in the
+destination) or rearranging the channels of the incoming stream (remix).
+
+The PCM reader uses the pull mechanism based on [buffer providers][BufferProvider]
+described in the [PCM stream readers and writers](#PCMReaderAndWriter) section to
+get the audio buffers from all its registered streams. These buffers are filled
+by the reader with new un-merged data and then released.
+
+### Input streams ### {#PcmInStream}
+
+The [InStream] is created with a buffer provider that is automatically called
+when the reader needs the next buffer to fill new data. This type of stream can
+be useful when the provider itself can deliver the audio buffers and later store
+them in their final destination (e.g. when audio data is stored in a file or
+in a circular buffer / pipe).
+
+The [AdaptedInStream] uses an [adaptor][BufferAdaptor] to connect a push-based
+stream with a PCM reader that requires pull-based streams. The adapted input
+stream provides a [read()](\ref tiaudioutils::AdaptedInStream::read) method
+that can be called directly from the Audio HAL, while also implements the
+[BufferProvider] interface that the reader needs. The adaptation is bufferless
+so it doesn't add extra latency.
+
+The [BufferedInStream] uses an internal buffer to adapt the read() calls from
+the Audio HAL and the [BufferProvider] interface that the reader needs. The
+consumer side (Audio HAL) reads data using the push mechanism (through the
+[read()](\ref tiaudioutils::BufferedInStream::read) method provided by the
+buffered input stream) while the producer side (PCM reader) writes the data to
+the buffer using the pull mechanism. The size of internal buffer is configurable,
+but it adds a delay to the audio path.
+
+
+## Merge Stream ## {#MStream}
+
+The merge capable writer can be used when a single audio output port carries
+data for multiple streams. For example, when the three listening zones are
+routed to specific slots of a single, multi-channel PCM output port, and the
+data from each zone must be merged before it's passed to the hardware for
+rendering.
+
+\dot
+digraph MergeDiag {
+        node [shape=box,fontsize=10,height=0.25];
+        AudioFrame [shape=record,label="{{<f0>0|<f1>1|<f2>2|<f3>3|<f4>4|<f5>5}|Audio\ Frame}"];
+        Cabin:s -> "AudioFrame":f0:n;
+        Cabin:se -> "AudioFrame":f1:n;
+        BackSeat1:sw -> "AudioFrame":f2:n;
+        BackSeat1:se -> "AudioFrame":f3:n;
+        BackSeat2:sw -> "AudioFrame":f4:n;
+        BackSeat2:s -> "AudioFrame":f5:n;
+        AudioFrame -> PcmOutPort;
+}
+\enddot
+
+Audio playback is carried out by the [PcmWriter] and an output stream:
+[OutStream], [AdaptedOutStream] or [BufferedOutStream].
+
+### PCM writer ### {#PCMWriter}
+
+The PCM writer ([PcmWriter]) is in charge of taking data from all registered
+streams, copying the audio samples from each stream into preassigned slots of the
+resulting stream and writing it to an underlying [PCM port][PcmOutPort].
+
+The merge operation is performed by the [Merge] class which uses a
+source-to-destination [slot map][SlotMap] to determine the channels to be merged
+and the order and/or position.  Slots that don't have any stream active at a
+given time are filled with zeros. The [Merge] class is flexible enough to allow
+channel duplication (one channel in the source to multiple channels in the
+destination) or rearranging the channels of the incoming stream (remix) which
+could be useful for multi-channel streams where the audio track and the hardware
+sink don't have the same slot allocation.
+
+The PCM writer uses the pull mechanism based on [buffer providers][BufferProvider]
+described in the [PCM stream readers and writers](#PCMReaderAndWriter) section to
+get the audio buffers from all its registered streams.
+
+### Output streams ### {#PcmOutStream}
+
+The [OutStream] is created with a buffer provider that is automatically called
+when the writer needs more data. This type of stream can be useful when the
+provider itself can deliver the audio buffers filled with new data (e.g. when
+the audio data is stored in a file or in a circular buffer / pipe).
+
+The [AdaptedOutStream] uses an [adaptor][BufferAdaptor] to connect a push-based
+stream with a PCM writer that requires pull-based streams. The adapted output
+stream provides a [write()](\ref tiaudioutils::AdaptedOutStream::write) method
+that can be called directly from the Audio HAL, while also implements the
+[BufferProvider] interface that the writer needs. The adaptation is bufferless
+so it doesn't add extra latency.
+
+The [BufferedOutStream] uses an internal buffer to adapt the write() calls from
+the Audio HAL and the [BufferProvider] interface that the writer needs. The
+producer side (Audio HAL) writes data using the push mechanism (through the
+[write()](\ref tiaudioutils::BufferedOutStream::write) method provided by the
+buffered output stream) while the consumer side (PCM writer) reads the data from
+the buffer using the pull mechanism. The size of internal buffer is configurable,
+but it adds a delay to the audio path.
+
+## Circular Buffer: the Mono Pipe ## {#MonoPipe}
+
+The [mono pipe][MonoPipe] is a circular buffer where there is a single producer
+and a single consumer. Currently, the pipe's implementation in this library
+relies on the Android's NBAIO (Non-Blocking Audio I/O) implementation.
+
+A [pipe reader][PipeReader] and a [pipe writer][PipeWriter] are buffer providers
+aimed to facilitate the interaction of PCM readers and writers with the mono pipe.
+
+\dot
+digraph PipeDiag {
+        node [shape=box,fontsize=10,height=0.25];
+        MonoPipe [shape=record,label="{MonoPipe |{<f0>|<f1>|<f2>|<f3>|<f4>}}"];
+        "MonoPipe":f0:w -> PipeWriter [dir=back];
+        "MonoPipe":f4:e -> PipeReader;
+        PipeWriter -> PcmReader [label=" InStream",fontsize=10,dir=back];
+        PipeReader -> PcmWriter [label=" OutStream",fontsize=10];
+        PcmReader -> PcmInPort [dir=back];
+        PcmWriter -> PcmOutPort;
+}
+\enddot
+
+Go to the [previous](\ref pcmdoc) section or return to the [index](index.html).
+
+*/
