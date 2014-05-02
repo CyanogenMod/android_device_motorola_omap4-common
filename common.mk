@@ -44,6 +44,7 @@ PRODUCT_PACKAGES += \
 
 # Hardware HALs
 PRODUCT_PACKAGES += \
+    audio.secondary.omap4 \
     audio.usb.default \
     audio.a2dp.default \
     audio.hdmi.omap4
