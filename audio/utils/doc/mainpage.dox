@@ -1,0 +1,36 @@
+/**
+
+\mainpage
+
+# Introduction # {#Intro}
+
+The *tiaudioutils* library is meant to help implementing the Audio HAL modules
+required in Android, more specifically for Audio HALs used in the multizone
+audio context.
+
+The multizone audio solution is composed of three listening zones: *Cabin*,
+*Back-Seat 1* and *Back-Seat 2*. The listening zones can render different
+audio content simultaneously, which has new challenges that are not present in
+single output systems, like how the zone streams are rendered to the hardware,
+either using a single or multiple PCM ports:
+
+- Dedicated PCM ports for each listening zone. Each PCM port is mapped to the
+  Android audio output device for the listening zone.
+- Single PCM port that contains all listening zones. The PCM stream is produced
+  by merging the channels of each individual listening zone to preassigned slots.
+
+The audio capture case is slightly different since it's not divided in zones.
+However, similar requirements might exist, where the audio data for a given
+stream may be embedded into specific slots of an input audio stream.
+
+The *tiaudioutils* library implements both mechanisms described above for audio
+playback and capture, and provides a set of APIs for the Audio HAL to use which
+helps reducing the complexity and lines of code.
+
+The *tiaudioutils* library can be broadly divided into:
+
+\subpage pcmdoc
+
+\subpage streamdoc
+
+*/

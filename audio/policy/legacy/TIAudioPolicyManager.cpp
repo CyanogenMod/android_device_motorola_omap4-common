@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2013 Texas Instruments
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,26 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This module is based on libhardware_legacy implementation.
+ *
  */
 
-#include <stdint.h>
-#include <sys/types.h>
-#include <utils/Timers.h>
-#include <utils/Errors.h>
-#include <utils/KeyedVector.h>
-#include <hardware_legacy/AudioPolicyManagerBase.h>
+#define LOG_TAG "TIAudioPolicyManager"
+//#define LOG_NDEBUG 0
 
+#include "AudioPolicyManager.h"
 
 namespace android_audio_legacy {
 
-class AudioPolicyManager: public AudioPolicyManagerBase
+extern "C" AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clientInterface)
 {
+    ALOGI("Creating TI AudioPolicyManager");
+    return new AudioPolicyManager(clientInterface);
+}
 
-public:
-                AudioPolicyManager(AudioPolicyClientInterface *clientInterface)
-                : AudioPolicyManagerBase(clientInterface) {}
+extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *interface)
+{
+    ALOGI("Destroying TI AudioPolicyManager");
+    delete interface;
+}
 
-        virtual ~AudioPolicyManager() {}
-
-};
-};
+} // namespace android
