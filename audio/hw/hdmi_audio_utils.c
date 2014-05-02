@@ -72,6 +72,11 @@
  *****************************************************************
  */
 
+#define DISPLAY_MAX           3
+#define DISPLAY_NAME_MAX      20
+#define HDMI_DISPLAY_NAME     "hdmi"
+#define OMAP_DSS_SYSFS        "/sys/devices/platform/omapdss/"
+
 /* TODO: Figure this out dynamically, but ATM this is enforced
  * in the kernel.
  */
@@ -143,9 +148,11 @@ static void hdmi_dump_short_audio_descriptor_block(unsigned char *mem)
     }
 }
 
-int hdmi_query_audio_caps(const char* edid_path, hdmi_audio_caps_t *caps)
+int hdmi_query_audio_caps(hdmi_audio_caps_t *caps)
 {
     int fd;
+    char fn[256];
+    char disp_name[DISPLAY_NAME_MAX];
     unsigned char edid[HDMI_MAX_EDID];
     int status;
     int index, n;
@@ -156,9 +163,44 @@ int hdmi_query_audio_caps(const char* edid_path, hdmi_audio_caps_t *caps)
     int speaker_alloc = 0;
     int done = 0;
 
+    for (index = 0; index < DISPLAY_MAX; index++) {
+        snprintf(fn, sizeof(fn), OMAP_DSS_SYSFS "display%u", index);
+        fd = open(fn, O_RDONLY);
+        if (fd < 0) {
+            ALOGE("HDMI device not found");
+            return -ENODEV;
+        }
+        close(fd);
+
+        snprintf(fn, sizeof(fn), OMAP_DSS_SYSFS "display%u/name", index);
+        fd = open(fn, O_RDONLY);
+        if (fd < 0) {
+            ALOGE("Error opening display name");
+            return -ENODEV;
+        }
+
+        status = read(fd, disp_name, sizeof(disp_name));
+        close(fd);
+        if (status == -1) {
+            ALOGE("Error reading display name");
+            return -errno;
+        }
+
+        if (!strncasecmp(disp_name, HDMI_DISPLAY_NAME, strlen(HDMI_DISPLAY_NAME))) {
+            ALOGV("HDMI device found at display%u", index);
+            break;
+        }
+    }
+
+    if (index == DISPLAY_MAX) {
+        ALOGE("HDMI device not found");
+        return -ENODEV;
+    }
+
     memset(edid, 0, sizeof(edid));
 
-    fd = open(edid_path, O_RDONLY);
+    snprintf(fn, sizeof(fn), OMAP_DSS_SYSFS "display%u/edid", index);
+    fd = open(fn, O_RDONLY);
     if (fd == -1) {
         return -errno;
     }
@@ -237,19 +279,16 @@ int hdmi_query_audio_caps(const char* edid_path, hdmi_audio_caps_t *caps)
 int main(int argc, char* argv[])
 {
     const char prog_name[] = "hdmi_audio_caps";
-    const char *edid_path;
     hdmi_audio_caps_t caps = {
         .has_audio = 0,
     };
 
-    if (argc < 2) {
-        printf("usage: %s <edid-file>\n", argc ? argv[0] : prog_name);
+    if (argc < 1) {
+        printf("usage: %s\n", argc ? argv[0] : prog_name);
         return 0;
     }
 
-    edid_path = argv[1];
-
-    if (hdmi_query_audio_caps(edid_path, &caps)) {
+    if (hdmi_query_audio_caps(&caps)) {
         fprintf(stderr, "Fatal error: could not read EDID (%s)\n",
                 strerror(errno));
         return 1;

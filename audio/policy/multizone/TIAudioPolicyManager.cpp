@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2013 Texas Instruments
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,31 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This module is based on libhardware_legacy implementation.
+ *
  */
 
-#define LOG_TAG "AudioPolicyManager"
+#define LOG_TAG "TIAudioPolicyManager"
 //#define LOG_NDEBUG 0
-#include <utils/Log.h>
-#include "AudioPolicyManager.h"
 
+#include "AudioPolicyManager.h"
 
 namespace android_audio_legacy {
 
-// ----------------------------------------------------------------------------
-// AudioPolicyManager for OMAP4 platform (based on jordan)
-// Common audio policy manager code is implemented in AudioPolicyManagerBase class
-// ----------------------------------------------------------------------------
-
-// ---  class factory
-
 extern "C" AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clientInterface)
 {
+    ALOGI("Creating Multizone AudioPolicyManager");
     return new AudioPolicyManager(clientInterface);
 }
 
 extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *interface)
 {
+    ALOGI("Destroying Multizone AudioPolicyManager");
     delete interface;
 }
 
-}; // namespace android_audio_legacy
+} // namespace android

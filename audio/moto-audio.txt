@@ -1,0 +1,157 @@
+           | No Audio    | Music       | Incall
+-----------+-------------+-------------+------------------------
+Speaker    |             | 88: On      | 99: On
+           |             | 89: On      | 100: On
+           |             | 101: On     | 64: Gain 19
+           |                           | 65: Gain 19
+           | 67: Vol 13                | 67: Vol 11
+           | 68: Vol 13                | 68: Vol 11
+           |                           | 105: Mic2
+-----------+-------------+-------------+------------------------
+Handsfree  |                           | 97: On
+           |                           | 98: On
+           |                           | 100: On
+           |                           | 64: Gain 16
+           |                           | 65: Gain 16
+           |                           | 67: Vol 11
+           |                           | 68: Vol 11
+           |                           | 105: Mic2
+-----------+-------------+-------------+------------------------
+Headphones |             | 84: On      | 93: On
+           |             | 85: On      | 94: On
+           |             | 101: On     | 100: On
+           |             |             | 64: Gain 19
+           |             |             | 65: Gain 19
+           | 67: Vol 11  
+           | 68: Vol 11  
+-----------+-------------+-------------+------------------------
+Dock       |             | 82: On      | Not supported
+           |             | 83: On      |
+           |             | 101: On     |
+           | 67: Vol 13  
+           | 68: Vol 13  
+-----------+-------------+-------------+------------------------
+Headset    |             | 84: On      | 93: On
+           |             | 85: On      | 94: On
+           |             | 101: On     | 100: On
+           |             |             | 64: Gain 19
+           |             |             | 65: Gain 19
+           | 67: Vol 11  
+           | 68: Vol 11  
+           | 106: HS Mic 
+-----------+-------------+-------------+------------------------
+Bluetooth  |             |             | 64: Gain 0
+SCO        |             |             | 65: Gain 0
+           | 67: Vol 9                 | 67: Vol 0
+           | 68: Vol 9                 | 68: Vol 0
+           | 106: HS Mic               | 106: Off
+-----------+-------------+-------------+------------------------
+
+ctl	type	num	name                                     value
+0	ENUM	1	DL1 Equalizer                            Flat response
+1	ENUM	1	DL2 Left Equalizer                       High-pass 0dB
+2	ENUM	1	DL2 Right Equalizer                      High-pass 0dB
+3	ENUM	1	Sidetone Equalizer                       Flat response
+4	ENUM	1	AMIC Equalizer                           High-pass 0dB
+5	ENUM	1	DMIC Equalizer                           High-pass 0dB
+6	INT	1	DL1 Media Playback Volume                119
+7	INT	1	DL1 Tones Playback Volume                118
+8	INT	1	DL1 Voice Playback Volume                120
+9	INT	1	DL1 Capture Playback Volume              0
+10	INT	1	DL2 Media Playback Volume                118
+11	INT	1	DL2 Tones Playback Volume                118
+12	INT	1	DL2 Voice Playback Volume                120
+13	INT	1	DL2 Capture Playback Volume              0
+14	INT	1	VXREC Media Volume                       0
+15	INT	1	VXREC Tones Volume                       0
+16	INT	1	VXREC Voice DL Volume                    0
+17	INT	1	VXREC Voice UL Volume                    0
+18	INT	1	AUDUL Media Volume                       0
+19	INT	1	AUDUL Tones Volume                       0
+20	INT	1	AUDUL Voice UL Volume                    120
+21	INT	1	AUDUL Voice DL Volume                    0
+22	INT	1	SDT UL Volume                            0
+23	INT	1	SDT DL Volume                            119
+24	INT	2	DMIC1 UL Volume                          120 120
+25	INT	2	DMIC2 UL Volume                          120 120
+26	INT	2	DMIC3 UL Volume                          120 120
+27	INT	2	AMIC UL Volume                           120 120
+28	INT	2	BT UL Volume                             120 120
+29	BOOL	1	DL1 Mono Mixer                           On
+30	BOOL	1	DL2 Mono Mixer                           Off
+31	BOOL	1	AUDUL Mono Mixer                         Off
+32	BOOL	1	DL1 MM_EXT Switch                        On
+33	BOOL	1	DL1 BT_VX Switch                         On
+34	BOOL	1	DL1 PDM Switch                           Off
+35	BOOL	1	Sidetone Mixer Capture                   Off
+36	BOOL	1	Sidetone Mixer Playback                  On
+37	BOOL	1	Capture Mixer Tones                      Off
+38	BOOL	1	Capture Mixer Voice Playback             Off
+39	BOOL	1	Capture Mixer Voice Capture              Off
+40	BOOL	1	Capture Mixer Media Playback             Off
+41	BOOL	1	Voice Capture Mixer Tones Playback       Off
+42	BOOL	1	Voice Capture Mixer Media Playback       Off
+43	BOOL	1	Voice Capture Mixer Capture              Off
+44	BOOL	1	DL2 Mixer Tones                          Off
+45	BOOL	1	DL2 Mixer Voice                          Off
+46	BOOL	1	DL2 Mixer Capture                        Off
+47	BOOL	1	DL2 Mixer Multimedia                     Off
+48	BOOL	1	DL1 Mixer Tones                          On
+49	BOOL	1	DL1 Mixer Voice                          Off
+50	BOOL	1	DL1 Mixer Capture                        Off
+51	BOOL	1	DL1 Mixer Multimedia                     On
+52	ENUM	1	MUX_VX1                                  None
+53	ENUM	1	MUX_VX0                                  None
+54	ENUM	1	MUX_UL11                                 None
+55	ENUM	1	MUX_UL10                                 None
+56	ENUM	1	MUX_UL07                                 None
+57	ENUM	1	MUX_UL06                                 None
+58	ENUM	1	MUX_UL05                                 None
+59	ENUM	1	MUX_UL04                                 None
+60	ENUM	1	MUX_UL03                                 None
+61	ENUM	1	MUX_UL02                                 None
+62	ENUM	1	MUX_UL01                                 None
+63	ENUM	1	MUX_UL00                                 None
+64	INT	1	MIC1 Gain                                28
+65	INT	1	MIC2 Gain                                28
+66	INT	1	Ext Volume                               0
+67	INT	1	STDac Volume                             11
+68	INT	1	Codec Volume                             11
+69	BOOL	1	DLM                                      Off
+70	BOOL	1	SecTer Mic Select                        Off
+71	ENUM	1	DAI Mode                                 Audio
+72	BOOL	1	EMU AntiPop                              Off
+73	BOOL	1	USBDPEXT Switch                          Off
+74	BOOL	1	USBDMEXT Switch                          Off
+75	BOOL	1	HSLEXT Switch                            Off
+76	BOOL	1	HSREXT Switch                            Off
+77	BOOL	1	LINELEXT Switch                          Off
+78	BOOL	1	LINEREXT Switch                          Off
+79	BOOL	1	LDSPLEXT Switch                          Off
+80	BOOL	1	LDSPREXT Switch                          Off
+81	BOOL	1	EPEXT Switch                             Off
+82	BOOL	1	USBDPDAC Switch                          Off
+83	BOOL	1	USBDMDAC Switch                          Off
+84	BOOL	1	HSLDAC Switch                            Off
+85	BOOL	1	HSRDAC Switch                            Off
+86	BOOL	1	LINELDAC Switch                          Off
+87	BOOL	1	LINERDAC Switch                          Off
+88	BOOL	1	LDSPLDAC Switch                          Off
+89	BOOL	1	LDSPRDAC Switch                          Off
+90	BOOL	1	EPDAC Switch                             Off
+91	BOOL	1	USBDPCDC Switch                          Off
+92	BOOL	1	USBDMCDC Switch                          Off
+93	BOOL	1	HSLCDC Switch                            Off
+94	BOOL	1	HSRCDC Switch                            Off
+95	BOOL	1	LINELCDC Switch                          Off
+96	BOOL	1	LINERCDC Switch                          Off
+97	BOOL	1	LDSPLCDC Switch                          Off
+98	BOOL	1	LDSPRCDC Switch                          Off
+99	BOOL	1	EPCDC Switch                             Off
+100	BOOL	1	CPCAP Mixer Voice Codec                  Off
+101	BOOL	1	CPCAP Mixer Stereo DAC                   Off
+102	INT	1	CPCAP Mixer External PGA                 0
+103	ENUM	1	Analog External Left Capture Route       Off
+104	ENUM	1	Analog External Right Capture Route      Off
+105	ENUM	1	Analog Left Capture Route                Off
+106	ENUM	1	Analog Right Capture Route               Mic1

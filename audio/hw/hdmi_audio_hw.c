@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <cutils/log.h>
 #include <cutils/str_parms.h>
@@ -43,6 +44,8 @@
 #include <hardware/audio.h>
 
 #include <tinyalsa/asoundlib.h>
+
+#include <OMX_Audio.h>
 
 #include "hdmi_audio_hal.h"
 
@@ -57,10 +60,18 @@
 #define HDMI_SAMPLING_RATE 44100
 #define HDMI_PERIOD_SIZE 1920
 #define HDMI_PERIOD_COUNT 4
-
-#define HDMI_EDID_PATH "/sys/devices/omapdss/display1/edid"
+#define HDMI_MAX_CHANNELS 8
 
 typedef audio_hw_device_t hdmi_device_t;
+
+struct hdmi_device_t {
+    int map[HDMI_MAX_CHANNELS];
+    bool CEAMap;
+};
+
+int cea_channel_map[HDMI_MAX_CHANNELS] = {OMX_AUDIO_ChannelLF,OMX_AUDIO_ChannelRF,OMX_AUDIO_ChannelLFE,
+        OMX_AUDIO_ChannelCF,OMX_AUDIO_ChannelLS,OMX_AUDIO_ChannelRS,
+        OMX_AUDIO_ChannelLR,OMX_AUDIO_ChannelRR};  /*Using OMX_AUDIO_CHANNELTYPE mapping*/
 
 typedef struct _hdmi_out {
     audio_stream_out_t stream_out;
@@ -69,9 +80,11 @@ typedef struct _hdmi_out {
     struct pcm *pcm;
     audio_config_t android_config;
     int up;
+    void *buffcpy;
 } hdmi_out_t;
 
 #define S16_SIZE sizeof(int16_t)
+
 
 /*****************************************************************
  * UTILITY FUNCTIONS
@@ -191,7 +204,7 @@ char * hdmi_out_get_parameters(const struct audio_stream *stream,
 
     TRACEM("stream=%p keys='%s'", stream, keys);
 
-    if (hdmi_query_audio_caps(HDMI_EDID_PATH, &caps)) {
+    if (hdmi_query_audio_caps(&caps)) {
         ALOGE("Unable to get the HDMI audio capabilities");
         str = calloc(1, 1);
         goto end;
@@ -282,12 +295,33 @@ int hdmi_out_set_volume(struct audio_stream_out *stream, float left, float right
 
 static int hdmi_out_find_card(void)
 {
-    /* XXX TODO: Dynamically detect HDMI card
-     * If another audio device is present at boot time (e.g.
-     * USB Audio device) then it might take the card #1
-     * position, putting HDMI on card #2.
-     */
-    return 1;
+    char name[256] = "";
+    int card = 0;
+    int found = 0;
+
+/* STARGO: FIXME */
+#if 0
+#ifdef OMAP_ENHANCEMENT
+    do {
+        /* return an error after last valid card */
+        int ret = mixer_get_card_name(card, name, sizeof(name));
+        if (ret)
+            break;
+
+        if (strstr(name, "HDMI") || strstr(name, "hdmi")) {
+            TRACEM("HDMI card '%s' found at %d", name, card);
+            found = 1;
+            break;
+        }
+    } while (card++ < MAX_CARD_COUNT);
+#endif
+#endif
+
+    /* Use default card number if not found */
+    if (!found)
+        card = 1;
+
+    return card;
 }
 
 static int hdmi_out_open_pcm(hdmi_out_t *out)
@@ -322,31 +356,69 @@ static int hdmi_out_open_pcm(hdmi_out_t *out)
     return ret;
 }
 
+void channel_remap(struct audio_stream_out *stream, const void *buffer,
+                    size_t bytes)
+{
+        hdmi_out_t *out = (hdmi_out_t*)stream;
+        struct hdmi_device_t *adev = (struct hdmi_device_t *)out->dev;
+        int x, y, frames;
+        int16_t *buf = (int16_t *)buffer;
+        int16_t *tmp_buf = (int16_t *)out->buffcpy;
+
+        frames = (bytes/audio_stream_frame_size(&out->stream_out.common));
+        while (frames--){
+            for(y = 0; y < (int)out->config.channels; y++){
+                for(x = 0; x < (int)out->config.channels; x++){
+                    if (cea_channel_map[y] == adev->map[x]){
+                        tmp_buf[y] = buf[x];
+                        break;
+                    }
+                }
+            }
+            tmp_buf += (int)out->config.channels;
+            buf += (int)out->config.channels;
+        }
+}
+
 ssize_t hdmi_out_write(struct audio_stream_out *stream, const void* buffer,
 		 size_t bytes)
 {
     hdmi_out_t *out = (hdmi_out_t*)stream;
+    struct hdmi_device_t *adev = (struct hdmi_device_t *)out->dev;
     ssize_t ret;
 
     TRACEM("stream=%p buffer=%p bytes=%d", stream, buffer, bytes);
 
     if (!out->up) {
         if(hdmi_out_open_pcm(out)) {
-            return -ENOSYS;
+            ret = -ENOSYS;
+	    goto exit;
         }
     }
 
-    ret = pcm_write(out->pcm, buffer, bytes);
-    if (ret) {
-        ALOGE("Error writing to HDMI pcm: %s", pcm_get_error(out->pcm));
-        ret = (ret < 0) ? ret : -ret;
-        hdmi_out_standby((struct audio_stream*)stream);
+    if (out->config.channels > 2 && !adev->CEAMap){
+        channel_remap(stream, buffer, bytes);
+        ret = pcm_write(out->pcm, out->buffcpy, bytes);
     } else {
-        ret = bytes;
+       ret = pcm_write(out->pcm, buffer, bytes);
+    }
+exit:
+    if (ret != 0) {
+        ALOGE("Error writing to HDMI pcm: %s",
+              out->pcm ? pcm_get_error(out->pcm) : "failed to open PCM device");
+        hdmi_out_standby((struct audio_stream*)stream);
+	unsigned int usecs = bytes * 1000000 /
+			audio_stream_frame_size((struct audio_stream*)stream) /
+			hdmi_out_get_sample_rate((struct audio_stream*)stream);
+	if (usecs >= 1000000L) {
+	    usecs = 999999L;
+	}
+	usleep(usecs);
     }
 
-    return ret;
+    return bytes;
 }
+
 
 int hdmi_out_get_render_position(const struct audio_stream_out *stream,
 			   uint32_t *dsp_frames)
@@ -450,6 +522,28 @@ static int hdmi_adev_get_mic_mute(const audio_hw_device_t *dev, bool *state)
 static int hdmi_adev_set_parameters(audio_hw_device_t *dev, const char *kv_pairs)
 {
     TRACEM("dev=%p kv_pairss='%s'", dev, kv_pairs);
+
+    struct str_parms *params;
+    char *str;
+    char value[HDMI_MAX_CHANNELS];
+    int ret, x, val, numMatch = 0;
+    struct hdmi_device_t *adev = (struct hdmi_device_t *)dev;
+
+    params = str_parms_create_str(kv_pairs);
+    //Handle maximum of 8 channels
+    ret = str_parms_get_str(params, "channel_map", value, HDMI_MAX_CHANNELS);
+    if (ret >= 0) {
+        val = strtol(value, NULL, 10);
+        for(x = 0; x < HDMI_MAX_CHANNELS; x++) {
+            adev->map[x] = (val & (0xF << x*4)) >> x*4;
+            if (adev->map[x] == cea_channel_map[x])
+                numMatch += 1;
+        }
+        if (numMatch >= 5)
+            adev->CEAMap = true;
+        else
+            adev->CEAMap = false;
+    }
     return 0;
 }
 
@@ -557,6 +651,13 @@ static int hdmi_adev_open_output_stream(audio_hw_device_t *dev,
         pcm_config->channels = 8;
     }
 
+    //Allocating buffer for at most 8 channels
+    out->buffcpy = malloc(pcm_config->period_size * sizeof(int16_t) * HDMI_MAX_CHANNELS);
+    if (!out->buffcpy){
+        ALOGE("Could not allocate memory");
+        goto fail;
+    }
+
     ALOGV("stream = %p", out);
     *stream_out = &out->stream_out;
 
@@ -570,8 +671,13 @@ fail:
 static void hdmi_adev_close_output_stream(audio_hw_device_t *dev,
                                           struct audio_stream_out* stream_out)
 {
+    hdmi_out_t *out = (hdmi_out_t*)stream_out;
+
     TRACEM("dev=%p stream_out=%p", dev, stream_out);
+
     stream_out->common.standby((audio_stream_t*)stream_out);
+    free(out->buffcpy);
+    out->buffcpy = NULL;
     free(stream_out);
 }
 
