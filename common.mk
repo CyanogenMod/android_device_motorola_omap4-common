@@ -44,6 +44,10 @@ PRODUCT_PACKAGES += \
 
 # Hardware HALs
 PRODUCT_PACKAGES += \
+    audio.primary.maserati \
+    audio.primary.spyder \
+    audio.primary.umts_spyder \
+    audio.primary.targa \
     audio.usb.default \
     audio.a2dp.default \
     audio.hdmi.omap4
