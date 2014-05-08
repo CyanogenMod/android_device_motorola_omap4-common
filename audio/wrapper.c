@@ -73,6 +73,57 @@ static pthread_cond_t in_use_cond = PTHREAD_COND_INITIALIZER;
 #define UNLOCK_FREE() do { pthread_cond_signal(&in_use_cond); \
                            pthread_mutex_unlock(&in_use_mutex); } while (0)
 
+/* Generic wrappers for streams */
+#define _WRAP_STREAM_LOCKED(name, function, direction, prototype, parameters, log) \
+    static int wrapper_ ## direction ## _ ## name  prototype \
+    { \
+        int ret = -ENODEV; \
+        int i; \
+    \
+        ALOGI log; \
+        pthread_mutex_lock(& direction ## _streams_mutex); \
+        for (i = 0; i < n_ ## direction ## _streams; i++) { \
+            if (direction ## _streams[i].stream_ ## direction == (struct audio_stream_ ## direction*)stream) { \
+                WAIT_FOR_FREE(); \
+                ret = direction ## _streams[i].copy_stream_ ## direction ->function parameters; \
+                UNLOCK_FREE(); \
+                break; \
+            } \
+        } \
+        pthread_mutex_unlock(& direction ## _streams_mutex); \
+    \
+        return ret; \
+    }
+
+#define WRAP_STREAM_LOCKED(name, direction, prototype, parameters, log) \
+        _WRAP_STREAM_LOCKED(name, name, direction, prototype, parameters, log)
+
+#define WRAP_STREAM_LOCKED_COMMON(name, direction, prototype, parameters, log) \
+        _WRAP_STREAM_LOCKED(name, common.name, direction, prototype, parameters, log)
+
+/* Generic wrappers for HAL */
+#define _WRAP_HAL_LOCKED(name, function, prototype, parameters, log) \
+    static int wrapper_ ## name  prototype \
+    { \
+        int ret; \
+        int i; \
+    \
+        ALOGI log; \
+        pthread_mutex_lock(&out_streams_mutex); \
+        pthread_mutex_lock(&in_streams_mutex); \
+    \
+        WAIT_FOR_FREE(); \
+        ret = copy_hw_dev->function parameters; \
+        UNLOCK_FREE(); \
+    \
+        pthread_mutex_unlock(&in_streams_mutex); \
+        pthread_mutex_unlock(&out_streams_mutex); \
+    \
+        return ret; \
+    }
+
+#define WRAP_HAL_LOCKED(name, prototype, parameters, log) \
+        _WRAP_HAL_LOCKED(name, name, prototype, parameters, log)
 /*
  * When Motorola's HAL is internally resampling and downmixing a
  * signal it does not return the real number of bytes written
@@ -130,45 +181,14 @@ static ssize_t wrapper_read(struct audio_stream_in *stream, void* buffer,
     return ret;
 }
 
-static int wrapper_set_in_gain(struct audio_stream_in *stream, float gain)
-{
-    int ret = -ENODEV;
-    int i;
+WRAP_STREAM_LOCKED(set_gain, in, (struct audio_stream_in *stream, float gain),
+            (stream, gain), ("in_set_gain: %f", gain))
 
-    ALOGI("set_in_gain: %f", gain);
-    pthread_mutex_lock(&in_streams_mutex);
-    for (i = 0; i < n_in_streams; i++) {
-        if (in_streams[i].stream_in == (struct audio_stream_in*)stream) {
-            WAIT_FOR_FREE();
-            ret = in_streams[i].copy_stream_in->set_gain(stream, gain);
-            UNLOCK_FREE();
-            break;
-        }
-    }
-    pthread_mutex_unlock(&in_streams_mutex);
+WRAP_STREAM_LOCKED_COMMON(standby, in, (struct audio_stream *stream),
+            (stream), ("in_standby"))
 
-    return ret;
-}
-
-static int wrapper_set_in_parameters(struct audio_stream *stream, const char *kv_pairs)
-{
-    int ret = -ENODEV;
-    int i;
-
-    ALOGI("set_in_parameters: %s", kv_pairs);
-    pthread_mutex_lock(&in_streams_mutex);
-    for (i = 0; i < n_in_streams; i++) {
-        if (in_streams[i].stream_in == (struct audio_stream_in*)stream) {
-            WAIT_FOR_FREE();
-            ret = in_streams[i].copy_stream_in->common.set_parameters(stream, kv_pairs);
-            UNLOCK_FREE();
-            break;
-        }
-    }
-    pthread_mutex_unlock(&in_streams_mutex);
-
-    return ret;
-}
+WRAP_STREAM_LOCKED_COMMON(set_parameters, in, (struct audio_stream *stream, const char *kv_pairs),
+            (stream, kv_pairs), ("in_set_parameters: %s", kv_pairs))
 
 static void wrapper_close_input_stream(struct audio_hw_device *dev,
                                        struct audio_stream_in *stream_in)
@@ -235,8 +255,9 @@ static int wrapper_open_input_stream(struct audio_hw_device *dev,
                sizeof(struct audio_stream_in));
 
         (*stream_in)->read = wrapper_read;
-        (*stream_in)->set_gain = wrapper_set_in_gain;
-        (*stream_in)->common.set_parameters = wrapper_set_in_parameters;
+        (*stream_in)->set_gain = wrapper_in_set_gain;
+        (*stream_in)->common.set_parameters = wrapper_in_set_parameters;
+        (*stream_in)->common.standby = wrapper_in_standby;
 
         ALOGI("Wrapped an input stream: rate %d, channel_mask: %x, format: %d",
               config->sample_rate, config->channel_mask, config->format);
@@ -283,45 +304,14 @@ static int wrapper_write(struct audio_stream_out *stream, const void* buffer,
     return ret;
 }
 
-static int wrapper_set_out_volume(struct audio_stream_out *stream, float left, float right)
-{
-    int ret = -ENODEV;
-    int i;
+WRAP_STREAM_LOCKED(set_volume, out, (struct audio_stream_out *stream, float left, float right),
+            (stream, left, right), ("set_out_volume: %f/%f", left, right))
 
-    ALOGI("set_out_volume: %f/%f", left, right);
-    pthread_mutex_lock(&out_streams_mutex);
-    for (i = 0; i < n_out_streams; i++) {
-        if (out_streams[i].stream_out == (struct audio_stream_out*)stream) {
-            WAIT_FOR_FREE();
-            ret = out_streams[i].copy_stream_out->set_volume(stream, left, right);
-            UNLOCK_FREE();
-            break;
-        }
-    }
-    pthread_mutex_unlock(&out_streams_mutex);
+WRAP_STREAM_LOCKED_COMMON(standby, out, (struct audio_stream *stream),
+            (stream), ("out_standby"))
 
-    return ret;
-}
-
-static int wrapper_set_out_parameters(struct audio_stream *stream, const char *kv_pairs)
-{
-    int ret = -ENODEV;
-    int i;
-
-    ALOGI("set_out_parameters: %s", kv_pairs);
-    pthread_mutex_lock(&out_streams_mutex);
-    for (i = 0; i < n_out_streams; i++) {
-        if (out_streams[i].stream_out == (struct audio_stream_out*)stream) {
-            WAIT_FOR_FREE();
-            ret = out_streams[i].copy_stream_out->common.set_parameters(stream, kv_pairs);
-            UNLOCK_FREE();
-            break;
-        }
-    }
-    pthread_mutex_unlock(&out_streams_mutex);
-
-    return ret;
-}
+WRAP_STREAM_LOCKED_COMMON(set_parameters, out, (struct audio_stream *stream, const char *kv_pairs),
+            (stream, kv_pairs), ("out_set_parameters: %s", kv_pairs))
 
 void wrapper_close_output_stream(struct audio_hw_device *dev,
                             struct audio_stream_out* stream_out)
@@ -390,8 +380,9 @@ static int wrapper_open_output_stream(struct audio_hw_device *dev,
                sizeof(struct audio_stream_out));
 
         (*stream_out)->write = wrapper_write;
-        (*stream_out)->set_volume = wrapper_set_out_volume;
-        (*stream_out)->common.set_parameters = wrapper_set_out_parameters;
+        (*stream_out)->set_volume = wrapper_out_set_volume;
+        (*stream_out)->common.set_parameters = wrapper_out_set_parameters;
+        (*stream_out)->common.standby = wrapper_out_standby;
 
         ALOGI("Wrapped an output stream: rate %d, channel_mask: %x, format: %d",
               config->sample_rate, config->channel_mask, config->format);
@@ -405,100 +396,20 @@ static int wrapper_open_output_stream(struct audio_hw_device *dev,
 
 /* Generic HAL */
 
-static int wrapper_set_master_volume(struct audio_hw_device *dev, float volume)
-{
-    int ret;
-    int i;
+WRAP_HAL_LOCKED(set_master_volume, (struct audio_hw_device *dev, float volume),
+                (dev, volume), ("set_master_volume: %f", volume))
 
-    ALOGI("set_master_volume: %f", volume);
-    pthread_mutex_lock(&out_streams_mutex);
-    pthread_mutex_lock(&in_streams_mutex);
+WRAP_HAL_LOCKED(set_voice_volume, (struct audio_hw_device *dev, float volume),
+                (dev, volume), ("set_voice_volume: %f", volume))
 
-    WAIT_FOR_FREE();
-    ret = copy_hw_dev->set_master_volume(dev, volume);
-    UNLOCK_FREE();
+WRAP_HAL_LOCKED(set_mic_mute, (struct audio_hw_device *dev, bool state),
+                (dev, state), ("set_mic_mute: %d", state))
 
-    pthread_mutex_unlock(&in_streams_mutex);
-    pthread_mutex_unlock(&out_streams_mutex);
+WRAP_HAL_LOCKED(set_mode, (struct audio_hw_device *dev, audio_mode_t mode),
+                (dev, mode), ("set_mode: %d", mode))
 
-    return ret;
-}
-
-static int wrapper_set_voice_volume(struct audio_hw_device *dev, float volume)
-{
-    int ret;
-    int i;
-
-    ALOGI("set_voice_volume: %f", volume);
-    pthread_mutex_lock(&out_streams_mutex);
-    pthread_mutex_lock(&in_streams_mutex);
-
-    WAIT_FOR_FREE();
-    ret = copy_hw_dev->set_voice_volume(dev, volume);
-    UNLOCK_FREE();
-
-    pthread_mutex_unlock(&in_streams_mutex);
-    pthread_mutex_unlock(&out_streams_mutex);
-
-    return ret;
-}
-
-static int wrapper_set_mic_mute(struct audio_hw_device *dev, bool state)
-{
-    int ret;
-    int i;
-
-    ALOGI("set_mic_mute: %d", state);
-    pthread_mutex_lock(&out_streams_mutex);
-    pthread_mutex_lock(&in_streams_mutex);
-
-    WAIT_FOR_FREE();
-    ret = copy_hw_dev->set_mic_mute(dev, state);
-    UNLOCK_FREE();
-
-    pthread_mutex_unlock(&in_streams_mutex);
-    pthread_mutex_unlock(&out_streams_mutex);
-
-    return ret;
-}
-
-static int wrapper_set_mode(struct audio_hw_device *dev, audio_mode_t mode)
-{
-    int ret;
-    int i;
-
-    ALOGI("set_mode: %d", mode);
-    pthread_mutex_lock(&out_streams_mutex);
-    pthread_mutex_lock(&in_streams_mutex);
-
-    WAIT_FOR_FREE();
-    ret = copy_hw_dev->set_mode(dev, mode);
-    UNLOCK_FREE();
-
-    pthread_mutex_unlock(&in_streams_mutex);
-    pthread_mutex_unlock(&out_streams_mutex);
-
-    return ret;
-}
-
-static int wrapper_set_parameters(struct audio_hw_device *dev, const char *kv_pairs)
-{
-    int ret;
-    int i;
-
-    ALOGI("set_parameters: %s", kv_pairs);
-    pthread_mutex_lock(&out_streams_mutex);
-    pthread_mutex_lock(&in_streams_mutex);
-
-    WAIT_FOR_FREE();
-    ret = copy_hw_dev->set_parameters(dev, kv_pairs);
-    UNLOCK_FREE();
-
-    pthread_mutex_unlock(&in_streams_mutex);
-    pthread_mutex_unlock(&out_streams_mutex);
-
-    return ret;
-}
+WRAP_HAL_LOCKED(set_parameters, (struct audio_hw_device *dev, const char *kv_pairs),
+                (dev, kv_pairs), ("set_parameters: %s", kv_pairs))
 
 static int wrapper_close(hw_device_t *device)
 {
