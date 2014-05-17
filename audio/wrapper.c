@@ -56,6 +56,12 @@ static int in_use = 0;
 static pthread_mutex_t in_use_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t in_use_cond = PTHREAD_COND_INITIALIZER;
 
+/* ICS Voice blob */
+#ifdef ICS_VOICE_BLOB
+static struct audio_hw_device *ics_hw_dev = NULL;
+static void *ics_dso_handle = NULL;
+#endif
+
 #define INCREMENT_IN_USE() do { pthread_mutex_lock(&in_use_mutex); \
                                 in_use++; \
                                 pthread_mutex_unlock(&in_use_mutex); } while(0)
@@ -399,8 +405,18 @@ static int wrapper_open_output_stream(struct audio_hw_device *dev,
 WRAP_HAL_LOCKED(set_master_volume, (struct audio_hw_device *dev, float volume),
                 (dev, volume), ("set_master_volume: %f", volume))
 
+#ifndef ICS_VOICE_BLOB
 WRAP_HAL_LOCKED(set_voice_volume, (struct audio_hw_device *dev, float volume),
                 (dev, volume), ("set_voice_volume: %f", volume))
+#else
+static int wrapper_set_voice_volume(struct audio_hw_device *dev, float volume)
+{
+    ALOGI("ICS: set_voice_volume: %f", volume);
+
+    return ics_hw_dev->set_voice_volume(ics_hw_dev, volume);
+}
+#endif
+
 
 WRAP_HAL_LOCKED(set_mic_mute, (struct audio_hw_device *dev, bool state),
                 (dev, state), ("set_mic_mute: %d", state))
@@ -410,6 +426,26 @@ WRAP_HAL_LOCKED(set_mode, (struct audio_hw_device *dev, audio_mode_t mode),
 
 WRAP_HAL_LOCKED(set_parameters, (struct audio_hw_device *dev, const char *kv_pairs),
                 (dev, kv_pairs), ("set_parameters: %s", kv_pairs))
+
+#ifdef ICS_VOICE_BLOB
+static int wrapper_set_mode_ics(struct audio_hw_device *dev, audio_mode_t mode)
+{
+    ALOGI("ICS: set_mode: %d", mode);
+
+    ics_hw_dev->set_voice_volume(ics_hw_dev, mode);
+
+    return wrapper_set_mode(dev, mode);
+}
+
+static int wrapper_set_parameters_ics(struct audio_hw_device *dev, const char *kv_pairs)
+{
+    ALOGI("ICS: set_parameters: %s", kv_pairs);
+
+    ics_hw_dev->set_parameters(ics_hw_dev, kv_pairs);
+
+    return wrapper_set_parameters(dev, kv_pairs);
+}
+#endif
 
 static int wrapper_close(hw_device_t *device)
 {
@@ -438,6 +474,13 @@ static int wrapper_close(hw_device_t *device)
         in_streams = NULL;
         n_in_streams = 0;
     }
+
+#ifdef ICS_VOICE_BLOB
+    ics_hw_dev->common.close((hw_device_t*)ics_hw_dev);
+    ics_hw_dev = NULL;
+    dlclose(ics_dso_handle);
+    ics_dso_handle = NULL;
+#endif
 
     UNLOCK_FREE();
     pthread_mutex_unlock(&in_streams_mutex);
@@ -489,6 +532,36 @@ static int wrapper_open(const hw_module_t* module,
 
     *device = (hw_device_t*)adev;
 
+#ifdef ICS_VOICE_BLOB
+    ALOGI("Loading ICS blob for voice-volume");
+    ics_dso_handle = dlopen("/system/lib/hw/audio.primary.ics.so", RTLD_NOW);
+    if (ics_dso_handle == NULL) {
+        char const *err_str = dlerror();
+        ALOGE("wrapper_open: %s", err_str ? err_str : "unknown");
+        return -EINVAL;
+    }
+
+    sym = HAL_MODULE_INFO_SYM_AS_STR;
+    hmi = (struct hw_module_t *)dlsym(ics_dso_handle, sym);
+    if (hmi == NULL) {
+        ALOGE("wrapper_open: couldn't find symbol %s", sym);
+        dlclose(ics_dso_handle);
+        ics_dso_handle = NULL;
+        return -EINVAL;
+    }
+
+    hmi->dso = ics_dso_handle;
+
+    ret = audio_hw_device_open(hmi, &ics_hw_dev);
+    ALOGE_IF(ret, "%s couldn't open ICS audio module in %s. (%s)", __func__,
+                 AUDIO_HARDWARE_MODULE_ID, strerror(-ret));
+    if (ret) {
+        dlclose(ics_dso_handle);
+        ics_dso_handle = NULL;
+        return ret;
+    }
+#endif
+
     copy_hw_dev = malloc(sizeof(struct audio_hw_device));
     if (!copy_hw_dev) {
         ALOGE("Can't allocate memory for copy_hw_dev, continuing unwrapped...");
@@ -503,8 +576,13 @@ static int wrapper_open(const hw_module_t* module,
     adev->set_voice_volume = wrapper_set_voice_volume;
     adev->set_mic_mute = wrapper_set_mic_mute;
     /* set_master_mute not supported by MR0_AUDIO_BLOB */
+#ifdef ICS_VOICE_BLOB
+    adev->set_mode = wrapper_set_mode_ics;
+    adev->set_parameters = wrapper_set_parameters_ics;
+#else
     adev->set_mode = wrapper_set_mode;
     adev->set_parameters = wrapper_set_parameters;
+#endif
 
     /* Output */
     adev->open_output_stream = wrapper_open_output_stream;
