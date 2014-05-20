@@ -432,7 +432,7 @@ static int wrapper_set_mode_ics(struct audio_hw_device *dev, audio_mode_t mode)
 {
     ALOGI("ICS: set_mode: %d", mode);
 
-    ics_hw_dev->set_voice_volume(ics_hw_dev, mode);
+    ics_hw_dev->set_mode(ics_hw_dev, mode);
 
     return wrapper_set_mode(dev, mode);
 }
