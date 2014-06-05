@@ -112,7 +112,7 @@ TI_CAMERAHAL_COMMON_SHARED_LIBRARIES := \
     libcamera_client \
     libgui \
     libjpeg \
-    libexif
+    libjhead
 
 TI_CAMERAHAL_COMMON_SHARED_LIBRARIES += \
     libion_ti
