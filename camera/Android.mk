@@ -111,8 +111,22 @@ TI_CAMERAHAL_COMMON_SHARED_LIBRARIES := \
     libtiutils_custom \
     libcamera_client \
     libgui \
-    libjpeg \
+    libjpeg
+
+ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 19 || echo 1),)
+# add any 4.4.x versions of Android which use libjhead here
+# currently only 4.4.3
+ifneq ($(filter 4.4.3,$(PLATFORM_VERSION)),)
+TI_CAMERAHAL_COMMON_SHARED_LIBRARIES += \
     libjhead
+else
+TI_CAMERAHAL_COMMON_SHARED_LIBRARIES += \
+    libexif
+endif
+else
+TI_CAMERAHAL_COMMON_SHARED_LIBRARIES += \
+    libexif
+endif
 
 TI_CAMERAHAL_COMMON_SHARED_LIBRARIES += \
     libion_ti
