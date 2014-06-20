@@ -116,7 +116,7 @@ TI_CAMERAHAL_COMMON_SHARED_LIBRARIES := \
 ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 19 || echo 1),)
 # add any 4.4.x versions of Android which use libjhead here
 # currently only 4.4.3
-ifneq ($(filter 4.4.3,$(PLATFORM_VERSION)),)
+ifneq ($(filter 4.4.3 4.4.4,$(PLATFORM_VERSION)),)
 TI_CAMERAHAL_COMMON_SHARED_LIBRARIES += \
     libjhead
 else
