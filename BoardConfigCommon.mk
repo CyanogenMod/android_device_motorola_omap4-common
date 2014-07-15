@@ -142,8 +142,8 @@ BOARD_HAVE_BLUETOOTH_TI := true
 BOARD_VENDOR_TI_GPS_HARDWARE := omap4
 BOARD_GPS_LIBRARIES := libgps
 
-# adb has root
-ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
+# adb runs as user
+ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=1
 ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
 
 # Recovery
