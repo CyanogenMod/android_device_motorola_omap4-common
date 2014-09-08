@@ -2210,6 +2210,12 @@ status_t BaseCameraAdapter::setState(CameraCommands operation)
                     mNextState = AF_ZOOM_STATE;
                     break;
 
+                case CAMERA_START_VIDEO:
+                    CAMHAL_LOGDB("Adapter state switch AF_STATE->VIDEO_STATE event = %s",
+                            printState);
+                    mNextState = VIDEO_STATE;
+                    break;
+
                 default:
                     CAMHAL_LOGEB("Adapter state switch AF_STATE Invalid Op! event = %s",
                             printState);
