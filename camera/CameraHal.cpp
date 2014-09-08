@@ -3021,7 +3021,7 @@ status_t CameraHal::autoFocus()
             goto EXIT;
         }
 
-    if (state == CameraAdapter::AF_STATE)
+    if ((state == CameraAdapter::AF_STATE) || (state == CameraAdapter::VIDEO_AF_STATE))
         {
             CAMHAL_LOGI("Ignoring start-AF (already in progress)");
             goto EXIT;
