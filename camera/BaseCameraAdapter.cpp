@@ -2321,6 +2321,13 @@ status_t BaseCameraAdapter::setState(CameraCommands operation)
                     mNextState = VIDEO_STATE;
                     break;
 
+                //This event doesn't change the current state
+                case CAMERA_QUERY_BUFFER_SIZE_IMAGE_CAPTURE:
+                    CAMHAL_LOGDB("Adapter state switch VIDEO_AF_STATE->VIDEO_AF_STATE event = %s",
+                            printState);
+                    mNextState = VIDEO_AF_STATE;
+                    break;
+
                 default:
                     CAMHAL_LOGEB("Adapter state switch VIDEO_AF_STATE Invalid Op! event = %s",
                             printState);
