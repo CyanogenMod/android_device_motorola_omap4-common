@@ -3251,6 +3251,12 @@ status_t CameraHal::stopImageBracketing()
  */
 status_t CameraHal::takePicture(const char *params)
 {
+    // cancel AF state if needed (before any operation and mutex lock)
+    if ((mCameraAdapter->getState() == CameraAdapter::AF_STATE) ||
+        (mCameraAdapter->getState() == CameraAdapter::VIDEO_AF_STATE)) {
+        cancelAutoFocus();
+    }
+
     android::AutoMutex lock(mLock);
     return __takePicture(params);
 }
@@ -3265,11 +3271,6 @@ status_t CameraHal::takePicture(const char *params)
  */
 status_t CameraHal::__takePicture(const char *params, struct timeval *captureStart)
 {
-    // cancel AF state if needed (before any operation and mutex lock)
-    if (mCameraAdapter->getState() == CameraAdapter::AF_STATE) {
-        cancelAutoFocus();
-    }
-
     status_t ret = NO_ERROR;
     CameraFrame frame;
     CameraAdapter::BuffersDescriptor desc;
@@ -3462,7 +3463,8 @@ status_t CameraHal::__takePicture(const char *params, struct timeval *captureSta
         // pause preview during normal image capture
         // do not pause preview if recording (video state)
         if ( (NO_ERROR == ret) && (NULL != mDisplayAdapter.get()) ) {
-            if (mCameraAdapter->getState() != CameraAdapter::VIDEO_STATE) {
+            if ((mCameraAdapter->getState() != CameraAdapter::VIDEO_STATE) &&
+                (mCameraAdapter->getState() != CameraAdapter::VIDEO_AF_STATE)) {
                 mDisplayPaused = true;
                 mPreviewEnabled = false;
                 ret = mDisplayAdapter->pauseDisplay(mDisplayPaused);
@@ -3478,7 +3480,8 @@ status_t CameraHal::__takePicture(const char *params, struct timeval *captureSta
         }
 
         // if we taking video snapshot...
-        if ((NO_ERROR == ret) && (mCameraAdapter->getState() == CameraAdapter::VIDEO_STATE)) {
+        if ((NO_ERROR == ret) && ((mCameraAdapter->getState() == CameraAdapter::VIDEO_STATE) ||
+            (mCameraAdapter->getState() == CameraAdapter::VIDEO_AF_STATE))) {
             // enable post view frames if not already enabled so we can internally
             // save snapshot frames for generating thumbnail
             if((mMsgEnabled & CAMERA_MSG_POSTVIEW_FRAME) == 0) {
@@ -3824,6 +3827,12 @@ status_t CameraHal::reprocess(const char *params)
     if (ret != NO_ERROR) {
         CAMHAL_LOGE("Error enabling tap in point");
         goto exit;
+    }
+
+    // 4.5. cancel AF state if needed (before any operation and mutex lock)
+    if ((mCameraAdapter->getState() == CameraAdapter::AF_STATE) ||
+        (mCameraAdapter->getState() == CameraAdapter::VIDEO_AF_STATE)) {
+        cancelAutoFocus();
     }
 
     // 5. Start capturing
