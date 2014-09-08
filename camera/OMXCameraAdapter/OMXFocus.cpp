@@ -835,6 +835,7 @@ void OMXCameraAdapter::handleFocusCallback() {
 
     // Dropping AF callback if it triggered in non AF state
     if ((currentState != AF_STATE) && (currentState != AF_ZOOM_STATE) &&
+        (currentState != VIDEO_AF_STATE) && (nextState != VIDEO_AF_STATE) &&
         (nextState != AF_STATE) && (nextState != AF_ZOOM_STATE)) {
         return;
     }
