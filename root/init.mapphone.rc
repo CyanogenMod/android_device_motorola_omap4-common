@@ -34,6 +34,7 @@ loglevel 3
 on fs
     exec /sbin/fixboot.sh
     mount_all /fstab.mapphone_cdma
+    swapon_all /fstab.mapphone_cdma
     setprop ro.crypto.fuse_sdcard true
 
 on post-fs
