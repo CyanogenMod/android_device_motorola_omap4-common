@@ -11,8 +11,4 @@ allow pvrsrvinit shell_exec:file rx_file_perms;
 allow pvrsrvinit pvrsrvinit_exec:file rx_file_perms;
 allow pvrsrvinit property_socket:sock_file write;
 allow pvrsrvinit init:unix_stream_socket connectto;
-allow pvrsrvinit labeledfs:filesystem remount;
-allow pvrsrvinit system_file:dir { write add_name };
-allow pvrsrvinit system_file:lnk_file create;
 allow pvrsrvinit default_prop:property_service set;
-allow pvrsrvinit block_device:blk_file { read ioctl open };
