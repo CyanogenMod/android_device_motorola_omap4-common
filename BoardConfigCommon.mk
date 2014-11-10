@@ -106,6 +106,7 @@ BOARD_VOLD_MAX_PARTITIONS := 32
 BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/virtual/android_usb/android0/f_mass_storage/lun%d/file"
 BOARD_MTP_DEVICE := "/dev/mtp"
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 734003200
 
 # Connectivity - Wi-Fi
 USES_TI_MAC80211 := true
@@ -147,7 +148,7 @@ ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=1
 ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
 
 # Recovery
-TARGET_RECOVERY_FSTAB = $(COMMON_FOLDER)/root/fstab.mapphone_cdma
+TARGET_RECOVERY_FSTAB = $(COMMON_FOLDER)/root/recovery.fstab
 RECOVERY_FSTAB_VERSION = 2
 BOARD_HAS_LOCKED_BOOTLOADER := true
 TARGET_PREBUILT_RECOVERY_KERNEL := device/motorola/omap4-common/recovery-kernel
@@ -162,6 +163,7 @@ TARGET_RECOVERY_PRE_COMMAND_CLEAR_REASON := true
 TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
 DEVICE_RESOLUTION := 540x960
 TW_MAX_BRIGHTNESS := 254
+TARGET_USERIMAGES_USE_EXT4 := true
 
 # Graphics
 BOARD_EGL_CFG := device/motorola/omap4-common/prebuilt/etc/egl.cfg
