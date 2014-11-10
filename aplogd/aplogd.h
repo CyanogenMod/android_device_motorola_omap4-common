@@ -117,4 +117,7 @@ void aplogd_config_load(void);
 #define TRUE 1
 #define FALSE 0
 
+#define __LOGGERIO    0xAE
+#define LOGGER_GET_LOG_LEN            _IO(__LOGGERIO, 2) /* used log len */
+
 #endif /* Not defined _APLOGD_H_ */

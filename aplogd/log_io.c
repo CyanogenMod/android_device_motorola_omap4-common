@@ -16,6 +16,7 @@
  * Includes
  ************************/
 /* "Standard" Includes */
+#include "aplogd.h"
 #include <log/logger.h>
 #include <log/logd.h>
 #include <log/logprint.h>
@@ -40,12 +41,12 @@
 #include <sys/time.h>
 #include <sys/mman.h>
 #include <sys/statfs.h>
+#include <sys/ioctl.h>
 #include <cutils/sockets.h>
 #include <cutils/properties.h>
 /* Aplogd local includes */
 #include "log_io.h"
 #include "rambuf.h"
-#include "aplogd.h"
 #include "aplogd_util.h"
 /************************
  * Local defines and macros

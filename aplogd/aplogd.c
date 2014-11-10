@@ -62,6 +62,7 @@
 #include <linux/capability.h>
 #include <linux/prctl.h>
 
+#include "aplogd.h"
 #include <log/logger.h>
 #include <log/logd.h>
 #include <log/logprint.h>
@@ -73,7 +74,6 @@
 /* #include <mot_security.h> */
 
 /* Aplogd Headers */
-#include "aplogd.h"
 #include "aplogd_util.h"
 #include "log_io.h"
 #include "rambuf.h"
