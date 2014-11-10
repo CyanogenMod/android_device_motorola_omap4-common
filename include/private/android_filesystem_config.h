@@ -76,9 +76,10 @@
 #define AID_SDCARD_PICS   1033  /* external storage photos access */
 #define AID_SDCARD_AV     1034  /* external storage audio/video access */
 #define AID_SDCARD_ALL    1035  /* access all users external storage */
-#define AID_AUDIT         1036  /* audit daemon */
+#define AID_LOGD          1036  /* log daemon */
+#define AID_SHARED_RELRO  1037  /* creator of shared GNU RELRO files */
 
-#define AID_THEMEMAN      1300  /* theme manager */
+#define AID_AUDIT         1049  /* audit daemon */
 
 #define AID_SHELL         2000  /* adb and debug shell user */
 #define AID_CACHE         2001  /* cache access */
@@ -94,8 +95,14 @@
 #define AID_NET_BW_STATS  3006  /* read bandwidth statistics */
 #define AID_NET_BW_ACCT   3007  /* change bandwidth statistics accounting */
 #define AID_NET_BT_STACK  3008  /* bluetooth: access config files */
+#if defined(QCOM_LEGACY_UIDS)
 #define AID_QCOM_ONCRPC   3009  /* can read/write /dev/oncrpc files */
 #define AID_QCOM_DIAG     3010  /* can read/write /dev/diag */
+#else 
+#define AID_QCOM_DIAG     3009  /* can read/write /dev/diag */
+#define AID_IMS           3010 /* can read/write /dev/socket/imsrtp */
+#define AID_SENSORS       3011 /* access to /dev/socket/sensor_ctl_socket & QCCI/QCSI */
+#endif
 
 #define AID_MOT_ACCY      9000  /* access to accessory */
 #define AID_MOT_PWRIC     9001  /* power IC */
@@ -110,6 +117,8 @@
 #define AID_MOT_CAIF      9010  /* can create CAIF sockets */
 #define AID_MOT_DLNA      9011  /* DLNA native */
 
+#define AID_EVERYBODY     9997  /* shared between all apps in the same profile */
+ 
 #define AID_MISC          9998  /* access to misc storage */
 #define AID_NOBODY        9999
 
@@ -164,11 +173,18 @@ static const struct android_id_info android_ids[] = {
     { "sdcard_r",      AID_SDCARD_R, },
     { "clat",          AID_CLAT, },
     { "loop_radio",    AID_LOOP_RADIO, },
+#if defined(QCOM_LEGACY_UIDS)
+    { "qcom_oncrpc",   AID_QCOM_ONCRPC, },
+#endif
     { "mediadrm",      AID_MEDIA_DRM, },
     { "package_info",  AID_PACKAGE_INFO, },
     { "sdcard_pics",   AID_SDCARD_PICS, },
     { "sdcard_av",     AID_SDCARD_AV, },
     { "sdcard_all",    AID_SDCARD_ALL, },
+    { "logd",          AID_LOGD, },
+    { "shared_relro",  AID_SHARED_RELRO, },
+
+    { "audit",         AID_AUDIT, },
 
     { "shell",         AID_SHELL, },
     { "cache",         AID_CACHE, },
@@ -180,9 +196,11 @@ static const struct android_id_info android_ids[] = {
     { "net_raw",       AID_NET_RAW, },
     { "net_admin",     AID_NET_ADMIN, },
     { "net_bw_stats",  AID_NET_BW_STATS, },
-    { "net_bw_acct",   AID_NET_BW_ACCT, },
-    { "qcom_oncrpc", AID_QCOM_ONCRPC, },
     { "qcom_diag", AID_QCOM_DIAG, },
+#if !defined(QCOM_LEGACY_UIDS)
+    { "ims", AID_IMS, },
+#endif
+    { "net_bw_acct",   AID_NET_BW_ACCT, },
     { "net_bt_stack",  AID_NET_BT_STACK, },
 
     { "mot_accy",  AID_MOT_ACCY, },
@@ -198,10 +216,13 @@ static const struct android_id_info android_ids[] = {
     { "mot_caif",  AID_MOT_CAIF, },
     { "mot_dlna",  AID_MOT_DLNA, },
 
+    { "qcom_diag", AID_QCOM_DIAG, },
+#if !defined(QCOM_LEGACY_UIDS)
+    { "sensors",       AID_SENSORS, },
+#endif
+    { "everybody",     AID_EVERYBODY, },
     { "misc",          AID_MISC, },
     { "nobody",        AID_NOBODY, },
-    { "theme_man", AID_THEMEMAN },
-    { "audit",      AID_AUDIT, },
 };
 
 #define android_id_count \
@@ -225,12 +246,13 @@ static const struct fs_path_config android_dirs[] = {
     { 00770, AID_SYSTEM, AID_CACHE,  0, "cache" },
     { 00771, AID_SYSTEM, AID_SYSTEM, 0, "data/app" },
     { 00771, AID_SYSTEM, AID_SYSTEM, 0, "data/app-private" },
-    { 00771, AID_SYSTEM, AID_SYSTEM, 0, "data/dalvik-cache" },
+    { 00771, AID_ROOT,   AID_ROOT,   0, "data/dalvik-cache" },
     { 00771, AID_SYSTEM, AID_SYSTEM, 0, "data/data" },
     { 00771, AID_SHELL,  AID_SHELL,  0, "data/local/tmp" },
     { 00771, AID_SHELL,  AID_SHELL,  0, "data/local" },
     { 01771, AID_SYSTEM, AID_MISC,   0, "data/misc" },
     { 00770, AID_DHCP,   AID_DHCP,   0, "data/misc/dhcp" },
+    { 00771, AID_SHARED_RELRO, AID_SHARED_RELRO, 0, "data/misc/shared_relro" },
     { 00775, AID_MEDIA_RW, AID_MEDIA_RW, 0, "data/media" },
     { 00775, AID_MEDIA_RW, AID_MEDIA_RW, 0, "data/media/Music" },
     { 00771, AID_SYSTEM, AID_SYSTEM, 0, "data" },
@@ -293,7 +315,7 @@ static const struct fs_path_config android_files[] = {
 
     /* the following five files are INTENTIONALLY set-uid, but they
      * are NOT included on user builds. */
-    { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/su" },
+    { 04750, AID_ROOT,      AID_SHELL,     0, "system/xbin/su" },
     { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/librank" },
     { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/procrank" },
     { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/procmem" },
@@ -303,8 +325,11 @@ static const struct fs_path_config android_files[] = {
     /* the following files have enhanced capabilities and ARE included in user builds. */
     { 00750, AID_ROOT,      AID_SHELL,     (1 << CAP_SETUID) | (1 << CAP_SETGID), "system/bin/run-as" },
 
+    { 00750, AID_ROOT,      AID_ROOT,      0, "system/bin/uncrypt" },
+    { 00750, AID_ROOT,      AID_ROOT,      0, "system/bin/install-recovery.sh" },
     { 00755, AID_ROOT,      AID_SHELL,     0, "system/bin/*" },
     { 00755, AID_ROOT,      AID_ROOT,      0, "system/lib/valgrind/*" },
+    { 00755, AID_ROOT,      AID_ROOT,      0, "system/lib64/valgrind/*" },
     { 00755, AID_ROOT,      AID_SHELL,     0, "system/xbin/*" },
     { 00755, AID_ROOT,      AID_SHELL,     0, "system/vendor/bin/*" },
     { 00755, AID_ROOT,      AID_SHELL,     0, "vendor/bin/*" },
