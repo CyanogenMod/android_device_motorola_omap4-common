@@ -47,6 +47,16 @@
 #include "dock_image.h"
 #include "sw_vsync.h"
 
+#ifndef FB_FLAG_RATIO_4_3
+#define FB_FLAG_RATIO_4_3 64
+#endif
+#ifndef FB_FLAG_RATIO_16_9
+#define FB_FLAG_RATIO_16_9 128
+#endif
+#ifndef FB_FLAG_PREFERRED
+#define FB_FLAG_PREFERRED 512
+#endif
+
 #define min(a, b) ( { typeof(a) __a = (a), __b = (b); __a < __b ? __a : __b; } )
 #define max(a, b) ( { typeof(a) __a = (a), __b = (b); __a > __b ? __a : __b; } )
 #define swap(a, b) do { typeof(a) __a = (a); (a) = (b); (b) = __a; } while (0)
