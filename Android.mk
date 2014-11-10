@@ -39,6 +39,4 @@ $(LOCAL_BUILT_MODULE):
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
-include $(all-subdir-makefiles)
-
 endif
