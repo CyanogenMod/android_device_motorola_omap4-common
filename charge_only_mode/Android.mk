@@ -33,5 +33,6 @@ endif
 
 LOCAL_MODULE_TAGS:= optional
 LOCAL_MODULE:= charge_only_mode
+LOCAL_FORCE_STATIC_EXECUTABLE:= true
 
 include $(BUILD_EXECUTABLE)
