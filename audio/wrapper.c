@@ -29,6 +29,8 @@
 #include <system/audio.h>
 #include <hardware/audio.h>
 
+#include "wrapper.h"
+
 /* Input */
 struct wrapper_in_stream {
     struct audio_stream_in *stream_in;
@@ -50,7 +52,7 @@ static int n_out_streams = 0;
 static pthread_mutex_t out_streams_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* HAL */
-static struct audio_hw_device *copy_hw_dev = NULL;
+static struct jb_audio_hw_device *copy_hw_dev = NULL;
 static void *dso_handle = NULL;
 static int in_use = 0;
 static pthread_mutex_t in_use_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -231,7 +233,10 @@ static int wrapper_open_input_stream(struct audio_hw_device *dev,
                                      audio_io_handle_t handle,
                                      audio_devices_t devices,
                                      struct audio_config *config,
-                                     struct audio_stream_in **stream_in)
+                                     struct audio_stream_in **stream_in,
+				     audio_input_flags_t flags,
+				     const char *address,
+				     audio_source_t source)
 {
     int ret;
 
@@ -358,7 +363,8 @@ static int wrapper_open_output_stream(struct audio_hw_device *dev,
                                       audio_devices_t devices,
                                       audio_output_flags_t flags,
                                       struct audio_config *config,
-                                      struct audio_stream_out **stream_out)
+                                      struct audio_stream_out **stream_out,
+				      const char *address)
 {
     int ret;
 
