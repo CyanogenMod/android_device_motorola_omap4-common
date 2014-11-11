@@ -2205,8 +2205,10 @@ typedef struct OMX_TI_FRAMELAYOUTTYPE {
 typedef enum OMX_TI_COLOR_FORMATTYPE {
 	OMX_TI_COLOR_FormatRawBayer10bitStereo =
 	    OMX_COLOR_FormatVendorStartUnused + 2, /**< 10 bit raw for stereo */
+#if 0 //STARGO: now in OMX_IVCommon.h
 	OMX_TI_COLOR_FormatYUV420PackedSemiPlanar =
             (OMX_COLOR_FORMATTYPE) OMX_COLOR_FormatVendorStartUnused  + 0x100, /* 0x100 is used since it is the corresponding HAL pixel fromat */
+#endif
     OMX_TI_ColorFormatTypeMax = 0x7fffffff
 } OMX_TI_COLOR_FORMATTYPE;
 

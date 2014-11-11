@@ -57,6 +57,9 @@ typedef enum OMX_INDEXEXTTYPE {
 
     /* Audio parameters and configurations */
     OMX_IndexExtAudioStartUnused = OMX_IndexKhronosExtensions + 0x00400000,
+    OMX_IndexParamAudioAndroidAc3,                  /**< reference: OMX_AUDIO_PARAM_ANDROID_AC3TYPE */
+    OMX_IndexParamAudioAndroidOpus,                 /**< reference: OMX_AUDIO_PARAM_ANDROID_OPUSTYPE */
+    OMX_IndexParamAudioAndroidAacPresentation,      /**< reference: OMX_AUDIO_PARAM_ANDROID_AACPRESENTATIONTYPE */
 
     /* Image parameters and configurations */
     OMX_IndexExtImageStartUnused = OMX_IndexKhronosExtensions + 0x00500000,
@@ -66,6 +69,12 @@ typedef enum OMX_INDEXEXTTYPE {
     OMX_IndexParamNalStreamFormatSupported,         /**< reference: OMX_NALSTREAMFORMATTYPE */
     OMX_IndexParamNalStreamFormat,                  /**< reference: OMX_NALSTREAMFORMATTYPE */
     OMX_IndexParamNalStreamFormatSelect,            /**< reference: OMX_NALSTREAMFORMATTYPE */
+    OMX_IndexParamVideoVp8,                         /**< reference: OMX_VIDEO_PARAM_VP8TYPE */
+    OMX_IndexConfigVideoVp8ReferenceFrame,          /**< reference: OMX_VIDEO_VP8REFERENCEFRAMETYPE */
+    OMX_IndexConfigVideoVp8ReferenceFrameType,      /**< reference: OMX_VIDEO_VP8REFERENCEFRAMEINFOTYPE */
+    OMX_IndexParamVideoAndroidVp8Encoder,           /**< reference: OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE */
+    OMX_IndexParamVideoHevc,                        /**< reference: OMX_VIDEO_PARAM_HEVCTYPE */
+    OMX_IndexParamSliceSegments,                    /**< reference: OMX_VIDEO_SLICESEGMENTSTYPE */
 
     /* Image & Video common configurations */
     OMX_IndexExtCommonStartUnused = OMX_IndexKhronosExtensions + 0x00700000,

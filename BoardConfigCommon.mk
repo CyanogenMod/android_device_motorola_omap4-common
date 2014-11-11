@@ -28,6 +28,7 @@ COMMON_FOLDER := device/motorola/omap4-common
 # Custom includes for kernel and frameworks
 PRODUCT_VENDOR_KERNEL_HEADERS := $(COMMON_FOLDER)/kernel-headers
 TARGET_SPECIFIC_HEADER_PATH := $(COMMON_FOLDER)/include
+TARGET_SPECIFIC_HEADER_PATH += $(COMMON_FOLDER)/domx/omx_core/inc
 
 # Camera
 USE_CAMERA_STUB := false
