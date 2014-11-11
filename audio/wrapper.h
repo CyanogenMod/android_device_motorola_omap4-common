@@ -256,7 +256,7 @@ struct jb_audio_hw_device {
 
     /**
      * used by audio flinger to enumerate what devices are supported by
-     * each audio_hw_device implementation.
+     * each jb_audio_hw_device implementation.
      *
      * Return value is a bitmask of 1 or more values of audio_devices_t
      *
@@ -266,23 +266,23 @@ struct jb_audio_hw_device {
      * file and the audio policy manager must choose the appropriate
      * audio module based on information in this file.
      */
-    uint32_t (*get_supported_devices)(const struct audio_hw_device *dev);
+    uint32_t (*get_supported_devices)(const struct jb_audio_hw_device *dev);
 
     /**
      * check to see if the audio hardware interface has been initialized.
      * returns 0 on success, -ENODEV on failure.
      */
-    int (*init_check)(const struct audio_hw_device *dev);
+    int (*init_check)(const struct jb_audio_hw_device *dev);
 
     /** set the audio volume of a voice call. Range is between 0.0 and 1.0 */
-    int (*set_voice_volume)(struct audio_hw_device *dev, float volume);
+    int (*set_voice_volume)(struct jb_audio_hw_device *dev, float volume);
 
     /**
      * set the audio volume for all audio activities other than voice call.
      * Range between 0.0 and 1.0. If any value other than 0 is returned,
      * the software mixer will emulate this capability.
      */
-    int (*set_master_volume)(struct audio_hw_device *dev, float volume);
+    int (*set_master_volume)(struct jb_audio_hw_device *dev, float volume);
 
     /**
      * Get the current master volume value for the HAL, if the HAL supports
@@ -291,65 +291,65 @@ struct jb_audio_hw_device {
      * the initial master volume across all HALs.  HALs which do not support
      * this method may leave it set to NULL.
      */
-    int (*get_master_volume)(struct audio_hw_device *dev, float *volume);
+    int (*get_master_volume)(struct jb_audio_hw_device *dev, float *volume);
 
     /**
      * set_mode is called when the audio mode changes. AUDIO_MODE_NORMAL mode
      * is for standard audio playback, AUDIO_MODE_RINGTONE when a ringtone is
      * playing, and AUDIO_MODE_IN_CALL when a call is in progress.
      */
-    int (*set_mode)(struct audio_hw_device *dev, audio_mode_t mode);
+    int (*set_mode)(struct jb_audio_hw_device *dev, audio_mode_t mode);
 
     /* mic mute */
-    int (*set_mic_mute)(struct audio_hw_device *dev, bool state);
-    int (*get_mic_mute)(const struct audio_hw_device *dev, bool *state);
+    int (*set_mic_mute)(struct jb_audio_hw_device *dev, bool state);
+    int (*get_mic_mute)(const struct jb_audio_hw_device *dev, bool *state);
 
     /* set/get global audio parameters */
-    int (*set_parameters)(struct audio_hw_device *dev, const char *kv_pairs);
+    int (*set_parameters)(struct jb_audio_hw_device *dev, const char *kv_pairs);
 
     /*
      * Returns a pointer to a heap allocated string. The caller is responsible
      * for freeing the memory for it using free().
      */
-    char * (*get_parameters)(const struct audio_hw_device *dev,
+    char * (*get_parameters)(const struct jb_audio_hw_device *dev,
                              const char *keys);
 
     /* Returns audio input buffer size according to parameters passed or
      * 0 if one of the parameters is not supported.
      * See also get_buffer_size which is for a particular stream.
      */
-    size_t (*get_input_buffer_size)(const struct audio_hw_device *dev,
+    size_t (*get_input_buffer_size)(const struct jb_audio_hw_device *dev,
                                     const struct audio_config *config);
 
     /** This method creates and opens the audio hardware output stream */
-    int (*open_output_stream)(struct audio_hw_device *dev,
+    int (*open_output_stream)(struct jb_audio_hw_device *dev,
                               audio_io_handle_t handle,
                               audio_devices_t devices,
                               audio_output_flags_t flags,
                               struct audio_config *config,
                               struct audio_stream_out **stream_out);
 
-    void (*close_output_stream)(struct audio_hw_device *dev,
+    void (*close_output_stream)(struct jb_audio_hw_device *dev,
                                 struct audio_stream_out* stream_out);
 
     /** This method creates and opens the audio hardware input stream */
-    int (*open_input_stream)(struct audio_hw_device *dev,
+    int (*open_input_stream)(struct jb_audio_hw_device *dev,
                              audio_io_handle_t handle,
                              audio_devices_t devices,
                              struct audio_config *config,
                              struct audio_stream_in **stream_in);
 
-    void (*close_input_stream)(struct audio_hw_device *dev,
+    void (*close_input_stream)(struct jb_audio_hw_device *dev,
                                struct audio_stream_in *stream_in);
 
     /** This method dumps the state of the audio hardware */
-    int (*dump)(const struct audio_hw_device *dev, int fd);
+    int (*dump)(const struct jb_audio_hw_device *dev, int fd);
 
     /**
      * set the audio mute status for all audio activities.  If any value other
      * than 0 is returned, the software mixer will emulate this capability.
      */
-    int (*set_master_mute)(struct audio_hw_device *dev, bool mute);
+    int (*set_master_mute)(struct jb_audio_hw_device *dev, bool mute);
 
     /**
      * Get the current master mute status for the HAL, if the HAL supports
@@ -358,6 +358,6 @@ struct jb_audio_hw_device {
      * initial master mute across all HALs.  HALs which do not support this
      * method may leave it set to NULL.
      */
-    int (*get_master_mute)(struct audio_hw_device *dev, bool *mute);
+    int (*get_master_mute)(struct jb_audio_hw_device *dev, bool *mute);
 };
 typedef struct jb_audio_hw_device jb_audio_hw_device_t;
