@@ -132,7 +132,8 @@ PRODUCT_PACKAGES += \
     tf_daemon \
     libtf_crypto_sst \
     libmm_osal \
-    gralloc.omap4.so
+    gralloc.omap4.so \
+    libcorkscrew
 
 PRODUCT_PACKAGES += \
     evtest \
