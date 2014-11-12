@@ -24,7 +24,6 @@ etc/firmware/ap_bt_data.bin
 
 # system/usr
 usr/idc/Motorola_Mobility_Motorola_HD_Dock.idc
-usr/keylayout/cpcap-key.kl
 
 # system/lib/hw
 lib/hw/alsa.omap4.so
