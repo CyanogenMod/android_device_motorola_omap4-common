@@ -616,7 +616,7 @@ service hostapd_bin /system/bin/hostapd -d \
     class main
     disabled
     oneshot
-service pvrsrv /system/vendor/bin/pvrsrvinit
+service pvrsrv /system/bin/pvrsrvinit
     class core
     user root
     group root

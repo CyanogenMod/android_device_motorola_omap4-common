@@ -138,7 +138,9 @@ PRODUCT_PACKAGES += \
     libtf_crypto_sst \
     libmm_osal \
     gralloc.omap4.so \
-    libcorkscrew
+    libcorkscrew \
+    pvrsrvinit \
+    libPVRScopeServices.so
 
 PRODUCT_PACKAGES += \
     evtest \
