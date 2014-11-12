@@ -28,7 +28,6 @@ COMMON_FOLDER := device/motorola/omap4-common
 # Custom includes for kernel and frameworks
 PRODUCT_VENDOR_KERNEL_HEADERS := $(COMMON_FOLDER)/kernel-headers
 TARGET_SPECIFIC_HEADER_PATH := $(COMMON_FOLDER)/include
-TARGET_SPECIFIC_HEADER_PATH += $(COMMON_FOLDER)/domx/omx_core/inc
 
 # Camera
 USE_CAMERA_STUB := false
@@ -176,8 +175,9 @@ TARGET_USES_OPENGLES_FOR_SCREEN_CAPTURE := true
 # Makefile variable and C/C++ macro to recognise DOMX version
 ifdef BOARD_USE_TI_ENHANCED_DOMX
     BOARD_USE_TI_DUCATI_H264_PROFILE := true
-    TI_CUSTOM_DOMX_PATH := device/motorola/omap4-common/domx
+    BOARD_USE_TI_CUSTOM_DOMX := true
     DOMX_PATH := device/motorola/omap4-common/domx
+    TARGET_SPECIFIC_HEADER_PATH += $(COMMON_FOLDER)/domx/omx_core/inc
     ENHANCED_DOMX := true
 else
     DOMX_PATH := hardware/ti/omap4xxx/domx
