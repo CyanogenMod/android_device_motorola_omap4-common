@@ -822,6 +822,8 @@ def main(argv):
       OPTIONS.override_device = a
     elif o in ("--override_prop"):
       OPTIONS.override_prop = bool(a.lower() == 'true')
+    elif o in ("--block"):
+      pass
     else:
       return False
     return True
@@ -838,7 +840,8 @@ def main(argv):
                                               "aslr_mode=",
                                               "backup=",
                                               "override_device=",
-                                              "override_prop="],
+                                              "override_prop=",
+                                              "block"],
                              extra_option_handler=option_handler)
 
   if len(args) != 2:
