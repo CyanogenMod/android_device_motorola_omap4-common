@@ -102,6 +102,10 @@ PRODUCT_PACKAGES += \
     uim-sysfs \
     libbt-vendor
 
+# Sensors
+PRODUCT_PACKAGES += \
+    ak8975fs
+
 # Misc
 PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
