@@ -656,6 +656,7 @@ service ftmipcd /system/bin/ftmipcd
     class main
     user radio
     group radio inet
+    disabled
 on property:dev.bootcomplete=1
 #    start loadpreinstalls
     #IKHSS6-3716 allow mediaserver to enable performance mode for OMAP4 USB Audio
