@@ -355,7 +355,7 @@ WRAP_STREAM_LOCKED_COMMON(standby, out, (struct audio_stream *stream),
 WRAP_STREAM_LOCKED_COMMON(set_parameters, out, (struct audio_stream *stream, const char *kv_pairs),
             (stream, kv_pairs), ("out_set_parameters: %s", kv_pairs))
 
-void wrapper_close_output_stream(unused_audio_hw_device *dev,
+static void wrapper_close_output_stream(unused_audio_hw_device *dev,
                             struct audio_stream_out* stream_out)
 {
     int i;
@@ -621,8 +621,13 @@ static int wrapper_open(const hw_module_t* module,
     *device = malloc(sizeof(struct audio_hw_device));
     if (!*device) {
         ALOGE("Can't allocate memory for device, aborting...");
-	//FIXME: Errorhandling
-        return 0;
+        dlclose(dso_handle);
+        dso_handle = NULL;
+#ifdef ICS_VOICE_BLOB
+        dlclose(ics_dso_handle);
+        ics_dso_handle = NULL;
+#endif
+        return -ENOMEM;
     }
 
     memset(*device, 0, sizeof(struct audio_hw_device));
