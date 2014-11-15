@@ -1,5 +1,10 @@
 #!/sbin/bbx sh
 
+exec 1<&-
+exec 2<&-
+exec 1<>/dev/kmsg
+exec 2>&1
+
 # remount root as rw
 /sbin/bbx mount -o remount,rw rootfs
 /sbin/bbx mkdir /ss
