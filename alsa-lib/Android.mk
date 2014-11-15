@@ -72,7 +72,10 @@ LOCAL_SRC_FILES := $(filter-out src/pcm/scopes/level.c, $(LOCAL_SRC_FILES))
 LOCAL_SRC_FILES := $(filter-out src/shmarea.c, $(LOCAL_SRC_FILES))
 
 LOCAL_SHARED_LIBRARIES := \
-    libdl
+    libdl \
+    libmedia
+
+LOCAL_SRC_FILES += ../audio/motoaudiocompat.c
 
 include $(BUILD_SHARED_LIBRARY)
 
