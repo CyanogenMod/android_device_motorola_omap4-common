@@ -46,6 +46,11 @@
 
 #include "hdmi_audio_hal.h"
 
+#define HDMI_AUDIO_CHANNEL_OUT_SURROUND	(AUDIO_CHANNEL_OUT_FRONT_LEFT | \
+					 AUDIO_CHANNEL_OUT_FRONT_RIGHT | \
+					 AUDIO_CHANNEL_OUT_FRONT_CENTER | \
+					 AUDIO_CHANNEL_OUT_BACK_CENTER)
+
 #define UNUSED(x) (void)(x)
 
 /* XXX TODO: Dynamically detect the HDMI card
@@ -541,7 +546,7 @@ static int hdmi_adev_open_output_stream(audio_hw_device_t *dev,
         pcm_config->channels = 2;
         break;
     case AUDIO_CHANNEL_OUT_QUAD:
-    case AUDIO_CHANNEL_OUT_SURROUND:
+    case HDMI_AUDIO_CHANNEL_OUT_SURROUND:
         pcm_config->channels = 4;
         break;
     case AUDIO_CHANNEL_OUT_5POINT1:
