@@ -35,6 +35,9 @@ if [ "$SLOT_LOC" != "stock" ]; then
 /sbin/bbx ln -s /dev/block/loop-system /dev/block/system
 /sbin/bbx ln -s /dev/block/loop-userdata /dev/block/userdata
 /sbin/bbx ln -s /dev/block/loop-cache /dev/block/cache
+
+# remount root as ro
+/sbin/bbx mount -o remount,ro rootfs
 else
 /sbin/bbx umount /ss
 fi
