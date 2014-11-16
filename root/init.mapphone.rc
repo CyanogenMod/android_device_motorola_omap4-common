@@ -51,7 +51,7 @@ on post-fs
     chmod 0775 /pds
 
     mount ext3 /dev/block/system /system ro noatime nodiratime remount
-    mount rootfs rootfs / rw remount
+    mount rootfs rootfs / ro remount
     symlink /dev/ttyGS0 /dev/acm0
 
 # Create mountpoints and mount tmpfs
