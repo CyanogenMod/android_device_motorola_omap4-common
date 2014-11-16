@@ -80,6 +80,7 @@ PRODUCT_PACKAGES += \
     dhcpcd.conf \
     hostapd.conf \
     wifical.sh \
+    wl1271-nvs.bin \
     wpa_supplicant.conf \
     TQS_D_1.7.ini \
     TQS_D_1.7_127x.ini \

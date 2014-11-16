@@ -3,7 +3,8 @@
 WIFION=`getprop init.svc.p2p_supplicant`
 WL12xx_MODULE=/system/lib/modules/wl12xx_sdio.ko
 PDS_NVS_FILE=/pds/wifi/nvs_map.bin
-TARGET_FW_DIR=/system/etc/firmware/ti-connectivity
+SOURCE_FW_DIR=/system/etc/firmware/ti-connectivity
+TARGET_FW_DIR=/data/misc/wifi
 TARGET_NVS_FILE=$TARGET_FW_DIR/wl1271-nvs.bin
 
 case "$WIFION" in
@@ -27,11 +28,8 @@ else
     exit
 fi
 
-# Remount system partition as rw
-mount -o remount rw /system
-
 # Fresh install or update copy over the generic nvs
-cp $TARGET_FW_DIR/wl1271-nvs_128x.bin $TARGET_NVS_FILE
+cp $SOURCE_FW_DIR/wl1271-nvs_128x.bin $TARGET_NVS_FILE
 
 # Set the MAC address if nvs_map exists in pds
 if [ -e $PDS_NVS_FILE ];
@@ -53,6 +51,3 @@ case "$WIFION" in
              echo " *************************"
              svc wifi enable;;
 esac
-
-# Remount system partition as ro
-mount -o remount ro /system
