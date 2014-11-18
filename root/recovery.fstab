@@ -6,8 +6,8 @@
 /dev/block/system                                   /system          ext4    rw,noatime,nodiratime,errors=continue,barrier=1                wait
 /dev/block/userdata                                 /data            ext4    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check,encryptable=footer
 /dev/block/cache                                    /cache           ext4    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check
-/devices/platform/omap/omap_hsmmc.1/mmc_host/mmc1   auto             vfat    defaults                                                       voldmanaged=sdcard0:25,nonremovable,noemulatedsd
-/devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0   auto             vfat    defaults                                                       voldmanaged=sdcard1:auto,noemulatedsd
+/devices/platform/omap/omap_hsmmc.1/mmc_host/mmc1*  auto             vfat    defaults                                                       voldmanaged=sdcard0:25,nonremovable,noemulatedsd
+/devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0*  auto             vfat    defaults                                                       voldmanaged=sdcard1:auto,noemulatedsd
 /dev/block/zram0                                    none             swap    defaults                                                       zramsize=134217728
 /dev/block/boot                                     /boot            mtd     defaults                                                       defaults
 /dev/block/recovery                                 /recovery        mtd     defaults                                                       defaults
