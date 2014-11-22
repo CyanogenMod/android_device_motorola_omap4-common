@@ -261,7 +261,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.kernel.android.ril=yes \
     ro.telephony.call_ring.multiple=false \
     persist.ril.mux.noofchannels=10 \
-    persist.ril.mux.retries=500
+    persist.ril.mux.retries=500 \
+    ro.telephony.ril_class=motoOmap4RIL
 
 # Wifi
 PRODUCT_PROPERTY_OVERRIDES += \
