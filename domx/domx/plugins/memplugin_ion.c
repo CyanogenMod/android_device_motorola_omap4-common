@@ -137,7 +137,7 @@ MEMPLUGIN_ERRORTYPE MemPlugin_ION_Alloc(void *pMemPluginHandle, OMX_U32 nClient,
 {
     OMX_S16 ret;
     struct ion_handle *temp;
-    size_t stride;
+    size_t stride = 0;
     MEMPLUGIN_ERRORTYPE eError = MEMPLUGIN_ERROR_NONE;
     MEMPLUGIN_ION_PARAMS sIonParams;
     MEMPLUGIN_OBJECT    *pMemPluginHdl = (MEMPLUGIN_OBJECT *)pMemPluginHandle;
