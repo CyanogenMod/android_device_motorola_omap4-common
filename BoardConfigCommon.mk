@@ -43,6 +43,9 @@ OMAP_ENHANCEMENT := true
 #BLTSVILLE_ENHANCEMENT :=true
 BOARD_USE_TI_ENHANCED_DOMX := true
 
+# QCOM SELinux policy
+include device/qcom/sepolicy/sepolicy.mk
+
 # inherit from the proprietary version
 -include vendor/motorola/omap4-common/BoardConfigVendor.mk
 
