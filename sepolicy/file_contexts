@@ -25,8 +25,9 @@
 /dev/rfkill u:object_r:rfkill_device:s0
 
 # System binaries
-/system/vendor/bin/pvrsrvinit u:object_r:pvrsrvinit_exec:s0
+/system/vendor/bin/pvrsrvinit            u:object_r:pvrsrvinit_exec:s0
 /system/vendor/bin/pvrsrvinit_SGX540_120 u:object_r:pvrsrvinit_exec:s0
+/system/bin/pvrsrvinit                   u:object_r:pvrsrvinit_exec:s0
 
 # Firmwares
 /system/etc/firmware/ducati-m3.bin u:object_r:firmware_ducati:s0
