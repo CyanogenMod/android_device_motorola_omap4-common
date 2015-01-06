@@ -262,6 +262,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
     media.stagefright.cache-params=18432/20480/15 \
     media.aac_51_output_enabled=true
 
+PRODUCT_COPY_FILES += \
+    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_ffmpeg.xml:system/etc/media_codecs_ffmpeg.xml
+
 # OpenglES
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=131072
