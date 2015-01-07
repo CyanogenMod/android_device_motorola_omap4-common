@@ -1,0 +1,10 @@
+# modemlog
+type modemlog, domain;
+type modemlog_exec, exec_type, file_type;
+
+init_daemon_domain(modemlog)
+
+allow modemlog panic_file:dir create_dir_perms;
+allow modemlog panic_file:file create_file_perms;
+allow modemlog system_data_file:dir create_dir_perms;
+allow modemlog system_data_file:file create_file_perms;

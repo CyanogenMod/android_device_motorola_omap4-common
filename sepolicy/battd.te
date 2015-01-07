@@ -1,0 +1,18 @@
+# battd
+type battd, domain;
+type battd_exec, exec_type, file_type;
+type battd_data_file, file_type;
+
+init_daemon_domain(battd)
+
+allow battd self:process execmem;
+allow battd battd_data_file:dir create_dir_perms;
+allow battd battd_data_file:file create_file_perms;
+allow battd system_data_file:dir create_dir_perms;
+allow battd system_data_file:file create_file_perms;
+allow battd pds_file:dir create_dir_perms;
+allow battd pds_file:file create_file_perms;
+allow battd cpcap_device:chr_file rw_file_perms;
+allow battd self:netlink_kobject_uevent_socket read;
+allow battd self:netlink_kobject_uevent_socket { bind create setopt };
+allow battd self:capability { setuid fowner net_admin dac_override chown };
