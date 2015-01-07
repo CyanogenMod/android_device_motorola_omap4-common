@@ -40,8 +40,6 @@ on fs
 
 on post-fs
     exec /system/bin/pdsbackup.sh
-    # Load FIPS kernel module
-    exec /system/bin/fips_loader /system/lib/modules
 # Enable PVR modules
     insmod /system/lib/modules/pvrsrvkm_sgx540_120.ko
     insmod /system/lib/modules/omaplfb_sgx540_120.ko
@@ -245,10 +243,7 @@ on early-boot
     chmod 0444 /proc/cmdline
 # Loading SMC kernel module first. Because load kernel module need root,
 # so do not put this command into startup_smc.sh which only run as MOT_TPAPI
-    exec /system/bin/enc_mgt_tool --insmod
     start smc
-# mount eCryptFS if required
-    exec /system/bin/enc_mgt_tool
     class_start media_early_init
 on boot
 # Define Motorola DBVC ATVC Property defaults (failsafe properties)
@@ -671,14 +666,6 @@ service thermal_manager /system/bin/thermaldaemon
     class main
     user system
     group system
-#Check available storage space to execute device encryption or decryption
-on property:sys.mot.encrypt.test=1
-    exec /system/bin/enc_mgt_tool --test
-    setprop sys.mot.encrypt.test ""
-# Handle device encryption key protection request
-on property:sys.mot.encrypt.pass.prot=1
-    exec /system/bin/enc_mgt_tool --password_prot
-    setprop sys.mot.encrypt.pass.prot ""
 # Enable Hotplug governor only for OMAP ES2.2 Silicon
 on property:ro.revision=34
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor hotplug
