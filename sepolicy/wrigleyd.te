@@ -1,0 +1,12 @@
+# wrigleyd
+type wrigleyd, domain;
+type wrigleyd_exec, exec_type, file_type;
+
+init_daemon_domain(wrigleyd)
+
+allow wrigleyd shell_exec:file rx_file_perms;
+allow wrigleyd system_file:file rx_file_perms;
+allow wrigleyd net_data_file:file r_file_perms;
+allow wrigleyd net_data_file:dir r_dir_perms;
+allow wrigleyd self:netlink_route_socket { create setopt bind getattr write nlmsg_write read };
+allow wrigleyd self:capability { net_admin };

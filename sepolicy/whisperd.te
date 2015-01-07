@@ -1,0 +1,16 @@
+# whisperd
+type whisperd, domain;
+type whisperd_exec, exec_type, file_type;
+type whisperd_prop, property_type;
+
+init_daemon_domain(whisperd)
+
+allow whisperd pds_file:dir r_dir_perms;
+allow whisperd pds_file:file rw_file_perms;
+allow whisperd serial_device:chr_file rw_file_perms;
+allow whisperd cpcap_device:chr_file rw_file_perms;
+allow whisperd self:process execmem;
+allow whisperd self:netlink_kobject_uevent_socket { read bind create setopt };
+
+allow whisperd whisperd_prop:property_service set;
+unix_socket_connect(whisperd, property, init)

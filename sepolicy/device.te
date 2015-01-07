@@ -1,2 +1,3 @@
 type led_device, dev_type;
 type rfkill_device, dev_type;
+type cpcap_device, dev_type;
