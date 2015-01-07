@@ -2,3 +2,5 @@ allow mediaserver device:dir { read open };
 allow mediaserver proc:file write;
 allow mediaserver system_server:unix_stream_socket { read write setopt };
 allow mediaserver system_data_file:sock_file write;
+allow mediaserver pds_file:dir create_dir_perms;
+allow mediaserver pds_file:file create_file_perms;

@@ -1,2 +1,4 @@
 allow system_server self:capability sys_module;
 allow system_server self:netlink_socket { write getattr setopt read bind create };
+allow system_server panic_file:dir create_dir_perms;
+allow system_server panic_file:file create_file_perms;

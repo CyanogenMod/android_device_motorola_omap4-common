@@ -1,0 +1,10 @@
+# thermal_manager
+type thermal_manager, domain;
+type thermal_manager_exec, exec_type, file_type;
+
+init_daemon_domain(thermal_manager)
+
+allow thermal_manager self:process execmem;
+allow thermal_manager self:netlink_kobject_uevent_socket { create read write bind setopt };
+allow thermal_manager sysfs_devices_system_cpu:file rw_file_perms;
+allow thermal_manager sysfs:file rw_file_perms;

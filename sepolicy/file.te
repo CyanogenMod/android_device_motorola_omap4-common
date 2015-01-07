@@ -3,3 +3,6 @@ type pds_file, file_type;
 
 # ducati
 type firmware_ducati, file_type;
+
+# panic files (modemlog)
+type panic_file, file_type;
