@@ -1,0 +1,7 @@
+# akmd8975
+type akmd8975, domain;
+type akmd8975_exec, exec_type, file_type;
+
+init_daemon_domain(akmd8975)
+
+allow akmd8975 sensors_device:chr_file rw_file_perms;
