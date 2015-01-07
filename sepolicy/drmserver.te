@@ -1,0 +1,1 @@
+allow drmserver self:process execmem;

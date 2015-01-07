@@ -1,0 +1,4 @@
+# Needed for safestrap (loopback-files on vfat)
+allow init vfat:file rw_file_perms;
+allow init vfat:dir r_dir_perms;
+allow init block_device:blk_file { create };
