@@ -1,0 +1,11 @@
+# smc
+type smc, domain;
+type smc_exec, exec_type, file_type;
+
+init_daemon_domain(smc)
+
+allow smc pds_file:dir r_dir_perms;
+allow smc shell_exec:file rx_file_perms;
+allow smc tee_exec:file rx_file_perms;
+allow smc smc_exec:file rx_file_perms;
+allow smc tee_device:chr_file rw_file_perms;
