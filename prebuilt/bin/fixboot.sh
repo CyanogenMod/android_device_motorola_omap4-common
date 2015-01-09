@@ -38,5 +38,3 @@ if [ "$SLOT_LOC" != "stock" ]; then
 else
 /sbin/bbx umount /ss
 fi
-
-/sbin/bbx touch /.safestrapped
