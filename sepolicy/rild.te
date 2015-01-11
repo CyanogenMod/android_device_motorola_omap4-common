@@ -15,6 +15,7 @@ allow rild system_data_file:file create_file_perms;
 allow rild socket_device:sock_file rw_file_perms;
 allow rild battd:unix_stream_socket { connectto read write setopt };
 allow rild sysfs:file rw_file_perms;
+allow rild zygote_exec:file rx_file_perms;
 allow rild app_data_file:file { write getattr setattr read lock open };
 allow rild serialno_prop:property_service set;
-allow rild self:process execmem;
+allow rild self:process { execmem ptrace };

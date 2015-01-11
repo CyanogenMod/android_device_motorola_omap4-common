@@ -22,12 +22,20 @@
 /dev/tifm                       u:object_r:uim_device:s0
 /dev/ts0710mux.*                u:object_r:radio_device:s0
 /dev/qcqmi.*                    u:object_r:radio_device:s0
+/dev/usb/tty2.*                 u:object_r:radio_device:s0
+/dev/usb/tty1.*                 u:object_r:radio_device:s0
+/dev/ttyUSB0                    u:object_r:radio_device:s0
+/dev/ttyUSB1                    u:object_r:radio_device:s0
+/dev/ttyUSB2                    u:object_r:radio_device:s0
+/dev/ttyUSB3                    u:object_r:radio_device:s0
+/dev/ttyUSB4                    u:object_r:radio_device:s0
+/dev/ttySPI.*                   u:object_r:radio_device:s0
 /dev/hci_tty                    u:object_r:hci_attach_dev:s0
 
 #The devices and files used by the hciattach service are device specific
 /dev/ttyO1                      u:object_r:hci_attach_dev:s0
 
-# ttyO0 is for uart driver. gps_device is device specific
+# ttyO0 is for uart driver.
 /dev/ttyO0                      u:object_r:gps_device:s0
 /dev/ttyO3                      u:object_r:uim_device:s0
 
@@ -44,6 +52,7 @@
 /system/bin/akmd8975                     u:object_r:akmd8975_exec:s0
 /system/bin/battd                        u:object_r:battd_exec:s0
 /system/bin/modemlog                     u:object_r:modemlog_exec:s0
+/system/bin/msp430                       u:object_r:msp430_exec:s0
 /system/bin/pvrsrvinit                   u:object_r:pvrsrvinit_exec:s0
 /system/bin/startup_smc.sh               u:object_r:smc_exec:s0
 /system/bin/smc_pa_ctrl                  u:object_r:smc_exec:s0
@@ -55,5 +64,6 @@
 /system/vendor/bin/pvrsrvinit_SGX540_120 u:object_r:pvrsrvinit_exec:s0
 
 # Firmwares
-/system/etc/firmware/ducati-m3.bin u:object_r:firmware_ducati:s0
+/system/etc/firmware/ducati-m3.bin       u:object_r:firmware_ducati:s0
 /system/etc/firmware/ti-connectivity/wl1271-nvs.bin u:object_r:radio_data_file:s0
+/system/etc/mspfirmware(/.*)?            u:object_r:msp430_firmware:s0
