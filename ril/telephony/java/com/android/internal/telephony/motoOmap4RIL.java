@@ -130,8 +130,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setDataAllowed");
 
         if (result != null) {
-            CommandException e = new CommandException(CommandException.Error.REQUEST_NOT_SUPPORTED);
-            AsyncResult.forMessage(result, null, e);
+            AsyncResult.forMessage(result, 0, null);
             result.sendToTarget();
         }
     }
