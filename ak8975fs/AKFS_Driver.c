@@ -36,6 +36,7 @@ int16_t AKD_InitDevice(void)
 		/* Open magnetic sensor's device driver. */
 		if ((s_fdDev = open("/dev/" AKM_MISCDEV_NAME, O_RDWR)) < 0) {
 			AKMERROR_STR("open");
+			execl("/system/bin/akmd8975", "/system/bin/akmd8975", NULL);
 			return AKD_ERROR;
 		}
 	}
