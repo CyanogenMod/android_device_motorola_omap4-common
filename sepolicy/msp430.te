@@ -8,5 +8,6 @@ init_daemon_domain(msp430)
 
 allow msp430 self:process execmem;
 allow msp430 msp430_device:chr_file create_file_perms;
-allow msp430 msp430_firmware:file r_file_perms;
 allow msp430 sensors_device:chr_file create_file_perms;
+allow msp430 msp430_firmware:file r_file_perms;
+allow msp430 msp430_firmware:dir r_dir_perms;

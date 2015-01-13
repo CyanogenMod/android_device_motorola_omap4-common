@@ -9,3 +9,5 @@ allow akmd8975 sensors_device:chr_file rw_file_perms;
 allow akmd8975 system_data_file:dir create_dir_perms;
 allow akmd8975 system_data_file:file create_file_perms;
 allow akmd8975 akmd8975_file:file create_file_perms;
+allow akmd8975 akmd8975_exec:file rx_file_perms;
+allow akmd8975 self:process execmem;

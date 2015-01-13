@@ -19,6 +19,7 @@
 /dev/tiler                      u:object_r:video_device:s0
 /dev/cpcap.*                    u:object_r:cpcap_device:s0
 /dev/tf_ctrl                    u:object_r:tee_device:s0
+/dev/sec                        u:object_r:tee_device:s0
 /dev/tifm                       u:object_r:uim_device:s0
 /dev/ts0710mux.*                u:object_r:radio_device:s0
 /dev/qcqmi.*                    u:object_r:radio_device:s0
