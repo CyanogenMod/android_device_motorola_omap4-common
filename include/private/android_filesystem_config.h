@@ -271,6 +271,7 @@ static const struct fs_path_config android_dirs[] = {
     { 00755, AID_ROOT,   AID_SHELL,  0, "system/vendor" },
     { 00755, AID_ROOT,   AID_SHELL,  0, "system/xbin" },
     { 00755, AID_ROOT,   AID_ROOT,   0, "system/etc/ppp" },
+    { 00755, AID_ROOT,   AID_SHELL,  0, "system/etc" },
     { 00755, AID_ROOT,   AID_SHELL,  0, "vendor" },
     { 00777, AID_ROOT,   AID_ROOT,   0, "sdcard" },
     { 00755, AID_ROOT,   AID_ROOT,   0, 0 },
@@ -300,7 +301,6 @@ static const struct fs_path_config android_files[] = {
     { 00660, AID_RADIO,     AID_RADIO,     0, "data/logger/bplogd.conf" },
     { 04770, AID_ROOT,      AID_RADIO,     0, "system/bin/pppd-moto_ril" },
     { 00750, AID_ROOT,      AID_RADIO,     0, "system/bin/mfa" }, /* STE */
-    { 00755, AID_ROOT,      AID_SHELL,     0, "system/usr/bin/*" },
     { 00555, AID_ROOT,      AID_SHELL,     0, "system/bin/fwupgrade" },
     { 00555, AID_ROOT,      AID_ROOT,      0, "system/usr/bin/brcm_guci_drv" },
     { 00644, AID_SYSTEM,    AID_SYSTEM,    0, "data/app/*" },
@@ -313,9 +313,11 @@ static const struct fs_path_config android_files[] = {
      * Do not change. */
     { 02750, AID_ROOT,      AID_INET,      0, "system/bin/netcfg" },
 
+    /* CM's daemonized su doesn't need the setuid bit */
+    { 00755, AID_ROOT,      AID_SHELL,     0, "system/xbin/su" },
+
     /* the following five files are INTENTIONALLY set-uid, but they
      * are NOT included on user builds. */
-    { 04750, AID_ROOT,      AID_SHELL,     0, "system/xbin/su" },
     { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/librank" },
     { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/procrank" },
     { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/procmem" },
@@ -328,6 +330,7 @@ static const struct fs_path_config android_files[] = {
     { 00750, AID_ROOT,      AID_ROOT,      0, "system/bin/uncrypt" },
     { 00750, AID_ROOT,      AID_ROOT,      0, "system/bin/install-recovery.sh" },
     { 00755, AID_ROOT,      AID_SHELL,     0, "system/bin/*" },
+    { 00755, AID_ROOT,      AID_SHELL,     0, "system/etc/init.d/*" },
     { 00755, AID_ROOT,      AID_ROOT,      0, "system/lib/valgrind/*" },
     { 00755, AID_ROOT,      AID_ROOT,      0, "system/lib64/valgrind/*" },
     { 00755, AID_ROOT,      AID_SHELL,     0, "system/xbin/*" },
