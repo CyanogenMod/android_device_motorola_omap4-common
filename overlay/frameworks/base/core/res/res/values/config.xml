@@ -280,5 +280,18 @@
     <integer name="config_multiuserMaximumUsers">4</integer>
     <!-- Whether UI for multi user should be shown -->
     <bool name="config_enableMultiUserUI">true</bool>
+
+    <!-- Config determines whether to update phone object when voice registration
+         state changes. Voice radio tech change will always trigger an update of
+         phone object irrespective of this config -->
+    <bool name="config_switch_phone_on_voice_reg_state_change">false</bool>
+
+    <!-- Boolean indicating if restoring network selection should be skipped -->
+    <!-- The restoring is handled by modem if it is true-->
+    <bool translatable="false" name="skip_restoring_network_selection">false</bool>
+
+    <!-- Support for disabling to fetch APN from OMH card
+         for some cdma carriers -->
+    <bool name="config_fetch_apn_from_omh_card">false</bool>
 </resources>
 
