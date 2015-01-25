@@ -18,9 +18,8 @@
 
 COMMON_FOLDER := device/motorola/omap4-common
 
-# Boot animation (HACK 540.zip crashes PVR currently)
-TARGET_SCREEN_HEIGHT := 720
-TARGET_SCREEN_WIDTH := 480
+TARGET_SCREEN_HEIGHT := 960
+TARGET_SCREEN_WIDTH := 540
 
 # The gps config appropriate for this device
 PRODUCT_COPY_FILES += \
