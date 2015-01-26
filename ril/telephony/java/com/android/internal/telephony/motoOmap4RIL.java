@@ -255,37 +255,57 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 }
             }
 
-            if (addr != null && gw != null && dataCall.ifname != null && (!dataCall.ifname.equals("rmnet0"))) {
+            if (addr != null && gw != null && dataCall.ifname != null) {
                 Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: Addr: " + addr.getHostAddress() + " GW: " + gw.getHostAddress() + " IF: " + dataCall.ifname);
                 Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: Searching for common prefix...");
 
-                for (int i = 30; i > 0; i--) {
-                    if (NetworkUtils.getNetworkPart(addr, i).getHostAddress().equals(
-                        NetworkUtils.getNetworkPart(gw, i).getHostAddress())) {
-                        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: found prefixlen: " + i);
+                InterfaceConfiguration ifcg = null;
 
-                        InterfaceConfiguration ifcg = null;
+                try {
+                    ifcg = mNwService.getInterfaceConfig(dataCall.ifname);
+                    if (ifcg != null) {
+                        LinkAddress oldLa = ifcg.getLinkAddress();
+                        if (oldLa != null) {
+                            for (int i = 30; i > 0; i--) {
+                                if (NetworkUtils.getNetworkPart(addr, i).getHostAddress().equals(
+                                    NetworkUtils.getNetworkPart(gw, i).getHostAddress())) {
+                                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: found prefix: " +
+                                        NetworkUtils.getNetworkPart(addr, i).getHostAddress() + " prefixlen: " + i);
 
-                        try {
-                            ifcg = mNwService.getInterfaceConfig(dataCall.ifname);
-                            if (ifcg != null) {
-                                LinkAddress la = new LinkAddress(addr, i);
-                                if ((ifcg.getLinkAddress() != null) && ifcg.getLinkAddress().isSameAddressAs(la)) {
-                                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: interface " + dataCall.ifname + " is already configured correctly");
-                                } else {
-                                    ifcg.setLinkAddress(la);
-                                    ifcg.setInterfaceUp();
+                                    LinkAddress la = new LinkAddress(addr, i);
+                                    if ((ifcg.getLinkAddress() != null) && oldLa.isSameAddressAs(la)) {
+                                        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: interface " + dataCall.ifname + " is already configured correctly");
+                                    } else {
+                                        if (oldLa.getAddress().getHostAddress().equals(la.getAddress().getHostAddress())) {
+                                            if (oldLa.getPrefixLength() > i) {
+                                                ifcg.setLinkAddress(la);
+                                                ifcg.setInterfaceUp();
 
-                                    mNwService.setInterfaceConfig(dataCall.ifname, ifcg);
+                                                mNwService.setInterfaceConfig(dataCall.ifname, ifcg);
+                                            } else {
+                                                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: interface " + dataCall.ifname +
+                                                    " already has a valid prefixlen (is: " +
+                                                    oldLa.getPrefixLength() + ", should be <= " + i + ")");
+                                            }
+                                        } else {
+                                            Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: LinkAddresses don't match: " +
+                                                oldLa.getAddress().getHostAddress() + " != " + la.getAddress().getHostAddress());
+                                        }
+                                    }
+
+                                    break;
                                 }
-                            } else {
-                                Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: can't get old config for interface " + dataCall.ifname);
                             }
-                        } catch (Exception e) {
-                            Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: can't add address with correct prefix: " + e);
+                        } else {
+                            if (oldLa == null) {
+                                Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: can't get old LinkAddress for interface " + dataCall.ifname);
+                            }
                         }
-                        break;
+                    } else {
+                        Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: can't get old config for interface " + dataCall.ifname);
                     }
+                } catch (Exception e) {
+                    Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: can't add address with correct prefix: " + e);
                 }
             }
         }
