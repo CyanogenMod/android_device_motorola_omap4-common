@@ -17,28 +17,27 @@
 #include <netlink/netlink.h>
 #include <netlink/socket.h>
 #include <netlink/msg.h>
+#include <net/if.h>
+#include <arpa/inet.h>
 #include <linux/fib_rules.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <errno.h>
+
+#define LOG_TAG "wrigleyd"
+
+#include <cutils/log.h>
+#include <cutils/properties.h>
 
 static void add_rule(void)
 {
+	ALOGI("adding rule for table 9999");
 	system("/system/bin/ip rule add pref 9999 lookup main");
 }
 
-static int watcher(struct nl_msg *msg, void *arg)
+static int keep_rule(struct nl_msg *msg, struct nlmsghdr *hdr)
 {
-	struct nlmsghdr *hdr;
 	uint8_t *data;
-
-	hdr = nlmsg_hdr(msg);
-
-	if (!hdr)
-		return 0;
-
-	/* Delete rule */
-	if (hdr->nlmsg_type != 0x21)
-		return 0;
 
 	if (hdr->nlmsg_len < 44)
 		return 0;
@@ -51,8 +50,117 @@ static int watcher(struct nl_msg *msg, void *arg)
 	if ((data[24] != 0x0f) || (data[25] != 0x27))
 		return 0;
 
-	printf("Re-adding rule...\n");
+	ALOGI("rule for table 9999 was deleted...");
 	add_rule();
+
+	return 0;
+}
+
+static void add_gw(char *gw, char *iface)
+{
+	char cmd[256];
+
+	ALOGI("adding interface route to %s on interface %s", gw, iface);
+
+	memset(cmd, 0, sizeof(cmd));
+	snprintf(cmd, sizeof(cmd)-1, "/system/bin/ip route add %s dev %s table local", gw, iface);
+	ALOGI(cmd);
+	system(cmd);
+	memset(cmd, 0, sizeof(cmd));
+	snprintf(cmd, sizeof(cmd)-1, "/system/bin/ip route add default via %s table %s", gw, iface);
+	ALOGI(cmd);
+	system(cmd);
+}
+
+static int force_gateway(struct nl_msg *msg, struct nlmsghdr *hdr)
+{
+	char value[PROPERTY_VALUE_MAX];
+	char prop[128];
+	struct ifaddrmsg *ifa;
+	struct rtattr *rth;
+	int rtl;
+	int count;
+
+	if (hdr->nlmsg_len < sizeof(struct ifaddrmsg))
+		return 0;
+
+	ifa = nlmsg_data(hdr);
+	if (!ifa)
+		return 0;
+
+	rth = IFA_RTA(ifa);
+	rtl = IFA_PAYLOAD(hdr);
+
+	while (rtl && RTA_OK(rth, rtl)) {
+		if (rth->rta_type == IFA_LOCAL) {
+			uint32_t ipaddr = htonl(*((uint32_t *)RTA_DATA(rth)));
+			char name[IFNAMSIZ];
+
+			memset(name, 0, IFNAMSIZ);
+			if (if_indextoname(ifa->ifa_index, name) == NULL) {
+				ALOGE("Can't resolve interface index %d, errno: %d!", ifa->ifa_index, errno);
+				rth = RTA_NEXT(rth, rtl);
+				continue;
+			}
+
+			if (strncmp(name, "qmi", 3) && strncmp(name, "rmnet", 5)) {
+				rth = RTA_NEXT(rth, rtl);
+				continue;
+			}
+
+			ALOGI("%s is now %d.%d.%d.%d",
+					name,
+					(ipaddr >> 24) & 0xff,
+					(ipaddr >> 16) & 0xff,
+					(ipaddr >> 8) & 0xff,
+					ipaddr & 0xff);
+
+			memset(prop, 0, sizeof(prop));
+			snprintf(prop, sizeof(prop) - 1, "net.%s.gw", name);
+
+			memset(value, 0, sizeof(value));
+			count = 10000;
+			while((property_get(prop, value, NULL) == 0) && count) {
+				usleep(1000);
+				count--;
+			}
+
+			if (strlen(value) == 0) {
+				ALOGI("%s not set yet!", prop);
+				rth = RTA_NEXT(rth, rtl);
+				continue;
+			}
+
+			add_gw(value, name);
+		}
+		rth = RTA_NEXT(rth, rtl);
+	}
+
+	return 0;
+}
+
+static int watcher(struct nl_msg *msg, void *arg)
+{
+	struct nlmsghdr *hdr;
+	hdr = nlmsg_hdr(msg);
+
+	if (!hdr)
+		return 0;
+
+	switch (hdr->nlmsg_type) {
+		case RTM_DELRULE:	/* Delete rule */
+			return keep_rule(msg, hdr);
+			break;
+		case RTM_NEWADDR:
+			return force_gateway(msg, hdr);
+			break;
+		case RTM_DELADDR:
+		case RTM_NEWRULE:
+			break;
+		default:
+			ALOGI("unknown message %02x", hdr->nlmsg_type);
+			break;
+	}
 
 	return 0;
 }
@@ -60,6 +168,8 @@ static int watcher(struct nl_msg *msg, void *arg)
 int main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 {
 	struct nl_sock *sk;
+
+	ALOGI("wrigleyd starting");
 
 	add_rule();
 
@@ -70,7 +180,7 @@ int main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 
 	nl_connect(sk, NETLINK_ROUTE);
 
-	nl_socket_add_memberships(sk, RTNLGRP_IPV4_RULE, 0);
+	nl_socket_add_memberships(sk, RTNLGRP_IPV4_RULE, RTNLGRP_IPV4_IFADDR, 0);
 
 	while (1)
 		nl_recvmsgs_default(sk);
