@@ -280,6 +280,41 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                                 Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: found prefix: " +
                                     NetworkUtils.getNetworkPart(addr, i).getHostAddress() + " prefixlen: " + i);
 
+                                if (NetworkUtils.getNetworkPart(addr, i).getHostAddress().equals(addr.getHostAddress())) {
+                                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: my address is the network base address, continuing...");
+                                    continue;
+                                }
+
+                                if (NetworkUtils.getNetworkPart(gw, i).getHostAddress().equals(gw.getHostAddress())) {
+                                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: gateway is the network base address, continuing...");
+                                    continue;
+                                }
+
+                                try {
+                                    byte[] bc = NetworkUtils.getNetworkPart(addr, i).getAddress();
+
+                                    for (int b = i; b < 32; b++) {
+                                        bc[b/8] |= 1 << (7 - ((b - ((b / 8) * 8))));
+                                    }
+
+                                    InetAddress broadcast = InetAddress.getByAddress(bc);
+
+                                    Rlog.w(RILJ_LOG_TAG, "motoOmap4RIL: broadcast address: " + broadcast.getHostAddress());
+
+                                    if (broadcast.getHostAddress().equals(addr.getHostAddress())) {
+                                        Rlog.w(RILJ_LOG_TAG, "motoOmap4RIL: my address is the broadcast address, continuing...");
+                                        continue;
+                                    }
+
+                                    if (broadcast.getHostAddress().equals(gw.getHostAddress())) {
+                                        Rlog.w(RILJ_LOG_TAG, "motoOmap4RIL: gateway is the broadcast address, continuing...");
+                                        continue;
+                                    }
+                                } catch (Exception e) {
+                                    Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: can't calculate broadcast address: " + e);
+                                    continue;
+                                }
+
                                 LinkAddress la = new LinkAddress(addr, i);
                                 if ((ifcg.getLinkAddress() != null) && oldLa.isSameAddressAs(la)) {
                                     Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: interface " + dataCall.ifname + " is already configured correctly");
