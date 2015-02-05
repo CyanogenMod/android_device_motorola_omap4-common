@@ -71,6 +71,8 @@ PRODUCT_PACKAGES += \
 # Modem
 PRODUCT_PACKAGES += \
     libaudiomodemgeneric \
+    motorild \
+    motorilc \
     rild \
     radiooptions
 

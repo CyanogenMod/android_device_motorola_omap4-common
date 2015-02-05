@@ -1,0 +1,14 @@
+# motorild
+type motorild, domain;
+type motorild_exec, exec_type, file_type;
+
+init_daemon_domain(motorild)
+
+allow motorild shell_exec:file rx_file_perms;
+allow motorild system_file:file rx_file_perms;
+allow motorild wcnss_service_exec:file rx_file_perms;
+allow motorild netd_socket:sock_file rw_file_perms;
+allow motorild netd:unix_stream_socket { connectto read write setopt };
+
+allow radio motorild_exec:file rx_file_perms;
+allow radio motorild:unix_stream_socket { connectto read write setopt };

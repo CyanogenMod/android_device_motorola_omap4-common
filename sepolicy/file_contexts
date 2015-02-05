@@ -32,6 +32,7 @@
 /dev/ttyUSB4                    u:object_r:radio_device:s0
 /dev/ttySPI.*                   u:object_r:radio_device:s0
 /dev/hci_tty                    u:object_r:hci_attach_dev:s0
+/dev/socket/motorild            u:object_r:rild_socket:s0
 
 #The devices and files used by the hciattach service are device specific
 /dev/ttyO1                      u:object_r:hci_attach_dev:s0
@@ -53,6 +54,8 @@
 /system/bin/akmd8975                     u:object_r:akmd8975_exec:s0
 /system/bin/battd                        u:object_r:battd_exec:s0
 /system/bin/modemlog                     u:object_r:modemlog_exec:s0
+/system/bin/motorild                     u:object_r:motorild_exec:s0
+/system/bin/motorilc                     u:object_r:motorild_exec:s0
 /system/bin/msp430                       u:object_r:msp430_exec:s0
 /system/bin/pvrsrvinit                   u:object_r:pvrsrvinit_exec:s0
 /system/bin/startup_smc.sh               u:object_r:smc_exec:s0
