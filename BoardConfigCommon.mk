@@ -257,6 +257,7 @@ BOARD_SEPOLICY_UNION += \
     init_shell.te \
     mediaserver.te \
     modemlog.te \
+    motorild.te \
     msp430.te \
     netd.te \
     property.te \
