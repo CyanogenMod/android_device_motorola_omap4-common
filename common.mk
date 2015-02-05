@@ -25,6 +25,7 @@ TARGET_SCREEN_WIDTH := 480
 # The gps config appropriate for this device
 PRODUCT_COPY_FILES += \
     $(COMMON_FOLDER)/prebuilt/bin/pdsbackup.sh:system/bin/pdsbackup.sh \
+    $(COMMON_FOLDER)/prebuilt/bin/motoril.route.sh:system/bin/motoril.route.sh \
     $(COMMON_FOLDER)/prebuilt/bin/wifical.sh:system/bin/wifical.sh \
     $(COMMON_FOLDER)/prebuilt/bin/wificalcheck.sh:system/bin/wificalcheck.sh \
     $(COMMON_FOLDER)/prebuilt/etc/gps.conf:system/etc/gps.conf \
