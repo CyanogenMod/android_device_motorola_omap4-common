@@ -222,6 +222,7 @@ COMMON_GLOBAL_CFLAGS += -DQCOM_LEGACY_UIDS
 # OTA Packaging
 TARGET_PROVIDES_RELEASETOOLS := true
 TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT := device/motorola/omap4-common/releasetools/common_ota_from_target_files
+TARGET_RELEASETOOLS_EXTENSIONS := device/motorola/omap4-common/releasetools
 
 # Bootanimation
 TARGET_BOOTANIMATION_PRELOAD := true
