@@ -68,7 +68,9 @@ etc/omapcam/module1_ee/cid1039_ov8820_ducati_nsf_ldc.bin
 
 # DRM blobs
 lib/libWVphoneAPI.so
+lib/libdrmdecrypt.so
 vendor/lib/libwvdrm_L3.so
 vendor/lib/libwvm.so
 vendor/lib/libWVStreamControlAPI_L3.so
 vendor/lib/drm/libdrmwvmplugin.so
+vendor/lib/mediadrm/libwvdrmengine.so
