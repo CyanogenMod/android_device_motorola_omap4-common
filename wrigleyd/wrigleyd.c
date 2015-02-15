@@ -17,28 +17,27 @@
 #include <netlink/netlink.h>
 #include <netlink/socket.h>
 #include <netlink/msg.h>
+#include <net/if.h>
+#include <arpa/inet.h>
 #include <linux/fib_rules.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <errno.h>
+
+#define LOG_TAG "wrigleyd"
+
+#include <cutils/log.h>
+#include <cutils/properties.h>
 
 static void add_rule(void)
 {
+	ALOGI("adding rule for table 9999");
 	system("/system/bin/ip rule add pref 9999 lookup main");
 }
 
-static int watcher(struct nl_msg *msg, void *arg)
+static int keep_rule(struct nl_msg *msg, struct nlmsghdr *hdr)
 {
-	struct nlmsghdr *hdr;
 	uint8_t *data;
-
-	hdr = nlmsg_hdr(msg);
-
-	if (!hdr)
-		return 0;
-
-	/* Delete rule */
-	if (hdr->nlmsg_type != 0x21)
-		return 0;
 
 	if (hdr->nlmsg_len < 44)
 		return 0;
@@ -51,8 +50,30 @@ static int watcher(struct nl_msg *msg, void *arg)
 	if ((data[24] != 0x0f) || (data[25] != 0x27))
 		return 0;
 
-	printf("Re-adding rule...\n");
+	ALOGI("rule for table 9999 was deleted...");
 	add_rule();
+
+	return 0;
+}
+
+static int watcher(struct nl_msg *msg, void *arg)
+{
+	struct nlmsghdr *hdr;
+	hdr = nlmsg_hdr(msg);
+
+	if (!hdr)
+		return 0;
+
+	switch (hdr->nlmsg_type) {
+		case RTM_DELRULE:
+			return keep_rule(msg, hdr);
+			break;
+		case RTM_NEWRULE:
+			break;
+		default:
+			ALOGI("unknown message %02x", hdr->nlmsg_type);
+			break;
+	}
 
 	return 0;
 }
@@ -60,6 +81,8 @@ static int watcher(struct nl_msg *msg, void *arg)
 int main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 {
 	struct nl_sock *sk;
+
+	ALOGI("wrigleyd starting");
 
 	add_rule();
 

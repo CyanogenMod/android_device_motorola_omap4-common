@@ -13,6 +13,7 @@ else
 LOCAL_C_INCLUDES += external/libnl-headers
 LOCAL_STATIC_LIBRARIES := libnl_2
 endif
+LOCAL_SHARED_LIBRARIES += libcutils
 
 
 include $(BUILD_EXECUTABLE)
