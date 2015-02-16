@@ -679,19 +679,6 @@ service wifical_check /system/bin/sh /system/bin/wificalcheck.sh
     group wifi
     oneshot
 
-# Wifi calibrate
-service wifi_calibrator /system/bin/sh /system/bin/wifical.sh
-    disabled
-    class late_start
-    user root
-    group wifi
-    oneshot
-
-# Very first boot. We need to set the MAC address
-on property:persist.wlan.ti.calibrated=0
-    start wifi_calibrator
-    setprop persist.wlan.ti.calibrated 1
-
 # fusewrapped external sdcard daemon running as media_rw (1023)
 service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
     class late_start
