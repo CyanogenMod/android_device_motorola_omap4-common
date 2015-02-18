@@ -100,6 +100,29 @@ on post-fs
     write /proc/sys/kernel/sysrq 0
     # Disable C.A.D in kernel, the userspace will handle it
     write /proc/sys/kernel/ctrl-alt-del 0
+
+    # To prevent out of order acknowledgements from making
+    # connection tracking to treat them as not belonging to
+    # the connection they belong to.
+    # Otherwise, a weird issue happens in which some long
+    # connections on high-throughput links get dropped when
+    # an ack packet comes out of order
+    write /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal 1
+
+    # Flash storage isn't a good entropy source, and only causes locking
+    # overhead in the kernel. Turn it off.
+    write /sys/block/mmcblk0/queue/add_random 0
+    write /sys/block/mmcblk1/queue/add_random 0
+
+    # Increase the default ksm sleep time, less cpu usage
+    write /sys/kernel/mm/ksm/sleep_millisecs 500
+
+    # Enable ksm
+    write /sys/kernel/mm/ksm/run 1
+
+    #Swap only 1 page at a time
+    write /proc/sys/vm/page-cluster 0
+
 # Change ownership for vibrators
     chown system system /sys/class/timed_output/lvibrator/enable
     chown system system /sys/class/timed_output/vibrator/enable
