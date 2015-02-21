@@ -25,50 +25,24 @@ BOARD_VENDOR := motorola-omap4
 
 COMMON_FOLDER := device/motorola/omap4-common
 
-# Custom includes for kernel and frameworks
-PRODUCT_VENDOR_KERNEL_HEADERS := $(COMMON_FOLDER)/kernel-headers
-TARGET_SPECIFIC_HEADER_PATH := $(COMMON_FOLDER)/include
+# inherit from omap4
+-include hardware/ti/omap4/BoardConfigCommon.mk
 
 # Camera
 USE_CAMERA_STUB := false
+TI_CAMERAHAL_USES_LEGACY_DOMX_DCC := true
 #TI_CAMERAHAL_DEBUG_ENABLED := true
 #TI_CAMERAHAL_VERBOSE_DEBUG_ENABLED := true
 
-OMAP_ENHANCEMENT := true
-#OMAP_ENHANCEMENT_BURST_CAPTURE := true
-#OMAP_ENHANCEMENT_S3D := true
-#OMAP_ENHANCEMENT_CPCAM := true
-#OMAP_ENHANCEMENT_VTC := true
-#USE_ITTIAM_AAC := true
-#BLTSVILLE_ENHANCEMENT :=true
-BOARD_USE_TI_ENHANCED_DOMX := true
+# Custom includes for kernel and frameworks
+PRODUCT_VENDOR_KERNEL_HEADERS := $(COMMON_FOLDER)/kernel-headers
+TARGET_SPECIFIC_HEADER_PATH += $(COMMON_FOLDER)/include
 
 # QCOM SELinux policy
 include device/qcom/sepolicy/sepolicy.mk
 
 # inherit from the proprietary version
 -include vendor/motorola/omap4-common/BoardConfigVendor.mk
-
-# Processor
-TARGET_NO_BOOTLOADER := true
-TARGET_BOARD_PLATFORM := omap4
-TARGET_CPU_ABI := armeabi-v7a
-TARGET_CPU_ABI2 := armeabi
-TARGET_CPU_SMP := true
-TARGET_ARCH := arm
-TARGET_ARCH_VARIANT := armv7-a-neon
-TARGET_ARCH_VARIANT_CPU := cortex-a9
-TARGET_CPU_VARIANT := cortex-a9
-TARGET_ARCH_VARIANT_FPU := neon
-ARCH_ARM_HAVE_TLS_REGISTER := true
-# CodeAurora Optimizations: msm8960: Improve performance of memmove, bcopy, and memmove_words
-# added by twa_priv
-TARGET_USE_KRAIT_BIONIC_OPTIMIZATION := true
-TARGET_USE_KRAIT_PLD_SET := true
-TARGET_KRAIT_BIONIC_PLDOFFS := 10
-TARGET_KRAIT_BIONIC_PLDTHRESH := 10
-TARGET_KRAIT_BIONIC_BBTHRESH := 64
-TARGET_KRAIT_BIONIC_PLDSIZE := 64
 
 # Kernel/Module Build
 TARGET_KERNEL_SOURCE := kernel/motorola/omap4-common
@@ -94,9 +68,9 @@ TARGET_KERNEL_MODULES += WLAN_MODULES
 
 # External SGX Module
 SGX_MODULES:
-	make clean -C $(COMMON_FOLDER)/pvr-source/eurasiacon/build/linux2/omap4430_android
+	make clean -C $(HARDWARE_TI_OMAP4_BASE)/pvr-source/eurasiacon/build/linux2/omap4430_android
 	cp $(TARGET_KERNEL_SOURCE)/drivers/video/omap2/omapfb/omapfb.h $(KERNEL_OUT)/drivers/video/omap2/omapfb/omapfb.h
-	make -j8 -C $(COMMON_FOLDER)/pvr-source/eurasiacon/build/linux2/omap4430_android ARCH=arm KERNEL_CROSS_COMPILE=arm-eabi- CROSS_COMPILE=arm-eabi- KERNELDIR=$(KERNEL_OUT) TARGET_PRODUCT="blaze_tablet" BUILD=release TARGET_SGX=540 PLATFORM_VERSION=4.0
+	make -j8 -C $(HARDWARE_TI_OMAP4_BASE)/pvr-source/eurasiacon/build/linux2/omap4430_android ARCH=arm KERNEL_CROSS_COMPILE=arm-eabi- CROSS_COMPILE=arm-eabi- KERNELDIR=$(KERNEL_OUT) TARGET_PRODUCT="blaze_tablet" BUILD=release TARGET_SGX=540 PLATFORM_VERSION=4.0
 	mv $(KERNEL_OUT)/../../target/kbuild/pvrsrvkm_sgx540_120.ko $(KERNEL_MODULES_OUT)
 	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/pvrsrvkm_sgx540_120.ko
 
@@ -168,43 +142,8 @@ TARGET_USERIMAGES_USE_EXT4 := true
 
 # Graphics
 BOARD_EGL_CFG := device/motorola/omap4-common/prebuilt/etc/egl.cfg
-USE_OPENGL_RENDERER := true
-BOARD_USE_CUSTOM_LIBION := true
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
 TARGET_USES_OPENGLES_FOR_SCREEN_CAPTURE := true
-
-# Makefile variable and C/C++ macro to recognise DOMX version
-ifdef BOARD_USE_TI_ENHANCED_DOMX
-    BOARD_USE_TI_DUCATI_H264_PROFILE := true
-    BOARD_USE_TI_CUSTOM_DOMX := true
-    DOMX_PATH := device/motorola/omap4-common/domx
-    TARGET_SPECIFIC_HEADER_PATH += $(COMMON_FOLDER)/domx/omx_core/inc
-    ENHANCED_DOMX := true
-else
-    DOMX_PATH := hardware/ti/omap4xxx/domx
-endif
-# C/C++ macros for OMAP_ENHANCEMENT
-ifdef OMAP_ENHANCEMENT
-    COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT -DTARGET_OMAP4 -DFORCE_SCREENSHOT_CPU_PATH
-endif
-ifdef OMAP_ENHANCEMENT_BURST_CAPTURE
-    COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT_BURST_CAPTURE
-endif
-ifdef OMAP_ENHANCEMENT_S3D
-    COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT_S3D
-endif
-ifdef OMAP_ENHANCEMENT_CPCAM
-    COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT_CPCAM
-endif
-ifdef OMAP_ENHANCEMENT_VTC
-    COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT_VTC
-endif
-ifdef USE_ITTIAM_AAC
-    COMMON_GLOBAL_CFLAGS += -DUSE_ITTIAM_AAC
-endif
-ifdef OMAP_ENHANCEMENT_MULTIGPU
-    COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT_MULTIGPU
-endif
 
 # Number of supplementary service groups allowed by init
 TARGET_NR_SVC_SUPP_GIDS := 28
@@ -217,6 +156,8 @@ endif
 
 # Media / Radio
 COMMON_GLOBAL_CFLAGS += -DQCOM_LEGACY_UIDS
+BOARD_USE_TI_DOMX_LOW_SECURE_HEAP := true
+COMMON_GLOBAL_CFLAGS += -DBOARD_USE_MOTOROLA_DOMX_ENHANCEMENTS
 # Off currently
 
 # OTA Packaging
@@ -224,14 +165,10 @@ TARGET_PROVIDES_RELEASETOOLS := true
 TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT := device/motorola/omap4-common/releasetools/common_ota_from_target_files
 TARGET_RELEASETOOLS_EXTENSIONS := device/motorola/omap4-common/releasetools
 
-# Bootanimation
-TARGET_BOOTANIMATION_PRELOAD := true
-
 # Misc.
 BOARD_USE_BATTERY_CHARGE_COUNTER := true
 BOARD_FLASH_BLOCK_SIZE := 131072
 BOARD_NEEDS_CUTILS_LOG := true
-BOARD_USES_SECURE_SERVICES := true
 BOARD_HAS_MAPPHONE_SWITCH := true
 USE_IPV6_ROUTE := true
 BOARD_RIL_NO_CELLINFOLIST := true

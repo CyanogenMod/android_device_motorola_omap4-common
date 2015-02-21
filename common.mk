@@ -18,6 +18,8 @@
 
 COMMON_FOLDER := device/motorola/omap4-common
 
+$(call inherit-product-if-exists, hardware/ti/omap4/omap4.mk)
+
 # Boot animation (HACK 540.zip crashes PVR currently)
 TARGET_SCREEN_HEIGHT := 720
 TARGET_SCREEN_WIDTH := 480
@@ -51,7 +53,8 @@ PRODUCT_PACKAGES += \
     audio.primary.targa \
     audio.usb.default \
     audio.a2dp.default \
-    audio.hdmi.omap4
+    audio.hdmi.omap4 \
+    camera.omap4
 
 PRODUCT_PACKAGES += \
     audio_policy.omap4 \
@@ -122,32 +125,10 @@ PRODUCT_PACKAGES += \
     motobox \
     usbd
 
-#symlinks
-PRODUCT_PACKAGES += \
-    libion.so
-
 # OMAP4
 PRODUCT_PACKAGES += \
-    libdomx \
-    libOMX_Core \
-    libOMX.TI.DUCATI1.VIDEO.H264E \
-    libOMX.TI.DUCATI1.VIDEO.MPEG4E \
-    libOMX.TI.DUCATI1.VIDEO.DECODER \
-    libOMX.TI.DUCATI1.VIDEO.DECODER.secure \
-    libOMX.TI.DUCATI1.VIDEO.CAMERA \
-    libOMX.TI.DUCATI1.MISC.SAMPLE \
-    libstagefrighthw \
-    libI420colorconvert \
-    libtiutils_custom \
-    libion_ti \
-    smc_pa_ctrl \
-    tf_daemon \
-    libtf_crypto_sst \
     libmm_osal \
-    gralloc.omap4.so \
-    libcorkscrew \
-    pvrsrvinit \
-    libPVRScopeServices.so
+    gralloc.omap4.so
 
 PRODUCT_PACKAGES += \
     evtest \
@@ -303,7 +284,3 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 
 # still need to set english for audio init
 PRODUCT_LOCALES += en_US
-
-# stuff specific to ti OMAP4 hardware
-#$(call inherit-product, hardware/ti/omap4xxx/omap4.mk)
-$(call inherit-product, hardware/ti/omap4xxx/security/Android.mk)
