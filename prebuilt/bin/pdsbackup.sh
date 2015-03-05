@@ -15,7 +15,7 @@ mount_pds_image() {
     umount /pds 2>/dev/null
     losetup -d /dev/block/loop7 2>/dev/null
     losetup /dev/block/loop7 $PDS_FILE
-    busybox mount -o rw,nosuid,nodev,noatime,nodiratime,barrier=1 /dev/block/loop7 /pds
+    /system/bin/mount -o rw,nosuid,nodev,noatime,nodiratime,barrier=1 -t ext3 /dev/block/loop7 /pds
 }
 
 if [ -f /data/pds.img ]; then
