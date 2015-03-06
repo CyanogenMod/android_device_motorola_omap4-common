@@ -248,4 +248,68 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         p.setDataPosition(dataPosition);
         return super.getDataCallResponse(p, version);
     }
+
+    @Override
+    protected RILRequest
+    processSolicited (Parcel p) {
+        int serial, error, request;
+        RILRequest rr;
+        int dataPosition = p.dataPosition(); // save off position within the Parcel
+
+        serial = p.readInt();
+        error = p.readInt();
+
+        rr = mRequestList.get(serial);
+        if (rr == null || error != 0 || p.dataAvail() <= 0) {
+            p.setDataPosition(dataPosition);
+            return super.processSolicited(p);
+        }
+
+        try { switch (rr.mRequest) {
+            case RIL_REQUEST_OPERATOR:
+                String operators[] = (String [])responseStrings(p);
+
+                /* LTE information available? */
+                if (operators.length >= 6) {
+                    if ((operators[5] != null) &&
+                        (!(operators[5].equals("00000"))) &&
+                        (!(operators[5].equals("6553565535")))) {
+
+                        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: fixing OPERATOR, original value from ril: " +
+                            retToString(rr.mRequest, operators));
+                        for (int i = 3; i < operators.length; i++) {
+                            operators[i-3] = operators[i];
+                            operators[i] = null;
+                        }
+                    }
+                }
+
+                if (RILJ_LOGD) riljLog(rr.serialString() + "< " + requestToString(rr.mRequest)
+                                + " " + retToString(rr.mRequest, operators));
+
+                if (rr.mResult != null) {
+                        AsyncResult.forMessage(rr.mResult, operators, null);
+                        rr.mResult.sendToTarget();
+                }
+                mRequestList.remove(serial);
+                break;
+            default:
+                p.setDataPosition(dataPosition);
+                return super.processSolicited(p);
+        }} catch (Throwable tr) {
+                // Exceptions here usually mean invalid RIL responses
+
+                Rlog.w(RILJ_LOG_TAG, rr.serialString() + "< "
+                                + requestToString(rr.mRequest)
+                                + " exception, possible invalid RIL response", tr);
+
+                if (rr.mResult != null) {
+                        AsyncResult.forMessage(rr.mResult, null, tr);
+                        rr.mResult.sendToTarget();
+                }
+                return rr;
+        }
+
+        return rr;
+    }
 }
