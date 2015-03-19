@@ -29,7 +29,7 @@
 #define CPUFREQ_CPU0 "/sys/devices/system/cpu/cpu0/cpufreq/"
 #define BOOSTPULSE_PATH (CPUFREQ_INTERACTIVE "boostpulse")
 
-#define MAX_FREQ_NUMBER 10
+#define MAX_FREQ_NUMBER 12
 #define NOM_FREQ_INDEX 3
 
 static int freq_num;
@@ -128,7 +128,15 @@ static void omap_power_init(struct power_module *module) {
     }
 
     max_freq = freq_list[freq_num - 1];
-    tmp = (NOM_FREQ_INDEX > freq_num) ? freq_num : NOM_FREQ_INDEX;
+
+    if (freq_num >= 6) {
+        tmp = freq_num - (freq_num/3);
+        ALOGI("Total available frequencies = %x. Setting highspeed_freq to %x.\n", freq_num, freq_list[tmp - 1]);
+    }
+    else {
+        tmp = (NOM_FREQ_INDEX > freq_num) ? freq_num : NOM_FREQ_INDEX;
+    }
+
     nom_freq = freq_list[tmp - 1];
 
     sysfs_write(CPUFREQ_INTERACTIVE "timer_rate", "30000");
