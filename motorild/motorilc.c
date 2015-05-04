@@ -31,14 +31,23 @@
 int main(int argc, char **argv)
 {
 	int fd;
-	struct motoril_route route;
+	struct motoril_call call;
 	uint8_t buf[256];
 	unsigned int pos;
 	int ret;
 	unsigned int i;
+	int ring = 0;
 
-	if (argc != 3) {
-		fprintf(stderr, "%s if gw\n", argv[0]);
+	memset(&call, 0, sizeof(call));
+
+	if ((argc == 2) && (!strcmp(argv[1], "ring"))) {
+		call.cmd = MOTORIL_CMD_RING;
+	} else if (argc == 3) {
+		call.cmd = MOTORIL_CMD_ROUTE;
+		strncpy(call.dev, argv[1], sizeof(call.dev)-1);
+		strncpy(call.gw, argv[2], sizeof(call.gw)-1);
+	} else {
+		fprintf(stderr, "%s [ring|if gw]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -48,13 +57,9 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	memset(&route, 0, sizeof(route));
-	strncpy(route.dev, argv[1], sizeof(route.dev)-1);
-	strncpy(route.gw, argv[2], sizeof(route.gw)-1);
-
 	pos = 0;
-	while (pos < sizeof(route)) {
-		ret = write(fd, ((uint8_t*)&route) + pos, sizeof(route) - pos);
+	while (pos < sizeof(call)) {
+		ret = write(fd, ((uint8_t*)&call) + pos, sizeof(call) - pos);
 		if (ret < 0) {
 			perror("write");
 			return EXIT_FAILURE;

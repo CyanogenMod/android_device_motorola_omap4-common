@@ -312,4 +312,36 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
 
         return rr;
     }
+
+    @Override
+    protected void
+    processUnsolicited (Parcel p) {
+        int dataPosition = p.dataPosition(); // save off position within the Parcel
+        int response;
+
+        response = p.readInt();
+
+        switch(response) {
+            case RIL_UNSOL_CALL_RING:
+                try {
+                    String cmd[] = {"/system/bin/motorilc", "ring"};
+                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: executing motorilc ring");
+                    ProcessBuilder motorilcPb = new ProcessBuilder(cmd);
+                    Process motorilc  = motorilcPb.start();
+                    BufferedReader motorilcOut = new BufferedReader(new InputStreamReader(motorilc.getInputStream()));
+                    String l;
+                    while ((l = motorilcOut.readLine()) != null) {
+                        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: " + l);
+                    }
+                    motorilc.waitFor();
+                } catch (Exception e) {
+                    Rlog.e(RILJ_LOG_TAG, "motoOmap4RIL: Can't send ring-indication");
+                }
+
+                break;
+        }
+
+        p.setDataPosition(dataPosition);
+        super.processUnsolicited(p);
+    }
 }

@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-struct motoril_route {
+enum motoril_cmd {
+	MOTORIL_CMD_ROUTE = 0,
+	MOTORIL_CMD_RING = 1,
+};
+
+struct motoril_call {
+	enum motoril_cmd cmd;
 	char dev[64];
 	char gw[64];
 };

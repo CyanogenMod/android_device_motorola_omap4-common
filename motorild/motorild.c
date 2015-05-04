@@ -17,7 +17,9 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -30,6 +32,10 @@
 #include <cutils/sockets.h>
 
 #include "motoril.h"
+
+#define FREQUENCIES_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies"
+#define MAXFREQ_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
+#define BOOSTPULSE_PATH "/sys/devices/system/cpu/cpufreq/interactive/boostpulse"
 
 static int set_gw(char *iface, char *gw)
 {
@@ -53,12 +59,59 @@ static int set_gw(char *iface, char *gw)
 	return ret;
 }
 
+static int ring(void)
+{
+	int fd;
+	char buf[1024] = {0};
+	char *max_freq = NULL;
+	int r;
+
+	fd = open(FREQUENCIES_PATH, O_RDONLY);
+	if (fd != -1) {
+		r = read(fd, buf, sizeof(buf));
+		if (r > 0) {
+			char *tok = NULL;
+			char *s = buf;
+			while((tok = strtok(s, " \r\n"))) {
+				s = NULL;
+				max_freq = tok;
+			}
+		}
+
+		close(fd);
+	} else {
+		ALOGW("Can't read supported frequencies");
+	}
+
+	if (max_freq) {
+		ALOGI("Setting maximum frequency to %s", max_freq);
+		fd = open(MAXFREQ_PATH, O_WRONLY);
+		if (fd != -1) {
+			write(fd, max_freq, strlen(max_freq));
+			close(fd);
+		} else {
+			ALOGW("Can't set maximum frequency");
+		}
+	}
+
+	fd = open(BOOSTPULSE_PATH, O_WRONLY);
+	if (fd != -1) {
+		ALOGI("Boosting CPU");
+		write(fd, "1", strlen("1"));
+		close(fd);
+	} else {
+		ALOGW("Can't send boost-pulse");
+	}
+
+	return 0;
+}
+
 int main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 {
 	int fd, client;
 	struct sockaddr_un clientaddr;
 	socklen_t clientlen = sizeof(clientaddr);
-	struct motoril_route route;
+	struct motoril_call call;
 	unsigned int pos;
 	int ret;
 
@@ -82,7 +135,7 @@ int main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 
 		pos = 0;
 		do {
-			ret = read(client, ((uint8_t*)&route) + pos, sizeof(route) - pos);
+			ret = read(client, ((uint8_t*)&call) + pos, sizeof(call) - pos);
 			if (ret == 0) {
 				ALOGE("connection closed");
 				break;
@@ -92,16 +145,27 @@ int main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 			}
 
 			pos += ret;
-		} while (pos < sizeof(route));
+		} while (pos < sizeof(call));
 
-		if (pos < sizeof(route)) {
+		if (pos < sizeof(call)) {
 			close(client);
 			continue;
 		}
 
-		ALOGI("IF: %s, GW: %s", route.dev, route.gw);
-
-		ret = set_gw(route.dev, route.gw);
+		ALOGI("CMD: %d", call.cmd);
+		switch (call.cmd) {
+			case MOTORIL_CMD_ROUTE:
+				ALOGI("IF: %s, GW: %s", call.dev, call.gw);
+				ret = set_gw(call.dev, call.gw);
+				break;
+			case MOTORIL_CMD_RING:
+				ALOGI("RING");
+				ret = ring();
+				break;
+			default:
+				ret = 1;
+				break;
+		}
 
 		if (ret == 0) {
 			write(client, "OK", 2);
