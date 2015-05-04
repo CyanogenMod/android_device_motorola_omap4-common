@@ -54,6 +54,7 @@ PRODUCT_PACKAGES += \
     audio.usb.default \
     audio.a2dp.default \
     audio.hdmi.omap4 \
+    audio.r_submix.default \
     camera.omap4
 
 PRODUCT_PACKAGES += \
