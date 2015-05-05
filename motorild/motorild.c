@@ -35,6 +35,7 @@
 
 #define FREQUENCIES_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies"
 #define MAXFREQ_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
+#define CPU1_ONLINE_PATH "/sys/devices/system/cpu/cpu1/online"
 #define BOOSTPULSE_PATH "/sys/devices/system/cpu/cpufreq/interactive/boostpulse"
 
 static int set_gw(char *iface, char *gw)
@@ -101,6 +102,21 @@ static int ring(void)
 		close(fd);
 	} else {
 		ALOGW("Can't send boost-pulse");
+	}
+
+	fd = open(CPU1_ONLINE_PATH, O_RDWR);
+	if (fd != -1) {
+		r = read(fd, buf, sizeof(buf));
+		if (r > 0) {
+			ALOGI("CPU1 online: %c", *buf);
+			if (buf[0] != '1') {
+				ALOGI("Setting CPU1 to online\r\n");
+				write(fd, "1", strlen("1"));
+			}
+		}
+		close(fd);
+	} else {
+		ALOGW("Can't read CPU1 online state.");
 	}
 
 	return 0;
