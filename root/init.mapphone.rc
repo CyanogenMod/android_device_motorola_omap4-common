@@ -681,6 +681,10 @@ on property:dev.bootcomplete=1
     #IKHSS6-3716 allow mediaserver to enable performance mode for OMAP4 USB Audio
     chown root audio /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
     chmod 660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    write /sys/module/cpu_boost/parameters/boost_ms 20
+    write /sys/module/cpu_boost/parameters/sync_threshold 1000000
+    write /sys/module/cpu_boost/parameters/input_boost_freq 1200000
+    write /sys/module/cpu_boost/parameters/input_boost_ms 40
 service gadget-lte-modem /system/bin/tty2ttyd ril.wrigley.modem.tty /dev/ttyGS1 0 512
     user radio
     group radio

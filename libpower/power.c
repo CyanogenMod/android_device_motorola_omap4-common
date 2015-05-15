@@ -28,6 +28,7 @@
 #define CPUFREQ_INTERACTIVE "/sys/devices/system/cpu/cpufreq/interactive/"
 #define CPUFREQ_CPU0 "/sys/devices/system/cpu/cpu0/cpufreq/"
 #define BOOSTPULSE_PATH (CPUFREQ_INTERACTIVE "boostpulse")
+#define NOTIFY_ON_MIGRATE "/dev/cpuctl/cpu.notify_on_migrate"
 
 #define MAX_FREQ_NUMBER 12
 #define NOM_FREQ_INDEX 3
@@ -184,6 +185,7 @@ static void omap_power_set_interactive(struct power_module *module, int on) {
      */
 
     sysfs_write(CPUFREQ_CPU0 "scaling_max_freq", on ? max_freq : nom_freq);
+    sysfs_write(NOTIFY_ON_MIGRATE, on ? "1" : "0");
 }
 
 static void omap_power_hint(struct power_module *module, power_hint_t hint, void *data) {
