@@ -29,7 +29,15 @@
 #include <system/audio.h>
 #include <hardware/audio.h>
 
+#include <tinyalsa/asoundlib.h>
+
 #include "wrapper.h"
+
+/* Direct manipulation of mixer controls (in-call muting) */
+#define ALSA_CARD	0
+#define MUTE_CTL	"Analog Right Capture Route"
+#define MUTE_VALUE	"Off"
+#define UNMUTE_VALUE	"Mic1"
 
 /* Input */
 struct wrapper_in_stream {
@@ -55,6 +63,8 @@ static pthread_mutex_t out_streams_mutex = PTHREAD_MUTEX_INITIALIZER;
 static struct jb_audio_hw_device *jb_hw_dev = NULL;
 static void *dso_handle = NULL;
 static int in_use = 0;
+static int last_mute_ctl_value = -1;
+static int hal_audio_mode = AUDIO_MODE_NORMAL;
 static pthread_mutex_t in_use_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t in_use_cond = PTHREAD_COND_INITIALIZER;
 
@@ -454,12 +464,101 @@ static int wrapper_set_voice_volume(unused_audio_hw_device *dev, float volume)
 }
 #endif
 
+static int alsa_set_mic_mute(bool state)
+{
+	struct mixer *mixer;
+	struct mixer_ctl *ctl;
+	char *value;
+	int ret = 1;
 
-WRAP_HAL_LOCKED(set_mic_mute, (unused_audio_hw_device *dev, bool state),
-                (jb_hw_dev, state), ("set_mic_mute: %d", state))
+	mixer = mixer_open(ALSA_CARD);
+	if (!mixer) {
+		ALOGW("Can't open alsa mixer!");
+		return 0;
+	}
 
-WRAP_HAL_LOCKED(set_mode, (unused_audio_hw_device *dev, audio_mode_t mode),
-                (jb_hw_dev, mode), ("set_mode: %d", mode))
+	ctl = mixer_get_ctl_by_name(mixer, MUTE_CTL);
+	if (!ctl) {
+		ALOGW("Can't find mixer control " MUTE_CTL "!");
+		mixer_close(mixer);
+		return 0;
+	}
+
+	if (state || (last_mute_ctl_value == -1)) {
+		if (state) {
+			last_mute_ctl_value = mixer_ctl_get_value(ctl, 0);
+
+			value = MUTE_VALUE;
+		} else {
+			value = UNMUTE_VALUE;
+		}
+
+		ALOGI("Setting " MUTE_CTL " to %s", value);
+		if (mixer_ctl_set_enum_by_string(ctl, value)) {
+			ALOGW("Can't set control!");
+			ret = 0;
+		}
+	} else {
+		ALOGI("Setting " MUTE_CTL " to %d", last_mute_ctl_value);
+		if (mixer_ctl_set_value(ctl, 0, last_mute_ctl_value)) {
+			ALOGW("Can't set control!");
+			ret = 0;
+		}
+	}
+
+
+	mixer_close(mixer);
+
+	return ret;
+}
+
+static int wrapper_set_mic_mute(unused_audio_hw_device *dev, bool state)
+{
+	int ret;
+
+	ALOGI("set_mic_mute: %d", state);
+
+	pthread_mutex_lock(&out_streams_mutex);
+	pthread_mutex_lock(&in_streams_mutex);
+
+	WAIT_FOR_FREE();
+	ret = jb_hw_dev->set_mic_mute(jb_hw_dev, state);
+	if (hal_audio_mode == AUDIO_MODE_IN_CALL) {
+		alsa_set_mic_mute(state);
+	}
+	UNLOCK_FREE();
+
+	pthread_mutex_unlock(&in_streams_mutex);
+	pthread_mutex_unlock(&out_streams_mutex);
+
+	return ret;
+}
+
+static int wrapper_set_mode(unused_audio_hw_device *dev, audio_mode_t mode)
+{
+	int ret;
+
+	ALOGI("set_mode: %d", mode);
+
+	pthread_mutex_lock(&out_streams_mutex);
+	pthread_mutex_lock(&in_streams_mutex);
+
+	WAIT_FOR_FREE();
+	ret = jb_hw_dev->set_mode(jb_hw_dev, mode);
+	if ((hal_audio_mode == AUDIO_MODE_IN_CALL) && (mode != AUDIO_MODE_IN_CALL)) {
+		if (last_mute_ctl_value != -1) {
+			alsa_set_mic_mute(0);
+			last_mute_ctl_value = -1;
+		}
+	}
+	hal_audio_mode = mode;
+	UNLOCK_FREE();
+
+	pthread_mutex_unlock(&in_streams_mutex);
+	pthread_mutex_unlock(&out_streams_mutex);
+
+	return ret;
+}
 
 WRAP_HAL_LOCKED(set_parameters, (unused_audio_hw_device *dev, const char *kv_pairs),
                 (jb_hw_dev, kv_pairs), ("set_parameters: %s", kv_pairs))
