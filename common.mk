@@ -138,10 +138,6 @@ PRODUCT_PACKAGES += \
     libjni_mosaic \
     Torch
 
-# Doze
-PRODUCT_PACKAGES += \
-    MotoDoze
-
 # Permissions files
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
