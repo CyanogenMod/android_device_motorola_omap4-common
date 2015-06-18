@@ -25,6 +25,7 @@ BOARD_VENDOR := motorola-omap4
 
 COMMON_FOLDER := device/motorola/omap4-common
 
+TARGET_BOARD_OMAP_CPU := 4430
 # inherit from omap4
 -include hardware/ti/omap4/BoardConfigCommon.mk
 
