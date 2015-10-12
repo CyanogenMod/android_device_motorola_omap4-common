@@ -132,7 +132,7 @@ static void omap_power_init(struct power_module *module) {
 
     if (freq_num >= 6) {
         tmp = freq_num - (freq_num/3);
-        ALOGI("Total available frequencies = %x. Setting highspeed_freq to %x.\n", freq_num, freq_list[tmp - 1]);
+        ALOGI("Total available frequencies = %x. Setting highspeed_freq to %s.\n", freq_num, freq_list[tmp - 1]);
     }
     else {
         tmp = (NOM_FREQ_INDEX > freq_num) ? freq_num : NOM_FREQ_INDEX;
@@ -199,7 +199,9 @@ static void omap_power_hint(struct power_module *module, power_hint_t hint, void
 
     switch (hint) {
     case POWER_HINT_INTERACTION:
+#ifdef POWER_HINT_CPU_BOOST
     case POWER_HINT_CPU_BOOST:
+#endif
         if (boostpulse_open(omap_device) >= 0) {
             if (data != NULL)
                 duration = (int) data;
