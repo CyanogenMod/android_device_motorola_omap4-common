@@ -17,7 +17,7 @@ else
 		     screen.c
 endif
 
-LOCAL_STATIC_LIBRARIES := libunz libcutils libc liblog
+LOCAL_STATIC_LIBRARIES := libz libcutils libc liblog
 
 LOCAL_C_INCLUDES := external/zlib
 
