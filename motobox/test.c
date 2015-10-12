@@ -543,7 +543,7 @@ newerf (const char *f1, const char *f2)
 	if (b1.st_mtime < b2.st_mtime)
 		return 0;
 
-       return (b1.st_mtime_nsec > b2.st_mtime_nsec);
+       return (b1.st_mtimensec > b2.st_mtimensec);
 /*
 	if (b1.st_mtimespec.tv_sec > b2.st_mtimespec.tv_sec)
 		return 1;
