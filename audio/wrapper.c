@@ -381,6 +381,12 @@ static void restore_mute(void)
 WRAP_STREAM_LOCKED_COMMON_FN(set_parameters, out, (struct audio_stream *stream, const char *kv_pairs),
             (stream, kv_pairs), ("out_set_parameters: %s", kv_pairs), restore_mute())
 
+int wrapper_get_presentation_position(__attribute__((unused)) const struct audio_stream_out *stream,
+		__attribute__((unused)) uint64_t *frames, __attribute__((unused)) struct timespec *timestamp)
+{
+	return -1;
+}
+
 static void wrapper_close_output_stream(unused_audio_hw_device *dev,
                             struct audio_stream_out* stream_out)
 {
@@ -452,6 +458,7 @@ static int wrapper_open_output_stream(unused_audio_hw_device *dev,
         (*stream_out)->set_volume = wrapper_out_set_volume;
         (*stream_out)->common.set_parameters = wrapper_out_set_parameters;
         (*stream_out)->common.standby = wrapper_out_standby;
+        (*stream_out)->get_presentation_position = wrapper_get_presentation_position;
 
         ALOGI("Wrapped an output stream: rate %d, channel_mask: %x, format: %d",
               config->sample_rate, config->channel_mask, config->format);
