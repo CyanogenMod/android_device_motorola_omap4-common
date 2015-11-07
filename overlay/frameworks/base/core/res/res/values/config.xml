@@ -246,9 +246,6 @@
     <!-- IP address of the dns server to use if nobody else suggests one -->
     <string name="config_default_dns_server">8.8.8.8</string>
 
-    <!-- We dont have different firmware for wifi modes, prevent reloading it -->	
-    <bool name="config_wifiApFirmwareReload">false</bool>
-
     <!-- Is the device capable of hot swapping an UICC Card -->
     <bool name="config_hotswapCapable">true</bool>
 

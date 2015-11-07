@@ -281,7 +281,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     softap.interface=wlan0 \
     wifi.ap.interface=wlan0 \
     wifi.supplicant_scan_interval=90 \
-    persist.wlan.ti.calibrated=0
+    persist.wlan.ti.calibrated=0 \
+    ro.disableWifiApFirmwareReload=true
 
 # Memory management
 PRODUCT_PROPERTY_OVERRIDES += \
