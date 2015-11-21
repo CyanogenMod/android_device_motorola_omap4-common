@@ -128,6 +128,7 @@ BOARD_CANT_BUILD_RECOVERY_FROM_BOOT_PATCH := true
 TARGET_RECOVERY_FSTAB = $(COMMON_FOLDER)/root/recovery.fstab
 RECOVERY_FSTAB_VERSION = 2
 BOARD_HAS_LOCKED_BOOTLOADER := true
+TARGET_NO_BOOTLOADER := true
 TARGET_PREBUILT_RECOVERY_KERNEL := device/motorola/omap4-common/recovery-kernel
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_UMS_LUNFILE := "/sys/devices/virtual/android_usb/android0/f_mass_storage/lun%d/file"
