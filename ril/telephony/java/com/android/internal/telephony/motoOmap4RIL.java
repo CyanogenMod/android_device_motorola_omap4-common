@@ -268,6 +268,30 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         return super.getDataCallResponse(p, version);
     }
 
+    protected Object responseIccCardStatus(Parcel p) {
+        int dataPosition = p.dataPosition(); // save off position within the Parcel
+
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: responseIccCardStatus");
+
+        int cardState = p.readInt(); //CardState
+        if (cardState == 1) { //Present
+            p.readInt(); //PinState
+            int gsmIndex = p.readInt();
+            int cdmaIndex = p.readInt();
+
+            if ((cdmaIndex == -1) && (gsmIndex != -1)) {
+                //No CDMA application on card, but GSM/UMTS present
+                if (getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) {
+                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: disabling telephony.lteOnCdmaDevice");
+                    SystemProperties.set("telephony.lteOnCdmaDevice", "0");
+                }
+            }
+        }
+
+        p.setDataPosition(dataPosition);
+        return super.responseIccCardStatus(p);
+    }
+
     @Override
     protected RILRequest
     processSolicited (Parcel p) {
