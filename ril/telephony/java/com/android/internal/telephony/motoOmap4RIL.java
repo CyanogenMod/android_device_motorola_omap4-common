@@ -52,6 +52,9 @@ import com.android.internal.telephony.dataconnection.DataCallResponse;
 public class motoOmap4RIL extends RIL implements CommandsInterface {
 
     private INetworkManagementService mNwService;
+    private boolean initialAttachApnSeen = false;
+    private String voiceRegState = "0";
+    private String voiceDataTech = "0";
 
     public motoOmap4RIL(Context context, int preferredNetworkType, int cdmaSubscription) {
         super(context, preferredNetworkType, cdmaSubscription);
@@ -183,6 +186,22 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     }
 
     @Override
+    public void setInitialAttachApn(String apn, String protocol, int authType, String username,
+            String password, Message result) {
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setInitialAttachApn");
+
+        initialAttachApnSeen = true;
+
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
+        mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
+
+        if (result != null) {
+            AsyncResult.forMessage(result, null, null);
+            result.sendToTarget();
+        }
+    }
+
+    @Override
     protected DataCallResponse getDataCallResponse(Parcel p, int version) {
         DataCallResponse dataCall = new DataCallResponse();
         int dataPosition = p.dataPosition();
@@ -269,6 +288,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
             case RIL_REQUEST_OPERATOR:
                 String operators[] = (String [])responseStrings(p);
 
+                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: Operator response");
+
                 /* LTE information available? */
                 if (operators.length >= 6) {
                     if ((operators[5] != null) &&
@@ -289,6 +310,63 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
 
                 if (rr.mResult != null) {
                         AsyncResult.forMessage(rr.mResult, operators, null);
+                        rr.mResult.sendToTarget();
+                }
+                mRequestList.remove(serial);
+                break;
+            case RIL_REQUEST_VOICE_REGISTRATION_STATE:
+                String voiceRegStates[] = (String [])responseStrings(p);
+
+                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: VoiceRegistrationState response");
+
+                if (voiceRegStates.length > 0 && voiceRegStates[0] != null) {
+                    voiceRegState = voiceRegStates[0];
+                }
+
+                if (voiceRegStates.length > 3 && voiceRegStates[3] != null) {
+                    voiceDataTech = voiceRegStates[3];
+                }
+
+                if (RILJ_LOGD) riljLog(rr.serialString() + "< " + requestToString(rr.mRequest)
+                                + " " + retToString(rr.mRequest, voiceRegStates));
+
+                if (rr.mResult != null) {
+                        AsyncResult.forMessage(rr.mResult, voiceRegStates, null);
+                        rr.mResult.sendToTarget();
+                }
+                mRequestList.remove(serial);
+                break;
+            case RIL_REQUEST_DATA_REGISTRATION_STATE:
+                String dataRegStates[] = (String [])responseStrings(p);
+
+                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: DataRegistrationState response");
+
+                if (dataRegStates.length > 0) {
+                    if (dataRegStates[0] != null) {
+                        if (!initialAttachApnSeen) {
+                            if (Integer.parseInt(dataRegStates[0]) > 0) {
+                                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataRegState to 0 from " + dataRegStates[0]);
+                                dataRegStates[0] = "0";
+                            }
+                        } else {
+                            if ((Integer.parseInt(dataRegStates[0]) != 1) && (Integer.parseInt(dataRegStates[0]) != 5) &&
+                                ((Integer.parseInt(voiceRegState) == 1) || (Integer.parseInt(voiceRegState) == 5))) {
+                                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataRegState from " + dataRegStates[0] + " to " + voiceRegState);
+                                dataRegStates[0] = voiceRegState;
+                                if (dataRegStates.length > 3) {
+                                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataTech from " + dataRegStates[3] + " to " + voiceDataTech);
+                                    dataRegStates[3] = voiceDataTech;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (RILJ_LOGD) riljLog(rr.serialString() + "< " + requestToString(rr.mRequest)
+                                + " " + retToString(rr.mRequest, dataRegStates));
+
+                if (rr.mResult != null) {
+                        AsyncResult.forMessage(rr.mResult, dataRegStates, null);
                         rr.mResult.sendToTarget();
                 }
                 mRequestList.remove(serial);
