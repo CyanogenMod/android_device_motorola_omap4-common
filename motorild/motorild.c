@@ -49,7 +49,7 @@ static int set_gw(char *iface, char *gw)
 		ALOGE("Can't fork");
 		return -1;
 	} else if (child == 0) {
-		execl("/system/bin/ndc","ndc","route","add","dst","v4",iface,"0",gw, NULL);
+		execl("/system/bin/ip","ip","route","add",gw,"dev",iface, NULL);
 		exit(EXIT_FAILURE);
 	} else {
 		while (waitpid(child, &ret, 0) != child);
