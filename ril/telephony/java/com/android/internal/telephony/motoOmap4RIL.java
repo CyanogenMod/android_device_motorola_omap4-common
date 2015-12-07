@@ -284,6 +284,14 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 if (getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) {
                     Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: disabling telephony.lteOnCdmaDevice");
                     SystemProperties.set("telephony.lteOnCdmaDevice", "0");
+
+                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
+                    mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
+                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceRadioTech");
+                    if (mVoiceRadioTechChangedRegistrants != null) {
+                        String tech[] = { voiceDataTech };
+                        mVoiceRadioTechChangedRegistrants.notifyRegistrants(new AsyncResult(null, tech, null));
+                    }
                 }
             }
         }
