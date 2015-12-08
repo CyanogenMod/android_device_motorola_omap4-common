@@ -174,6 +174,61 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     }
 
     @Override
+    public void startLceService(int reportIntervalMs, boolean pullMode, Message response) {
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: startLceService");
+
+        if (response != null) {
+            CommandException e = new CommandException(CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(response, null, e);
+            response.sendToTarget();
+        }
+    }
+
+    @Override
+    public void stopLceService(Message response) {
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: stopLceService");
+
+        if (response != null) {
+            CommandException e = new CommandException(CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(response, null, e);
+            response.sendToTarget();
+        }
+    }
+
+    @Override
+    public void getRadioCapability(Message response) {
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: getRadioCapability");
+
+        if (response != null) {
+            CommandException e = new CommandException(CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(response, null, e);
+            response.sendToTarget();
+        }
+    }
+
+    public void getImsRegistrationState(Message result) {
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: getImsRegistrationState");
+
+        if (result != null) {
+            CommandException e = new CommandException(CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(result, null, e);
+            result.sendToTarget();
+        }
+    }
+
+    @Override
+    public void getHardwareConfig (Message result) {
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: getHardwareConfig");
+
+        if (result != null) {
+            CommandException e = new CommandException(CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(result, null, e);
+            result.sendToTarget();
+        }
+    }
+
+
+    @Override
     public void setupDataCall(String radioTechnology, String profile, String apn,
             String user, String password, String authType, String protocol,
             Message result) {
