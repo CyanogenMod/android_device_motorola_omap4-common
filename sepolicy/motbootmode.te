@@ -1,0 +1,8 @@
+# motbootmode
+type motbootmode, domain;
+type motbootmode_exec, exec_type, file_type;
+type motbootmode_prop, property_type;
+
+allow motbootmode kmsg_device:chr_file rw_file_perms;
+
+set_prop(motbootmode, motbootmode_prop)

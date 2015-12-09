@@ -31,7 +31,7 @@
 #ifdef WIN32
 #define CSPEC_SETTING_FILE	"akmdfs.txt"
 #else
-#define CSPEC_SETTING_FILE	"/data/misc/akmdfs.txt"
+#define CSPEC_SETTING_FILE	"/data/misc/akmd/akmdfs.txt"
 #endif
 
 #endif

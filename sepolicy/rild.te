@@ -1,3 +1,5 @@
+type rild_file, file_type;
+
 allow rild self:netlink_socket { create bind read write };
 allow rild self:netlink_route_socket { write nlmsg_write };
 allow rild self:netlink_kobject_uevent_socket { create bind read write getopt setopt };
@@ -9,9 +11,11 @@ allow rild radio_data_file:file { read open write setattr };
 allow rild device:chr_file ioctl;
 allow rild proc:file write;
 allow rild proc_net:file rw_file_perms;
-allow rild system_data_file:sock_file { create unlink setattr };
 allow rild system_data_file:dir create_dir_perms;
-allow rild system_data_file:file create_file_perms;
+allow rild rild_file:dir create_dir_perms;
+allow rild rild_file:sock_file { create unlink setattr };
+allow rild rild_file:file create_file_perms;
+allow rild rild_file:file create_file_perms;
 allow rild socket_device:sock_file rw_file_perms;
 allow rild battd:unix_stream_socket { connectto read write setopt };
 allow rild sysfs:file rw_file_perms;
@@ -19,3 +23,4 @@ allow rild zygote_exec:file rx_file_perms;
 allow rild app_data_file:file { write getattr setattr read lock open };
 allow rild serialno_prop:property_service set;
 allow rild self:process { execmem ptrace };
+allow rild system_file:file { execmod };

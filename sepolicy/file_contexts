@@ -5,7 +5,10 @@
 /data/smc(/.*)?                 u:object_r:tee_data_file:s0
 /data/dontpanic/apanic_console  u:object_r:panic_file:s0
 /data/kernelpanics(/.*)?        u:object_r:panic_file:s0
-/data/misc/akmdfs.txt           u:object_r:akmd8975_file:s0
+/data/misc/akmd(/.*)?           u:object_r:akmd8975_file:s0
+/data/panicreports(/.*)?        u:object_r:rild_file:s0
+/data/misc/ril(/.*)?            u:object_r:rild_file:s0
+/data/misc/pds(/.*)?            u:object_r:pds_file:s0
 
 # Devices
 /dev/akm8975_aot                u:object_r:sensors_device:s0
@@ -33,6 +36,12 @@
 /dev/ttySPI.*                   u:object_r:radio_device:s0
 /dev/hci_tty                    u:object_r:hci_attach_dev:s0
 /dev/socket/motorild            u:object_r:rild_socket:s0
+/dev/socket/battdsock           u:object_r:battd_socket:s0
+/dev/block/loop-system          u:object_r:loop_system_block_device:s0
+/dev/block/loop-userdata        u:object_r:userdata_block_device:s0
+/dev/block/loop-cache           u:object_r:cache_block_device:s0
+/dev/block/mmcblk1p7            u:object_r:pds_block_device:s0
+/dev/block/pds                  u:object_r:pds_block_device:s0
 
 #The devices and files used by the hciattach service are device specific
 /dev/ttyO1                      u:object_r:hci_attach_dev:s0
@@ -45,7 +54,6 @@
 /pds(/.*)?                     u:object_r:pds_file:s0
 /pds/wifi/nvs_map.bin          u:object_r:radio_data_file:s0
 
-
 # for wpa_supp
 /dev/rfkill u:object_r:rfkill_device:s0
 
@@ -56,6 +64,7 @@
 /system/bin/modemlog                     u:object_r:modemlog_exec:s0
 /system/bin/motorild                     u:object_r:motorild_exec:s0
 /system/bin/motorilc                     u:object_r:motorild_exec:s0
+/system/bin/mot_boot_mode                u:object_r:motbootmode_exec:s0
 /system/bin/msp430                       u:object_r:msp430_exec:s0
 /system/bin/pvrsrvinit                   u:object_r:pvrsrvinit_exec:s0
 /system/bin/startup_smc.sh               u:object_r:smc_exec:s0

@@ -1,1 +1,18 @@
+type pds_block_device, dev_type;
+
 allow vold sdcard_external:file getattr;
+
+allow vold kmsg_device:chr_file rw_file_perms;
+
+allow vold self:capability { dac_override };
+allow vold loop_device:blk_file rw_file_perms;
+allow vold pds_file:file create_file_perms;
+allow vold pds_file:dir create_dir_perms;
+allow vold pds_block_device:blk_file rw_file_perms;
+allow vold system_data_file:dir ra_dir_perms;
+allow vold system_file:file { execute_no_trans };
+allow vold rootfs:dir { mounton };
+allow vold battd_data_file:dir create_dir_perms;
+allow vold battd_data_file:file create_file_perms;
+
+domain_trans(vold, shell_exec, vold)

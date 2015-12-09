@@ -10,6 +10,7 @@ loglevel 3
     symlink /sdcard /storage/sdcard0
 
     mkdir /pds 0775 system system
+    mkdir /ss 0777 root root
     mkdir /preinstall 0771 system system
     mkdir /cdrom 0770 system system
 
@@ -22,7 +23,15 @@ loglevel 3
     chown system radio /sys/class/radio/mdm6600/command
 
 on fs
-    exec /sbin/fixboot.sh
+    # create safestrap loopdevs
+    exec u:r:vold:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-system b 7 99
+    restorecon /dev/block/loop-system
+    exec u:r:vold:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-userdata b 7 98
+    restorecon /dev/block/loop-userdata
+    exec u:r:vold:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-cache b 7 97
+    restorecon /dev/block/loop-cache
+    # check for safestrap loopback files and mount them
+    exec u:r:fixboot:s0 root root -- /sbin/bbx sh /sbin/fixboot.sh
     write /sys/block/zram0/comp_algorithm lz4
     mount_all /fstab.mapphone_cdma
     swapon_all /fstab.mapphone_cdma
@@ -32,7 +41,15 @@ on fs
     mount vfat /dev/block/emstorage /data/media/0 relatime,uid=1023,gid=1023,fmask=0007,dmask=0007,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed
 
 on post-fs
-    exec /system/bin/pdsbackup.sh
+    mkdir /data/misc/pds 0700 root root
+    restorecon_recursive /data/misc/pds
+    restorecon /dev/block/pds
+    exec u:r:vold:s0 root root -- /system/bin/sh /system/bin/pdsbackup.sh
+    restorecon_recursive /pds
+
+    mkdir /data/misc/akmd 0755 compass compass
+    restorecon_recursive /data/misc/akmd
+
 # Enable PVR modules
     insmod /system/lib/modules/pvrsrvkm_sgx540_120.ko
     insmod /system/lib/modules/omaplfb_sgx540_120.ko
@@ -173,8 +190,6 @@ on post-fs
     chmod 0660 /proc/mtpctl
     restorecon /system/etc/firmware/ducati-m3.bin
 # Install kernel modules
-# Install product specific kernel modules
-    exec /system/bin/load_modules.sh
 # Load BT userspace driver
     insmod /system/lib/modules/btwilink.ko
     insmod /system/lib/modules/tty_hci.ko
@@ -486,7 +501,7 @@ on boot
     chmod 0777 /cache/trace
 
 # Start services
-    exec /system/bin/mot_boot_mode
+    exec u:r:motbootmode:s0 root root -- /system/bin/mot_boot_mode
     start wifical_check
 # Set core max size (2G)
     setrlimit 4 2147483648 2147483648

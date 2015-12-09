@@ -1,0 +1,18 @@
+# fixboot
+type fixboot, domain;
+
+type loop_system_block_device, dev_type;
+
+allow fixboot kmsg_device:chr_file rw_file_perms;
+
+allow fixboot self:capability { dac_override };
+allow fixboot cgroup:dir create_dir_perms;
+allow fixboot rootfs:file { execute_no_trans };
+allow fixboot rootfs:dir { create_dir_perms mounton };
+allow fixboot vfat:file rw_file_perms;
+allow fixboot vfat:filesystem { mount };
+allow fixboot block_device:dir create_dir_perms;
+allow fixboot block_device:lnk_file { rename create };
+allow fixboot loop_system_block_device:blk_file rw_file_perms;
+allow fixboot userdata_block_device:blk_file rw_file_perms;
+allow fixboot cache_block_device:blk_file rw_file_perms;

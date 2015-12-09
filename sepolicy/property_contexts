@@ -1,3 +1,9 @@
 tcmd.whisper               u:object_r:whisperd_prop:s0
 hw.whisper                 u:object_r:whisperd_prop:s0
 serialno                   u:object_r:serialno_prop:s0
+ro.bootmode                u:object_r:motbootmode_prop:s0
+tcmd.cid.recover.boot      u:object_r:motbootmode_prop:s0
+tcmd.suspend               u:object_r:motbootmode_prop:s0
+tcmd.12m.test              u:object_r:motbootmode_prop:s0
+sys.chargeonly.mode        u:object_r:motbootmode_prop:s0
+telephony.lteOnCdmaDevice  u:object_r:radio_prop:s0
