@@ -23,47 +23,47 @@ struct jb_audio_stream {
     /**
      * Return the sampling rate in Hz - eg. 44100.
      */
-    uint32_t (*get_sample_rate)(const struct audio_stream *stream);
+    uint32_t (*get_sample_rate)(const struct jb_audio_stream *stream);
 
     /* currently unused - use set_parameters with key
      *    AUDIO_PARAMETER_STREAM_SAMPLING_RATE
      */
-    int (*set_sample_rate)(struct audio_stream *stream, uint32_t rate);
+    int (*set_sample_rate)(struct jb_audio_stream *stream, uint32_t rate);
 
     /**
      * Return size of input/output buffer in bytes for this stream - eg. 4800.
      * It should be a multiple of the frame size.  See also get_input_buffer_size.
      */
-    size_t (*get_buffer_size)(const struct audio_stream *stream);
+    size_t (*get_buffer_size)(const struct jb_audio_stream *stream);
 
     /**
      * Return the channel mask -
      *  e.g. AUDIO_CHANNEL_OUT_STEREO or AUDIO_CHANNEL_IN_STEREO
      */
-    audio_channel_mask_t (*get_channels)(const struct audio_stream *stream);
+    audio_channel_mask_t (*get_channels)(const struct jb_audio_stream *stream);
 
     /**
      * Return the audio format - e.g. AUDIO_FORMAT_PCM_16_BIT
      */
-    audio_format_t (*get_format)(const struct audio_stream *stream);
+    audio_format_t (*get_format)(const struct jb_audio_stream *stream);
 
     /* currently unused - use set_parameters with key
      *     AUDIO_PARAMETER_STREAM_FORMAT
      */
-    int (*set_format)(struct audio_stream *stream, audio_format_t format);
+    int (*set_format)(struct jb_audio_stream *stream, audio_format_t format);
 
     /**
      * Put the audio hardware input/output into standby mode.
      * Driver should exit from standby mode at the next I/O operation.
      * Returns 0 on success and <0 on failure.
      */
-    int (*standby)(struct audio_stream *stream);
+    int (*standby)(struct jb_audio_stream *stream);
 
     /** dump the state of the audio input/output device */
-    int (*dump)(const struct audio_stream *stream, int fd);
+    int (*dump)(const struct jb_audio_stream *stream, int fd);
 
     /** Return the set of device(s) which this stream is connected to */
-    audio_devices_t (*get_device)(const struct audio_stream *stream);
+    audio_devices_t (*get_device)(const struct jb_audio_stream *stream);
 
     /**
      * Currently unused - set_device() corresponds to set_parameters() with key
@@ -71,7 +71,7 @@ struct jb_audio_stream {
      * AUDIO_PARAMETER_STREAM_INPUT_SOURCE is an additional information used by
      * input streams only.
      */
-    int (*set_device)(struct audio_stream *stream, audio_devices_t device);
+    int (*set_device)(struct jb_audio_stream *stream, audio_devices_t device);
 
     /**
      * set/get audio stream parameters. The function accepts a list of
@@ -86,28 +86,28 @@ struct jb_audio_stream {
      * The audio flinger will put the stream in standby and then change the
      * parameter value.
      */
-    int (*set_parameters)(struct audio_stream *stream, const char *kv_pairs);
+    int (*set_parameters)(struct jb_audio_stream *stream, const char *kv_pairs);
 
     /*
      * Returns a pointer to a heap allocated string. The caller is responsible
      * for freeing the memory for it using free().
      */
-    char * (*get_parameters)(const struct audio_stream *stream,
+    char * (*get_parameters)(const struct jb_audio_stream *stream,
                              const char *keys);
-    int (*add_audio_effect)(const struct audio_stream *stream,
+    int (*add_audio_effect)(const struct jb_audio_stream *stream,
                              effect_handle_t effect);
-    int (*remove_audio_effect)(const struct audio_stream *stream,
+    int (*remove_audio_effect)(const struct jb_audio_stream *stream,
                              effect_handle_t effect);
 };
 typedef struct jb_audio_stream jb_audio_stream_t;
 
 struct jb_audio_stream_out {
-    struct audio_stream common;
+    struct jb_audio_stream common;
 
     /**
      * Return the audio hardware driver estimated latency in milliseconds.
      */
-    uint32_t (*get_latency)(const struct audio_stream_out *stream);
+    uint32_t (*get_latency)(const struct jb_audio_stream_out *stream);
 
     /**
      * Use this method in situations where audio mixing is done in the
@@ -116,7 +116,7 @@ struct jb_audio_stream_out {
      * This method might produce multiple PCM outputs or hardware accelerated
      * codecs, such as MP3 or AAC.
      */
-    int (*set_volume)(struct audio_stream_out *stream, float left, float right);
+    int (*set_volume)(struct jb_audio_stream_out *stream, float left, float right);
 
     /**
      * Write audio buffer to driver. Returns number of bytes written, or a
@@ -131,110 +131,36 @@ struct jb_audio_stream_out {
      * callback function must be called when more space is available in the
      * driver/hardware buffer.
      */
-    ssize_t (*write)(struct audio_stream_out *stream, const void* buffer,
+    ssize_t (*write)(struct jb_audio_stream_out *stream, const void* buffer,
                      size_t bytes);
 
     /* return the number of audio frames written by the audio dsp to DAC since
      * the output has exited standby
      */
-    int (*get_render_position)(const struct audio_stream_out *stream,
+    int (*get_render_position)(const struct jb_audio_stream_out *stream,
                                uint32_t *dsp_frames);
 
     /**
      * get the local time at which the next write to the audio driver will be presented.
      * The units are microseconds, where the epoch is decided by the local audio HAL.
      */
-    int (*get_next_write_timestamp)(const struct audio_stream_out *stream,
+    int (*get_next_write_timestamp)(const struct jb_audio_stream_out *stream,
                                     int64_t *timestamp);
-
-    /**
-     * set the callback function for notifying completion of non-blocking
-     * write and drain.
-     * Calling this function implies that all future write() and drain()
-     * must be non-blocking and use the callback to signal completion.
-     */
-    int (*set_callback)(struct audio_stream_out *stream,
-            stream_callback_t callback, void *cookie);
-
-    /**
-     * Notifies to the audio driver to stop playback however the queued buffers are
-     * retained by the hardware. Useful for implementing pause/resume. Empty implementation
-     * if not supported however should be implemented for hardware with non-trivial
-     * latency. In the pause state audio hardware could still be using power. User may
-     * consider calling suspend after a timeout.
-     *
-     * Implementation of this function is mandatory for offloaded playback.
-     */
-    int (*pause)(struct audio_stream_out* stream);
-
-    /**
-     * Notifies to the audio driver to resume playback following a pause.
-     * Returns error if called without matching pause.
-     *
-     * Implementation of this function is mandatory for offloaded playback.
-     */
-    int (*resume)(struct audio_stream_out* stream);
-
-    /**
-     * Requests notification when data buffered by the driver/hardware has
-     * been played. If set_callback() has previously been called to enable
-     * non-blocking mode, the drain() must not block, instead it should return
-     * quickly and completion of the drain is notified through the callback.
-     * If set_callback() has not been called, the drain() must block until
-     * completion.
-     * If type==AUDIO_DRAIN_ALL, the drain completes when all previously written
-     * data has been played.
-     * If type==AUDIO_DRAIN_EARLY_NOTIFY, the drain completes shortly before all
-     * data for the current track has played to allow time for the framework
-     * to perform a gapless track switch.
-     *
-     * Drain must return immediately on stop() and flush() call
-     *
-     * Implementation of this function is mandatory for offloaded playback.
-     */
-    int (*drain)(struct audio_stream_out* stream, audio_drain_type_t type );
-
-    /**
-     * Notifies to the audio driver to flush the queued data. Stream must already
-     * be paused before calling flush().
-     *
-     * Implementation of this function is mandatory for offloaded playback.
-     */
-   int (*flush)(struct audio_stream_out* stream);
-
-    /**
-     * Return a recent count of the number of audio frames presented to an external observer.
-     * This excludes frames which have been written but are still in the pipeline.
-     * The count is not reset to zero when output enters standby.
-     * Also returns the value of CLOCK_MONOTONIC as of this presentation count.
-     * The returned count is expected to be 'recent',
-     * but does not need to be the most recent possible value.
-     * However, the associated time should correspond to whatever count is returned.
-     * Example:  assume that N+M frames have been presented, where M is a 'small' number.
-     * Then it is permissible to return N instead of N+M,
-     * and the timestamp should correspond to N rather than N+M.
-     * The terms 'recent' and 'small' are not defined.
-     * They reflect the quality of the implementation.
-     *
-     * 3.0 and higher only.
-     */
-    int (*get_presentation_position)(const struct audio_stream_out *stream,
-                               uint64_t *frames, struct timespec *timestamp);
 };
 typedef struct jb_audio_stream_out jb_audio_stream_out_t;
 
 struct jb_audio_stream_in {
-    struct audio_stream common;
+    struct jb_audio_stream common;
 
     /** set the input gain for the audio driver. This method is for
      *  for future use */
-    int (*set_gain)(struct audio_stream_in *stream, float gain);
+    int (*set_gain)(struct jb_audio_stream_in *stream, float gain);
 
     /** Read audio buffer in from audio driver. Returns number of bytes read, or a
      *  negative status_t. If at least one frame was read prior to the error,
      *  read should return that byte count and then return an error in the subsequent call.
      */
-    ssize_t (*read)(struct audio_stream_in *stream, void* buffer,
+    ssize_t (*read)(struct jb_audio_stream_in *stream, void* buffer,
                     size_t bytes);
 
     /**
@@ -247,7 +173,7 @@ struct jb_audio_stream_in {
      *
      * Unit: the number of input audio frames
      */
-    uint32_t (*get_input_frames_lost)(struct audio_stream_in *stream);
+    uint32_t (*get_input_frames_lost)(struct jb_audio_stream_in *stream);
 };
 typedef struct jb_audio_stream_in jb_audio_stream_in_t;
 
@@ -327,20 +253,20 @@ struct jb_audio_hw_device {
                               audio_devices_t devices,
                               audio_output_flags_t flags,
                               struct audio_config *config,
-                              struct audio_stream_out **stream_out);
+                              struct jb_audio_stream_out **stream_out);
 
     void (*close_output_stream)(struct jb_audio_hw_device *dev,
-                                struct audio_stream_out* stream_out);
+                                struct jb_audio_stream_out* stream_out);
 
     /** This method creates and opens the audio hardware input stream */
     int (*open_input_stream)(struct jb_audio_hw_device *dev,
                              audio_io_handle_t handle,
                              audio_devices_t devices,
                              struct audio_config *config,
-                             struct audio_stream_in **stream_in);
+                             struct jb_audio_stream_in **stream_in);
 
     void (*close_input_stream)(struct jb_audio_hw_device *dev,
-                               struct audio_stream_in *stream_in);
+                               struct jb_audio_stream_in *stream_in);
 
     /** This method dumps the state of the audio hardware */
     int (*dump)(const struct jb_audio_hw_device *dev, int fd);
