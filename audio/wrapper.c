@@ -41,7 +41,7 @@
 /* Input */
 struct wrapper_in_stream {
     struct audio_stream_in *stream_in;
-    struct audio_stream_in *copy_stream_in;
+    struct jb_audio_stream_in *jb_stream_in;
 };
 
 static struct wrapper_in_stream *in_streams = NULL;
@@ -51,7 +51,7 @@ static pthread_mutex_t in_streams_mutex = PTHREAD_MUTEX_INITIALIZER;
 /* Output */
 struct wrapper_out_stream {
     struct audio_stream_out *stream_out;
-    struct audio_stream_out *copy_stream_out;
+    struct jb_audio_stream_out *jb_stream_out;
 };
 
 static struct wrapper_out_stream *out_streams = NULL;
@@ -93,39 +93,44 @@ static void *ics_dso_handle = NULL;
                            pthread_mutex_unlock(&in_use_mutex); } while (0)
 
 /* Generic wrappers for streams */
-#define _WRAP_STREAM_LOCKED(name, function, direction, prototype, parameters, log, fn) \
-    static int wrapper_ ## direction ## _ ## name  prototype \
+#define _WRAP_STREAM_LOCKED(name, function, direction, rettype, err, prototype, parameters, log, pre_fn, post_fn) \
+    static rettype wrapper_ ## direction ## _ ## name  prototype \
     { \
-        int ret = -ENODEV; \
+        rettype ret = err; \
+        struct jb_audio_stream *jbstream; \
+        struct jb_audio_stream_ ## direction *jbstream_ ## direction; \
         int i; \
     \
-        ALOGI log; \
+        if (log) ALOGI log; \
         pthread_mutex_lock(& direction ## _streams_mutex); \
         for (i = 0; i < n_ ## direction ## _streams; i++) { \
             if (direction ## _streams[i].stream_ ## direction == (struct audio_stream_ ## direction*)stream) { \
                 WAIT_FOR_FREE(); \
-                ret = direction ## _streams[i].copy_stream_ ## direction ->function parameters; \
+                jbstream = (struct jb_audio_stream *)direction ## _streams[i].jb_stream_ ## direction; \
+                jbstream_ ## direction = direction ## _streams[i].jb_stream_ ## direction; \
+                pre_fn; \
+                ret = jbstream_ ## direction ->function parameters; \
+                post_fn; \
                 UNLOCK_FREE(); \
                 break; \
             } \
         } \
         pthread_mutex_unlock(& direction ## _streams_mutex); \
     \
-	fn; \
         return ret; \
     }
 
-#define WRAP_STREAM_LOCKED(name, direction, prototype, parameters, log) \
-        _WRAP_STREAM_LOCKED(name, name, direction, prototype, parameters, log, do{}while(0))
+#define WRAP_STREAM_LOCKED(name, direction, rettype, err, prototype, parameters, log) \
+        _WRAP_STREAM_LOCKED(name, name, direction, rettype, err, prototype, parameters, log, do{}while(0), do{}while(0))
 
-#define WRAP_STREAM_LOCKED_FN(name, direction, prototype, parameters, log, fn) \
-        _WRAP_STREAM_LOCKED(name, name, direction, prototype, parameters, log, fn)
+#define WRAP_STREAM_LOCKED_FN(name, direction, rettype, err, prototype, parameters, log, pre_fn, post_fn) \
+        _WRAP_STREAM_LOCKED(name, name, direction, rettype, err, prototype, parameters, log, pre_fn, post_fn)
 
-#define WRAP_STREAM_LOCKED_COMMON(name, direction, prototype, parameters, log) \
-        _WRAP_STREAM_LOCKED(name, common.name, direction, prototype, parameters, log, do{}while(0))
+#define WRAP_STREAM_LOCKED_COMMON(name, direction, rettype, err, prototype, parameters, log) \
+        _WRAP_STREAM_LOCKED(name, common.name, direction, rettype, err, prototype, parameters, log, do{}while(0), do{}while(0))
 
-#define WRAP_STREAM_LOCKED_COMMON_FN(name, direction, prototype, parameters, log, fn) \
-        _WRAP_STREAM_LOCKED(name, common.name, direction, prototype, parameters, log, fn)
+#define WRAP_STREAM_LOCKED_COMMON_FN(name, direction, rettype, err, prototype, parameters, log, pre_fn, post_fn) \
+        _WRAP_STREAM_LOCKED(name, common.name, direction, rettype, err, prototype, parameters, log, pre_fn, post_fn)
 
 /* Generic wrappers for HAL */
 #define _WRAP_HAL_LOCKED(name, function, prototype, parameters, log) \
@@ -133,7 +138,7 @@ static void *ics_dso_handle = NULL;
     { \
         int ret; \
     \
-        ALOGI log; \
+        if (log) ALOGI log; \
         pthread_mutex_lock(&out_streams_mutex); \
         pthread_mutex_lock(&in_streams_mutex); \
     \
@@ -193,22 +198,20 @@ static ssize_t wrapper_read(struct audio_stream_in *stream, void* buffer,
 {
     ssize_t ret = -ENODEV;
     int i;
-    int found = 0;
-    struct wrapper_in_stream wrapped_stream;
+    struct jb_audio_stream_in *wrapped_stream = NULL;
 
     pthread_mutex_lock(&in_streams_mutex);
     for (i = 0; i < n_in_streams; i++) {
         if (in_streams[i].stream_in == stream) {
-            wrapped_stream = in_streams[i];
-            found = 1;
+            wrapped_stream = in_streams[i].jb_stream_in;
             INCREMENT_IN_USE();
             break;
         }
     }
     pthread_mutex_unlock(&in_streams_mutex);
 
-    if (found) {
-        ret = wrapped_stream.copy_stream_in->read(stream, buffer, bytes);
+    if (wrapped_stream) {
+        ret = wrapped_stream->read(wrapped_stream, buffer, bytes);
 #if 0
         if ((ret > 0) && (ret != (ssize_t)bytes)) {
             if (wrapper_hal_is_resampling(bytes, ret))
@@ -216,34 +219,72 @@ static ssize_t wrapper_read(struct audio_stream_in *stream, void* buffer,
         }
 #endif
         if (ret != (ssize_t)bytes) {
-	    ALOGE("read %u bytes instead of %u", (unsigned int)ret, (unsigned int)bytes);
+            ALOGE("read %u bytes instead of %u", (unsigned int)ret, (unsigned int)bytes);
         }
         DECREMENT_IN_USE();
     } else {
-	    ALOGE("read on non-wrapped stream!");
+            ALOGE("read on non-wrapped stream!");
     }
 
     return ret;
 }
 
-WRAP_STREAM_LOCKED(set_gain, in, (struct audio_stream_in *stream, float gain),
-            (stream, gain), ("in_set_gain: %f", gain))
+WRAP_STREAM_LOCKED(set_gain, in, int, -ENODEV, (struct audio_stream_in *stream, float gain),
+            (jbstream_in, gain), ("in_set_gain: %f", gain))
 
-WRAP_STREAM_LOCKED_COMMON(standby, in, (struct audio_stream *stream),
-            (stream), ("in_standby"))
+WRAP_STREAM_LOCKED_COMMON(standby, in, int, -ENODEV, (struct audio_stream *stream),
+            (jbstream), ("in_standby"))
 
-WRAP_STREAM_LOCKED_COMMON(set_parameters, in, (struct audio_stream *stream, const char *kv_pairs),
-            (stream, kv_pairs), ("in_set_parameters: %s", kv_pairs))
+WRAP_STREAM_LOCKED_COMMON_FN(set_parameters, in, int, -ENODEV, (struct audio_stream *stream, const char *kv_pairs),
+            (jbstream, kv_pairs), ("in_set_parameters: %s", kv_pairs), do{}while(0), do{if (ret) {ALOGI("ret: %d", ret);}}while(0))
+
+WRAP_STREAM_LOCKED_COMMON(get_sample_rate, in, uint32_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("in_get_sample_rate"))
+
+WRAP_STREAM_LOCKED_COMMON(set_sample_rate, in, int, -ENODEV, (struct audio_stream *stream, uint32_t rate),
+            (jbstream, rate), ("in_set_sample_rate: %u", rate))
+
+WRAP_STREAM_LOCKED_COMMON(get_buffer_size, in, size_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("in_get_buffer_size"))
+
+WRAP_STREAM_LOCKED_COMMON(get_channels, in, audio_channel_mask_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("in_get_channels"))
+
+WRAP_STREAM_LOCKED_COMMON(get_format, in, audio_format_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("in_get_format"))
+
+WRAP_STREAM_LOCKED_COMMON(set_format, in, int, -ENODEV, (struct audio_stream *stream, audio_format_t format),
+            (jbstream, format), ("in_set_format: %u", format))
+
+WRAP_STREAM_LOCKED_COMMON(dump, in, int, -ENODEV, (const struct audio_stream *stream, int fd),
+            (jbstream, fd), ("in_dump: %d", fd))
+
+WRAP_STREAM_LOCKED_COMMON(get_device, in, audio_devices_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("in_get_device"))
+
+WRAP_STREAM_LOCKED_COMMON(set_device, in, int, -ENODEV, (struct audio_stream *stream, audio_devices_t device),
+            (jbstream, device), ("in_set_device: %d", device))
+
+WRAP_STREAM_LOCKED_COMMON(get_parameters, in, char*, NULL, (const struct audio_stream *stream, const char *keys),
+            (jbstream, keys), ("in_get_parameters: %s", keys))
+
+WRAP_STREAM_LOCKED_COMMON(add_audio_effect, in, int, -ENODEV, (const struct audio_stream *stream, effect_handle_t effect),
+            (jbstream, effect), ("in_add_audio_effect"))
+
+WRAP_STREAM_LOCKED_COMMON(remove_audio_effect, in, int, -ENODEV, (const struct audio_stream *stream, effect_handle_t effect),
+            (jbstream, effect), ("in_remove_audio_effect"))
 
 static void wrapper_close_input_stream(unused_audio_hw_device *dev,
                                        struct audio_stream_in *stream_in)
 {
+    struct jb_audio_stream_in *jb_stream_in = NULL;
     int i;
 
     pthread_mutex_lock(&in_streams_mutex);
     for (i = 0; i < n_in_streams; i++) {
         if (in_streams[i].stream_in == stream_in) {
-            free(in_streams[i].copy_stream_in);
+            jb_stream_in = in_streams[i].jb_stream_in;
+            free(in_streams[i].stream_in);
             n_in_streams--;
             memmove(in_streams + i,
                     in_streams + i + 1,
@@ -254,16 +295,18 @@ static void wrapper_close_input_stream(unused_audio_hw_device *dev,
             break;
         }
     }
-    WAIT_FOR_FREE();
-    jb_hw_dev->close_input_stream(jb_hw_dev, stream_in);
-    UNLOCK_FREE();
+    if (jb_stream_in) {
+        WAIT_FOR_FREE();
+        jb_hw_dev->close_input_stream(jb_hw_dev, jb_stream_in);
+        UNLOCK_FREE();
+    }
 
     pthread_mutex_unlock(&in_streams_mutex);
 }
 
 uint32_t wrapper_get_input_frames_lost(__attribute__((unused))struct audio_stream_in *stream)
 {
-	return 0;
+        return 0;
 }
 
 static int wrapper_open_input_stream(unused_audio_hw_device *dev,
@@ -271,27 +314,28 @@ static int wrapper_open_input_stream(unused_audio_hw_device *dev,
                                      audio_devices_t devices,
                                      struct audio_config *config,
                                      struct audio_stream_in **stream_in,
-				     __attribute__((unused)) audio_input_flags_t flags,
-				     __attribute__((unused)) const char *address,
-				     __attribute__((unused)) audio_source_t source)
+                                     __attribute__((unused)) audio_input_flags_t flags,
+                                     __attribute__((unused)) const char *address,
+                                     __attribute__((unused)) audio_source_t source)
 {
+    struct jb_audio_stream_in *jb_stream_in;
     int ret;
 
     pthread_mutex_lock(&in_streams_mutex);
 
     /* Convert to JB_MR0 devices */
     if (devices & 0x80000000) {
-	devices &= ~0x80000000;
-	if (devices < 0x2000) {
-		devices *= 0x10000;
-	} else {
-		devices |= 0x10000;
-	}
+        devices &= ~0x80000000;
+        if (devices < 0x2000) {
+                devices *= 0x10000;
+        } else {
+                devices |= 0x10000;
+        }
     }
 
     WAIT_FOR_FREE();
     ret = jb_hw_dev->open_input_stream(jb_hw_dev, handle, devices,
-                                         config, stream_in);
+                                         config, &jb_stream_in);
     UNLOCK_FREE();
 
     if (ret == 0) {
@@ -302,29 +346,42 @@ static int wrapper_open_input_stream(unused_audio_hw_device *dev,
         if (!new_in_streams) {
             ALOGE("Can't allocate memory for wrapped stream, not touching original!");
             pthread_mutex_unlock(&in_streams_mutex);
-            return ret;
+            return -ENOMEM;
         }
         in_streams = new_in_streams;
         memset(&in_streams[n_in_streams], 0, sizeof(struct wrapper_in_stream));
 
-        in_streams[n_in_streams].stream_in = *stream_in;
-        in_streams[n_in_streams].copy_stream_in = malloc(sizeof(struct audio_stream_in));
-        if (!in_streams[n_in_streams].copy_stream_in) {
-            ALOGE("Can't allocate memory for copy_stream_in!");
+        in_streams[n_in_streams].jb_stream_in = jb_stream_in;
+        in_streams[n_in_streams].stream_in = malloc(sizeof(struct audio_stream_in));
+        if (!in_streams[n_in_streams].stream_in) {
+            ALOGE("Can't allocate memory for stream_in!");
             pthread_mutex_unlock(&in_streams_mutex);
-            return ret;
+            return -ENOMEM;
         }
-        memcpy(in_streams[n_in_streams].copy_stream_in, *stream_in,
-               sizeof(struct audio_stream_in));
+        memset(in_streams[n_in_streams].stream_in, 0, sizeof(struct audio_stream_in));
+        *stream_in = in_streams[n_in_streams].stream_in;
 
-        (*stream_in)->read = wrapper_read;
-        (*stream_in)->set_gain = wrapper_in_set_gain;
-        (*stream_in)->common.set_parameters = wrapper_in_set_parameters;
+        (*stream_in)->common.get_sample_rate = wrapper_in_get_sample_rate;
+        (*stream_in)->common.set_sample_rate = wrapper_in_set_sample_rate;
+        (*stream_in)->common.get_buffer_size = wrapper_in_get_buffer_size;
+        (*stream_in)->common.get_channels = wrapper_in_get_channels;
+        (*stream_in)->common.get_format = wrapper_in_get_format;
+        (*stream_in)->common.set_format = wrapper_in_set_format;
         (*stream_in)->common.standby = wrapper_in_standby;
+        (*stream_in)->common.dump = wrapper_in_dump;
+        (*stream_in)->common.get_device = wrapper_in_get_device;
+        (*stream_in)->common.set_device = wrapper_in_set_device;
+        (*stream_in)->common.set_parameters = wrapper_in_set_parameters;
+        (*stream_in)->common.get_parameters = wrapper_in_get_parameters;
+        (*stream_in)->common.add_audio_effect = wrapper_in_add_audio_effect;
+        (*stream_in)->common.remove_audio_effect = wrapper_in_remove_audio_effect;
+
+        (*stream_in)->set_gain = wrapper_in_set_gain;
+        (*stream_in)->read = wrapper_read;
         (*stream_in)->get_input_frames_lost = wrapper_get_input_frames_lost;
 
-        ALOGI("Wrapped an input stream: rate %d, channel_mask: %x, format: %d",
-              config->sample_rate, config->channel_mask, config->format);
+        ALOGI("Wrapped an input stream: rate %d, channel_mask: %x, format: %d, addr: %p/%p",
+              config->sample_rate, config->channel_mask, config->format, *stream_in, jb_stream_in);
 
         n_in_streams++;
     }
@@ -340,23 +397,21 @@ static int wrapper_write(struct audio_stream_out *stream, const void* buffer,
 {
     int ret = -ENODEV;
     int i;
-    int found = 0;
-    struct wrapper_out_stream wrapped_stream;
+    struct jb_audio_stream_out *wrapped_stream = NULL;
     size_t written;
 
     pthread_mutex_lock(&out_streams_mutex);
     for (i = 0; i < n_out_streams; i++) {
         if (out_streams[i].stream_out == stream) {
-            wrapped_stream = out_streams[i];
-            found = 1;
+            wrapped_stream = out_streams[i].jb_stream_out;
             INCREMENT_IN_USE();
             break;
         }
     }
     pthread_mutex_unlock(&out_streams_mutex);
 
-    if (found) {
-        written = wrapped_stream.copy_stream_out->write(stream, buffer, bytes);
+    if (wrapped_stream) {
+        written = wrapped_stream->write(wrapped_stream, buffer, bytes);
         ret = written;
         if ((ret > 0) && (written != bytes)) {
             if (wrapper_hal_is_resampling(bytes, written))
@@ -364,44 +419,91 @@ static int wrapper_write(struct audio_stream_out *stream, const void* buffer,
         }
         DECREMENT_IN_USE();
     } else {
-	    ALOGE("write on non-wrapped stream!");
+            ALOGE("write on non-wrapped stream!");
     }
 
     return ret;
 }
 
-WRAP_STREAM_LOCKED(set_volume, out, (struct audio_stream_out *stream, float left, float right),
-            (stream, left, right), ("set_out_volume: %f/%f", left, right))
+WRAP_STREAM_LOCKED(set_volume, out, int, -ENODEV, (struct audio_stream_out *stream, float left, float right),
+            (jbstream_out, left, right), ("set_out_volume: %f/%f", left, right))
 
-WRAP_STREAM_LOCKED_COMMON(standby, out, (struct audio_stream *stream),
-            (stream), ("out_standby"))
+WRAP_STREAM_LOCKED_COMMON(standby, out, int, -ENODEV, (struct audio_stream *stream),
+            (jbstream), ("out_standby"))
 
 static void restore_mute(void)
 {
-	if (hal_audio_mode == AUDIO_MODE_IN_CALL) {
-		if (last_mute_ctl_value != -1)
-			alsa_set_mic_mute(1);
-	}
+        if (hal_audio_mode == AUDIO_MODE_IN_CALL) {
+                if (last_mute_ctl_value != -1)
+                        alsa_set_mic_mute(1);
+        }
 }
 
-WRAP_STREAM_LOCKED_COMMON_FN(set_parameters, out, (struct audio_stream *stream, const char *kv_pairs),
-            (stream, kv_pairs), ("out_set_parameters: %s", kv_pairs), restore_mute())
+WRAP_STREAM_LOCKED_COMMON_FN(set_parameters, out, int, -ENODEV, (struct audio_stream *stream, const char *kv_pairs),
+            (jbstream, kv_pairs), ("out_set_parameters: %s", kv_pairs), do{}while(0), do{if (ret) {ALOGI("ret: %d", ret);} restore_mute();}while(0))
+
+WRAP_STREAM_LOCKED_COMMON(get_sample_rate, out, uint32_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("out_get_sample_rate"))
+
+WRAP_STREAM_LOCKED_COMMON(set_sample_rate, out, int, -ENODEV, (struct audio_stream *stream, uint32_t rate),
+            (jbstream, rate), ("out_set_sample_rate: %u", rate))
+
+WRAP_STREAM_LOCKED_COMMON(get_buffer_size, out, size_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("out_get_buffer_size"))
+
+WRAP_STREAM_LOCKED_COMMON(get_channels, out, audio_channel_mask_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("out_get_channels"))
+
+WRAP_STREAM_LOCKED_COMMON(get_format, out, audio_format_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("out_get_format"))
+
+WRAP_STREAM_LOCKED_COMMON(set_format, out, int, -ENODEV, (struct audio_stream *stream, audio_format_t format),
+            (jbstream, format), ("out_set_format: %u", format))
+
+WRAP_STREAM_LOCKED_COMMON(dump, out, int, -ENODEV, (const struct audio_stream *stream, int fd),
+            (jbstream, fd), ("out_dump: %d", fd))
+
+WRAP_STREAM_LOCKED_COMMON(get_device, out, audio_devices_t, 0, (const struct audio_stream *stream),
+            (jbstream), ("out_get_device"))
+
+WRAP_STREAM_LOCKED_COMMON(set_device, out, int, -ENODEV, (struct audio_stream *stream, audio_devices_t device),
+            (jbstream, device), ("out_set_device: %d", device))
+
+WRAP_STREAM_LOCKED_COMMON(get_parameters, out, char*, NULL, (const struct audio_stream *stream, const char *keys),
+            (jbstream, keys), ("out_get_parameters: %s", keys))
+
+WRAP_STREAM_LOCKED_COMMON(add_audio_effect, out, int, -ENODEV, (const struct audio_stream *stream, effect_handle_t effect),
+            (jbstream, effect), ("out_add_audio_effect"))
+
+WRAP_STREAM_LOCKED_COMMON(remove_audio_effect, out, int, -ENODEV, (const struct audio_stream *stream, effect_handle_t effect),
+            (jbstream, effect), ("out_remove_audio_effect"))
+
+WRAP_STREAM_LOCKED(get_latency, out, uint32_t, 0, (const struct audio_stream_out *stream),
+            (jbstream_out), ("out_get_latency"))
+
+WRAP_STREAM_LOCKED(get_render_position, out, int, -ENODEV, (const struct audio_stream_out *stream, uint32_t *dsp_frames),
+            (jbstream_out, dsp_frames), ("out_get_render_position"))
+
+WRAP_STREAM_LOCKED(get_next_write_timestamp, out, int, -ENODEV, (const struct audio_stream_out *stream, int64_t *timestamp),
+            (jbstream_out, timestamp), NULL)
 
 int wrapper_get_presentation_position(__attribute__((unused)) const struct audio_stream_out *stream,
-		__attribute__((unused)) uint64_t *frames, __attribute__((unused)) struct timespec *timestamp)
+                __attribute__((unused)) uint64_t *frames, __attribute__((unused)) struct timespec *timestamp)
 {
-	return -1;
+        return -1;
 }
 
 static void wrapper_close_output_stream(unused_audio_hw_device *dev,
                             struct audio_stream_out* stream_out)
 {
+    struct jb_audio_stream_out *jb_stream_out = NULL;
     int i;
 
     pthread_mutex_lock(&out_streams_mutex);
     for (i = 0; i < n_out_streams; i++) {
         if (out_streams[i].stream_out == stream_out) {
-            free(out_streams[i].copy_stream_out);
+            jb_stream_out = out_streams[i].jb_stream_out;
+            free(out_streams[i].stream_out);
             n_out_streams--;
             memmove(out_streams + i,
                     out_streams + i + 1,
@@ -413,9 +515,11 @@ static void wrapper_close_output_stream(unused_audio_hw_device *dev,
         }
     }
 
-    WAIT_FOR_FREE();
-    jb_hw_dev->close_output_stream(jb_hw_dev, stream_out);
-    UNLOCK_FREE();
+    if (jb_stream_out) {
+        WAIT_FOR_FREE();
+        jb_hw_dev->close_output_stream(jb_hw_dev, jb_stream_out);
+        UNLOCK_FREE();
+    }
 
     pthread_mutex_unlock(&out_streams_mutex);
 }
@@ -426,15 +530,16 @@ static int wrapper_open_output_stream(unused_audio_hw_device *dev,
                                       audio_output_flags_t flags,
                                       struct audio_config *config,
                                       struct audio_stream_out **stream_out,
-				      __attribute__((unused)) const char *address)
+                                      __attribute__((unused)) const char *address)
 {
+    struct jb_audio_stream_out *jb_stream_out;
     int ret;
 
     pthread_mutex_lock(&out_streams_mutex);
 
     WAIT_FOR_FREE();
     ret = jb_hw_dev->open_output_stream(jb_hw_dev, handle, devices,
-                                          flags, config, stream_out);
+                                          flags, config, &jb_stream_out);
     UNLOCK_FREE();
 
     if (ret == 0) {
@@ -445,29 +550,50 @@ static int wrapper_open_output_stream(unused_audio_hw_device *dev,
         if (!new_out_streams) {
             ALOGE("Can't allocate memory for wrapped stream, not touching original!");
             pthread_mutex_unlock(&out_streams_mutex);
-            return ret;
+            return -ENOMEM;
         }
         out_streams = new_out_streams;
         memset(&out_streams[n_out_streams], 0, sizeof(struct wrapper_out_stream));
 
-        out_streams[n_out_streams].stream_out = *stream_out;
-        out_streams[n_out_streams].copy_stream_out = malloc(sizeof(struct audio_stream_out));
-        if (!out_streams[n_out_streams].copy_stream_out) {
-            ALOGE("Can't allocate memory for copy_stream_out!");
+        out_streams[n_out_streams].jb_stream_out = jb_stream_out;
+        out_streams[n_out_streams].stream_out = malloc(sizeof(struct audio_stream_out));
+        if (!out_streams[n_out_streams].stream_out) {
+            ALOGE("Can't allocate memory for stream_out!");
             pthread_mutex_unlock(&out_streams_mutex);
-            return ret;
+            return -ENOMEM;
         }
-        memcpy(out_streams[n_out_streams].copy_stream_out, *stream_out,
-               sizeof(struct audio_stream_out));
+        memset(out_streams[n_out_streams].stream_out, 0, sizeof(struct audio_stream_out));
+        *stream_out = out_streams[n_out_streams].stream_out;
 
-        (*stream_out)->write = wrapper_write;
-        (*stream_out)->set_volume = wrapper_out_set_volume;
-        (*stream_out)->common.set_parameters = wrapper_out_set_parameters;
+        (*stream_out)->common.get_sample_rate = wrapper_out_get_sample_rate;
+        (*stream_out)->common.set_sample_rate = wrapper_out_set_sample_rate;
+        (*stream_out)->common.get_buffer_size = wrapper_out_get_buffer_size;
+        (*stream_out)->common.get_channels = wrapper_out_get_channels;
+        (*stream_out)->common.get_format = wrapper_out_get_format;
+        (*stream_out)->common.set_format = wrapper_out_set_format;
         (*stream_out)->common.standby = wrapper_out_standby;
+        (*stream_out)->common.dump = wrapper_out_dump;
+        (*stream_out)->common.get_device = wrapper_out_get_device;
+        (*stream_out)->common.set_device = wrapper_out_set_device;
+        (*stream_out)->common.set_parameters = wrapper_out_set_parameters;
+        (*stream_out)->common.get_parameters = wrapper_out_get_parameters;
+        (*stream_out)->common.add_audio_effect = wrapper_out_add_audio_effect;
+        (*stream_out)->common.remove_audio_effect = wrapper_out_remove_audio_effect;
+
+        (*stream_out)->get_latency = wrapper_out_get_latency;
+        (*stream_out)->set_volume = wrapper_out_set_volume;
+        (*stream_out)->write = wrapper_write;
+        (*stream_out)->get_render_position = wrapper_out_get_render_position;
+        (*stream_out)->get_next_write_timestamp = wrapper_out_get_next_write_timestamp;
+        (*stream_out)->set_callback = NULL;
+        (*stream_out)->pause = NULL;
+        (*stream_out)->resume = NULL;
+        (*stream_out)->drain = NULL;
+        (*stream_out)->flush = NULL;
         (*stream_out)->get_presentation_position = wrapper_get_presentation_position;
 
-        ALOGI("Wrapped an output stream: rate %d, channel_mask: %x, format: %d",
-              config->sample_rate, config->channel_mask, config->format);
+        ALOGI("Wrapped an output stream: rate %d, channel_mask: %x, format: %d, addr: %p/%p",
+              config->sample_rate, config->channel_mask, config->format, *stream_out, jb_stream_out);
 
         n_out_streams++;
     }
@@ -674,8 +800,10 @@ static int wrapper_close(hw_device_t *device)
     return ret;
 }
 
-static int wrapper_open(const hw_module_t* module,
-                             const char* name,
+extern const char * _ZN7android14AudioParameter10keyRoutingE;
+
+static int wrapper_open(__attribute__((unused)) const hw_module_t* module,
+                             __attribute__((unused)) const char* name,
                              hw_device_t** device)
 {
     struct hw_module_t *hmi;
@@ -764,7 +892,7 @@ static int wrapper_open(const hw_module_t* module,
     /* HAL */
     adev->common.tag = HARDWARE_DEVICE_TAG;
     adev->common.version = AUDIO_DEVICE_API_VERSION_MIN;
-    adev->common.module = jb_hw_dev->common.module;
+    adev->common.module = (struct hw_module_t *) module;
     adev->common.close = wrapper_close;
 
     adev->get_supported_devices = wrapper_get_supported_devices;
