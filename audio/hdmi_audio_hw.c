@@ -97,7 +97,7 @@ uint32_t hdmi_out_get_sample_rate(const struct audio_stream *stream)
 }
 
 /* DEPRECATED API */
-int hdmi_out_set_sample_rate(struct audio_stream *stream, uint32_t rate)
+int hdmi_out_set_sample_rate(__attribute__((unused)) struct audio_stream *stream, __attribute__((unused)) uint32_t rate)
 {
     TRACE();
     return -EINVAL;
@@ -465,8 +465,8 @@ static char* hdmi_adev_get_parameters(const audio_hw_device_t *dev,
     return NULL;
 }
 
-static size_t hdmi_adev_get_input_buffer_size(const audio_hw_device_t *dev,
-                                              const struct audio_config *config)
+static size_t hdmi_adev_get_input_buffer_size(__attribute__((unused)) const audio_hw_device_t *dev,
+                                              __attribute__((unused)) const struct audio_config *config)
 {
     TRACE();
     return 0;
@@ -481,11 +481,12 @@ static size_t hdmi_adev_get_input_buffer_size(const audio_hw_device_t *dev,
     }
 
 static int hdmi_adev_open_output_stream(audio_hw_device_t *dev,
-                                        audio_io_handle_t handle,
-                                        audio_devices_t devices,
-                                        audio_output_flags_t flags,
+                                        __attribute__((unused)) audio_io_handle_t handle,
+                                        __attribute__((unused)) audio_devices_t devices,
+                                        __attribute__((unused)) audio_output_flags_t flags,
                                         struct audio_config *config,
-                                        struct audio_stream_out **stream_out)
+                                        struct audio_stream_out **stream_out,
+                                        __attribute__((unused)) const char *address)
 {
     hdmi_out_t *out = 0;
     struct pcm_config *pcm_config = 0;
@@ -572,7 +573,7 @@ fail:
     return -ENOSYS;
 }
 
-static void hdmi_adev_close_output_stream(audio_hw_device_t *dev,
+static void hdmi_adev_close_output_stream(__attribute__((unused)) audio_hw_device_t *dev,
                                           struct audio_stream_out* stream_out)
 {
     TRACEM("dev=%p stream_out=%p", dev, stream_out);
@@ -580,23 +581,26 @@ static void hdmi_adev_close_output_stream(audio_hw_device_t *dev,
     free(stream_out);
 }
 
-static int hdmi_adev_open_input_stream(audio_hw_device_t *dev,
-                                       audio_io_handle_t handle,
-                                       audio_devices_t devices,
-                                       struct audio_config *config,
-                                       struct audio_stream_in **stream_in)
+static int hdmi_adev_open_input_stream(__attribute__((unused)) audio_hw_device_t *dev,
+                                       __attribute__((unused)) audio_io_handle_t handle,
+                                       __attribute__((unused)) audio_devices_t devices,
+                                       __attribute__((unused)) struct audio_config *config,
+                                       __attribute__((unused)) struct audio_stream_in **stream_in,
+                                       __attribute__((unused)) audio_input_flags_t flags,
+                                       __attribute__((unused)) const char *address,
+                                       __attribute__((unused)) audio_source_t source)
 {
     TRACE();
     return -ENOSYS;
 }
 
-static void hdmi_adev_close_input_stream(audio_hw_device_t *dev,
-                                         struct audio_stream_in *stream_in)
+static void hdmi_adev_close_input_stream(__attribute__((unused)) audio_hw_device_t *dev,
+                                         __attribute__((unused)) struct audio_stream_in *stream_in)
 {
     TRACE();
 }
 
-static int hdmi_adev_dump(const audio_hw_device_t *dev, int fd)
+static int hdmi_adev_dump(__attribute__((unused)) const audio_hw_device_t *dev, __attribute__((unused)) int fd)
 {
     TRACE();
     return 0;
