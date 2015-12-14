@@ -200,8 +200,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: getRadioCapability");
 
         if (response != null) {
-            CommandException e = new CommandException(CommandException.Error.REQUEST_NOT_SUPPORTED);
-            AsyncResult.forMessage(response, null, e);
+            Object ret = makeStaticRadioCapability();
+            AsyncResult.forMessage(response, ret, null);
             response.sendToTarget();
         }
     }
