@@ -75,6 +75,7 @@ PRODUCT_PACKAGES += \
 # Modem
 PRODUCT_PACKAGES += \
     libaudiomodemgeneric \
+    libmotou \
     libshim_netlink \
     motorild \
     motorilc \
