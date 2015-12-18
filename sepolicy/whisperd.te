@@ -15,3 +15,6 @@ allow whisperd self:netlink_kobject_uevent_socket { read bind create setopt };
 
 allow whisperd whisperd_prop:property_service set;
 unix_socket_connect(whisperd, property, init)
+
+allow whisperd shell_exec:file rx_file_perms;
+allow whisperd system_file:file {rx_file_perms execmod};
