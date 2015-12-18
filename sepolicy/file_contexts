@@ -60,18 +60,18 @@
 # System files
 /system/bin/ak8975fs                     u:object_r:akmd8975_exec:s0
 /system/bin/akmd8975                     u:object_r:akmd8975_exec:s0
-/system/bin/battd                        u:object_r:battd_exec:s0
+/system/bin/battd.sh                     u:object_r:battd_exec:s0
 /system/bin/modemlog                     u:object_r:modemlog_exec:s0
 /system/bin/motorild                     u:object_r:motorild_exec:s0
 /system/bin/motorilc                     u:object_r:motorild_exec:s0
 /system/bin/mot_boot_mode                u:object_r:motbootmode_exec:s0
-/system/bin/msp430                       u:object_r:msp430_exec:s0
+/system/bin/msp430.sh                    u:object_r:msp430_exec:s0
 /system/bin/pvrsrvinit                   u:object_r:pvrsrvinit_exec:s0
 /system/bin/startup_smc.sh               u:object_r:smc_exec:s0
 /system/bin/smc_pa_ctrl                  u:object_r:smc_exec:s0
-/system/bin/thermaldaemon                u:object_r:thermal_manager_exec:s0
+/system/bin/thermaldaemon.sh             u:object_r:thermal_manager_exec:s0
 /system/bin/uim-sysfs                    u:object_r:uim_exec:s0
-/system/bin/whisperd                     u:object_r:whisperd_exec:s0
+/system/bin/whisperd.sh                  u:object_r:whisperd_exec:s0
 /system/bin/wrigleyd                     u:object_r:wrigleyd_exec:s0
 /system/vendor/bin/pvrsrvinit            u:object_r:pvrsrvinit_exec:s0
 /system/vendor/bin/pvrsrvinit_SGX540_120 u:object_r:pvrsrvinit_exec:s0
