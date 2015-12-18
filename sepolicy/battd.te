@@ -17,3 +17,5 @@ allow battd cpcap_device:chr_file rw_file_perms;
 allow battd self:netlink_kobject_uevent_socket read;
 allow battd self:netlink_kobject_uevent_socket { bind create setopt };
 allow battd self:capability { setuid fowner net_admin dac_override chown fsetid };
+allow battd shell_exec:file rx_file_perms;
+allow battd system_file:file {rx_file_perms execmod};

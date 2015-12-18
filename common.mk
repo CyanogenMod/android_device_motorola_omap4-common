@@ -26,6 +26,10 @@ TARGET_SCREEN_WIDTH := 480
 
 # The gps config appropriate for this device
 PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/battd.sh \
+    $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/msp430.sh \
+    $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/thermaldaemon.sh \
+    $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/whisperd.sh \
     $(COMMON_FOLDER)/prebuilt/bin/pdsbackup.sh:system/bin/pdsbackup.sh \
     $(COMMON_FOLDER)/prebuilt/bin/wifical.sh:system/bin/wifical.sh \
     $(COMMON_FOLDER)/prebuilt/bin/wificalcheck.sh:system/bin/wificalcheck.sh \
