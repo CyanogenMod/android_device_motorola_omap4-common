@@ -344,7 +344,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                     mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
                     Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceRadioTech");
                     if (mVoiceRadioTechChangedRegistrants != null) {
-                        String tech[] = { voiceDataTech };
+                        int tech[] = { Integer.parseInt(voiceDataTech) };
                         mVoiceRadioTechChangedRegistrants.notifyRegistrants(new AsyncResult(null, tech, null));
                     }
                 }
@@ -366,6 +366,22 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         error = p.readInt();
 
         rr = mRequestList.get(serial);
+
+        /* We need to provide a regState even when dataRegStateReq fails */
+        if (rr != null && error != 0 && p.dataAvail() > 0 && rr.mRequest == RIL_REQUEST_DATA_REGISTRATION_STATE) {
+                String dataRegState[] = { "0", "0", "0", "0", "0" };
+
+                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking DataRegistrationState response");
+
+                if (rr.mResult != null) {
+                        AsyncResult.forMessage(rr.mResult, dataRegState, null);
+                        rr.mResult.sendToTarget();
+                }
+
+                mRequestList.remove(serial);
+                return rr;
+        }
+
         if (rr == null || error != 0 || p.dataAvail() <= 0) {
             p.setDataPosition(dataPosition);
             return super.processSolicited(p);
