@@ -50,6 +50,9 @@ on post-fs
     mkdir /data/misc/akmd 0755 compass compass
     restorecon_recursive /data/misc/akmd
 
+    mkdir /data/misc/ril 0771 radio radio
+    restorecon_recursive /data/misc/ril
+
 # Enable PVR modules
     insmod /system/lib/modules/pvrsrvkm_sgx540_120.ko
     insmod /system/lib/modules/omaplfb_sgx540_120.ko
@@ -249,6 +252,10 @@ on post-fs-data
     mkdir /data/tmp/battd 0770 root mot_accy
     chmod 0770 /data/tmp/battd
     chown root mot_accy /data/tmp/battd
+    restorecon_recursive /data/tmp/battd
+
+    mkdir /data/battd 0770 mot_accy mot_accy
+    restorecon_recursive /data/battd
 
 # directory for encryption management tool, enc_mgt_tool
     mkdir /data/emt 0770 root system
