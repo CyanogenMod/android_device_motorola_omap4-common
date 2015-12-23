@@ -59,7 +59,11 @@ PRODUCT_PACKAGES += \
     audio.a2dp.default \
     audio.hdmi.omap4 \
     audio.r_submix.default \
-    camera.omap4
+    camera.omap4 \
+    gps.maserati \
+    gps.spyder \
+    gps.targa \
+    gps.umts_spyder
 
 PRODUCT_PACKAGES += \
     audio_policy.omap4 \
