@@ -192,12 +192,25 @@ on post-fs
 # Load BT userspace driver
     insmod /system/lib/modules/btwilink.ko
     insmod /system/lib/modules/tty_hci.ko
-# Load wifi drivers (all except wl12xx_sdio)
+
+on post-fs-data
+#Wifi
+    # Load wifi drivers (all except wl12xx_sdio)
     insmod /system/lib/modules/compat.ko
     insmod /system/lib/modules/cfg80211.ko
     insmod /system/lib/modules/mac80211.ko
     insmod /system/lib/modules/wl12xx.ko
-on post-fs-data
+    # create moto specific dirs for wifi
+    mkdir /data/system 0771 system system
+    # wifi dirs
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    mkdir /data/misc/wifi/firmware 0770 wifi wifi
+    # Wifi check
+    exec u:r:qti_init_shell:s0 root wifi -- /system/bin/sh /system/bin/wificalcheck.sh boot
+    chmod 0640 /data/misc/wifi/wl1271-nvs.bin
+    restorecon_recursive /data/misc/wifi
+#tmp
     mkdir /data/tmp 0777 system system
 #Set the default value for bluedroid_ref
     write /data/tmp/bluedroid_ref 0
@@ -206,12 +219,6 @@ on post-fs-data
     # fix cache for market access
     chmod 775 /cache
     mkdir /cache/download 0775 system system
-    # create moto specific dirs for wifi
-    mkdir /data/system 0771 system system
-    # wifi dirs
-    mkdir /data/misc/wifi 0770 wifi wifi
-    mkdir /data/misc/wifi/sockets 0770 wifi wifi
-    mkdir /data/misc/wifi/firmware 0770 wifi wifi
     mkdir /data/misc/dhcp 0770 dhcp dhcp
     # create moto specific dirs for factory
     mkdir /data/dalvik-cache 0771 system system
@@ -505,7 +512,6 @@ on boot
 
 # Start services
     exec u:r:motbootmode:s0 root root -- /system/bin/mot_boot_mode
-    start wifical_check
 # Set core max size (2G)
     setrlimit 4 2147483648 2147483648
     mount debugfs /sys/kernel/debug /sys/kernel/debug
@@ -710,14 +716,6 @@ service thermal_manager /system/bin/thermaldaemon.sh
 on property:ro.revision=34
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor hotplug
 # Add any hotplug tuning parameters here.
-
-# Wifi check
-service wifical_check /system/bin/sh /system/bin/wificalcheck.sh
-    disabled
-    class late_start
-    user root
-    group wifi
-    oneshot
 
 service motorild /system/bin/motorild
     class main

@@ -6,3 +6,5 @@ allow qti_init_shell self:netlink_socket { write getattr setopt read bind create
 allow qti_init_shell self:udp_socket { create ioctl };
 allow qti_init_shell wifi_data_file:file create_file_perms;
 allow qti_init_shell wifi_data_file:dir create_dir_perms;
+allow qti_init_shell pds_file:dir r_dir_perms;
+allow qti_init_shell pds_file:file r_file_perms;

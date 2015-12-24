@@ -1,6 +1,11 @@
 #! /system/bin/sh
 
-WIFION=`getprop init.svc.p2p_supplicant`
+if [ "${1}" != "boot" ]; then
+    WIFION=`getprop init.svc.p2p_supplicant`
+else
+    WIFION="off"
+fi
+
 WL12xx_MODULE=/system/lib/modules/wl12xx_sdio.ko
 PDS_NVS_FILE=/pds/wifi/nvs_map.bin
 SOURCE_FW_DIR=/system/etc/firmware/ti-connectivity
