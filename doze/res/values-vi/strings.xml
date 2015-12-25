@@ -13,8 +13,11 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="screen_gestures_panel_title">Cử chỉ</string>
+  <string name="screen_gestures_panel_summary">Sử dụng cử chỉ để thực hiện hành động</string>
   <string name="ambient_display_title">Hiển thị môi trường xung quanh</string>
   <string name="ambient_display_enable_title">Hiển thị môi trường xung quanh</string>
+  <string name="ambient_display_enable_summary">Sáng màn hình khi nhận thông báo</string>
   <string name="hand_wave_gesture_title">Vẫy tay</string>
   <string name="hand_wave_gesture_summary">Kích hoạt thông báo về vẫy tay</string>
   <string name="pocket_gesture_title">Túi</string>
