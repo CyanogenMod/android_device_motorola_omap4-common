@@ -53,6 +53,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
 
     private INetworkManagementService mNwService;
     private boolean initialAttachApnSeen = false;
+    private boolean setPreferredNetworkTypeSeen = false;
     private String voiceRegState = "0";
     private String voiceDataTech = "0";
 
@@ -227,6 +228,18 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         }
     }
 
+    @Override
+    public void setPreferredNetworkType(int networkType , Message response) {
+        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setPreferredNetworkType: " + networkType);
+
+        if (!setPreferredNetworkTypeSeen) {
+            Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: need to reboot modem!");
+            setRadioPower(false, null);
+            setPreferredNetworkTypeSeen = true;
+        }
+
+        super.setPreferredNetworkType(networkType, response);
+    }
 
     @Override
     public void setupDataCall(String radioTechnology, String profile, String apn,
