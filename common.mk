@@ -104,7 +104,6 @@ PRODUCT_PACKAGES += \
     crda \
     regulatory.bin \
     calibrator \
-    busybox \
     libwpa_client \
     hostapd \
     wpa_supplicant
