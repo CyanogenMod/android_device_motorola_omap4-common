@@ -15,7 +15,7 @@ mount_pds_image() {
     umount /pds 2>/dev/null
     losetup -d /dev/block/loop7 2>/dev/null
     losetup /dev/block/loop7 $PDS_FILE
-    busybox mount -o rw,nosuid,nodev,noatime,nodiratime,barrier=1 /dev/block/loop7 /pds
+    mount -o rw,nosuid,nodev,noatime,nodiratime,barrier=1 /dev/block/loop7 /pds
 }
 
 if [ -f /data/pds.img ]; then
@@ -30,26 +30,24 @@ if [ ! -f $PDS_FILE ] ; then
     #mount the fake pds
     mount_pds_image
 
-    cd /pds
     #find and change moto users first
-    busybox find -user 9000 -exec chown 1000 {} \;
-    busybox find -user 9003 -exec chown 1000 {} \;
-    busybox find -user 9004 -exec chown 1000 {} \;
-    busybox find -user 9007 -exec chown 1000 {} \;
+    find /pds -user 9000 -exec chown 1000 {} \;
+    find /pds -user 9003 -exec chown 1000 {} \;
+    find /pds -user 9004 -exec chown 1000 {} \;
+    find /pds -user 9007 -exec chown 1000 {} \;
 
     #find and change moto groups
-    busybox find -group 9000 -exec chgrp 1000 {} \;
-    busybox find -group 9003 -exec chgrp 1000 {} \;
-    busybox find -group 9004 -exec chgrp 1000 {} \;
-    busybox find -group 9007 -exec chgrp 1000 {} \;
-    busybox find -group 9009 -exec chgrp 1000 {} \;
+    find /pds -group 9000 -exec chgrp 1000 {} \;
+    find /pds -group 9003 -exec chgrp 1000 {} \;
+    find /pds -group 9004 -exec chgrp 1000 {} \;
+    find /pds -group 9007 -exec chgrp 1000 {} \;
+    find /pds -group 9009 -exec chgrp 1000 {} \;
 
     echo "PDS Backed up, permissions fixed and mounted"
 
     if [ -d /data/battd ] ; then
-        cd /data/battd
-        busybox find -user 9000 -exec chown 1000 {} \;
-        busybox find -group 9000 -exec chgrp 1000 {} \;
+        find /data/battd -user 1000 -exec chown 9000 {} \;
+        find /data/battd -group 1000 -exec chgrp 9000 {} \;
     fi
 
 else
