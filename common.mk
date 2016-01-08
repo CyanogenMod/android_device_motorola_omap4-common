@@ -139,7 +139,10 @@ PRODUCT_PACKAGES += \
 # OMAP4
 PRODUCT_PACKAGES += \
     libmm_osal \
-    gralloc.omap4.so
+    gralloc.maserati \
+    gralloc.spyder \
+    gralloc.targa \
+    gralloc.umts_spyder
 
 PRODUCT_PACKAGES += \
     evtest \

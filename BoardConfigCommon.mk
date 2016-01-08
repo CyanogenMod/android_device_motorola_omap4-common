@@ -147,6 +147,7 @@ TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_EGL_CFG := device/motorola/omap4-common/prebuilt/etc/egl.cfg
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
 TARGET_USES_OPENGLES_FOR_SCREEN_CAPTURE := true
+BOARD_GRALLOC_HMI_SIZE := 0x000001c0
 
 # Number of supplementary service groups allowed by init
 TARGET_NR_SVC_SUPP_GIDS := 28
