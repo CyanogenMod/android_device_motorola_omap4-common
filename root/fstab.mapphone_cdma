@@ -8,4 +8,5 @@
 /dev/block/cache                                    /cache           ext3    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check
 /devices/platform/omap/omap_hsmmc.1/mmc_host/mmc1*  auto             vfat    defaults                                                       voldmanaged=sdcard0:25,noemulatedsd,nonremovable
 /devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0*  auto             auto    defaults                                                       voldmanaged=sdcard1:auto,encryptable=userdata
+/devices/platform/omap/musb-omap2430/musb-hdrc/usb* auto             auto    defaults                                                       voldmanaged=usb:auto
 /dev/block/zram0                                    none             swap    defaults                                                       zramsize=268435456
