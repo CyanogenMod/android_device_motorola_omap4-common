@@ -128,7 +128,7 @@ static int wrapper_open(__attribute__((unused)) const hw_module_t* module,
     ALOGI("Initializing wrapper for Motorola's GPS-HAL");
 
     my_gps_device = malloc(sizeof(struct gps_device_t));
-    if (!*device) {
+    if (!my_gps_device) {
         ALOGE("wrapper_open: couldn't malloc");
         return -EINVAL;
     }
