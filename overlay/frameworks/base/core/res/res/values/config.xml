@@ -258,10 +258,8 @@
     -->
 
     <!-- Use analog dock-connector if device is connected (auto-sensing) -->
-    <!--
     <bool name="config_forceAnalogDeskDock">true</bool>
     <bool name="config_forceAnalogCarDock">true</bool>
-    -->
 
     <!-- Screen brightness used to dim the screen while dozing in a very low power state.
          May be less than the minimum allowed brightness setting
