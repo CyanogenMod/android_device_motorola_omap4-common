@@ -17,6 +17,13 @@
 package com.android.internal.telephony;
 
 import static com.android.internal.telephony.RILConstants.*;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_UNKNOWN;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_EDGE;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_GPRS;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_UMTS;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_HSDPA;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_HSUPA;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_HSPA;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -355,11 +362,13 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
 
                     Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
                     mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
-                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceRadioTech");
+                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceRadioTech UMTS");
                     if (mVoiceRadioTechChangedRegistrants != null) {
-                        int tech[] = { Integer.parseInt(voiceDataTech) };
+                        int tech[] = { NETWORK_TYPE_UMTS }; // We only care about the technology family
                         mVoiceRadioTechChangedRegistrants.notifyRegistrants(new AsyncResult(null, tech, null));
                     }
+                    //Force PhoneProxy to query real VoiceRadioTech
+                    mOnRegistrants.notifyRegistrants();
                 }
             }
         }
@@ -449,7 +458,9 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                                 dataRegStates[0] = "0";
                             }
                         } else {
-                            if ((Integer.parseInt(dataRegStates[0]) != 1) && (Integer.parseInt(dataRegStates[0]) != 5) &&
+                            //CDMA needs to use VoiceReg/Tech for data
+                            if ((getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) &&
+                                (Integer.parseInt(dataRegStates[0]) != 1) && (Integer.parseInt(dataRegStates[0]) != 5) &&
                                 ((Integer.parseInt(voiceRegState) == 1) || (Integer.parseInt(voiceRegState) == 5))) {
                                 Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataRegState from " + dataRegStates[0] + " to " + voiceRegState);
                                 dataRegStates[0] = voiceRegState;
