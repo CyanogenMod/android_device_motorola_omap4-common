@@ -517,6 +517,12 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 }
 
                 break;
+            case RIL_UNSOL_RIL_CONNECTED:
+                if (!setPreferredNetworkTypeSeen) {
+                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: connected, setting network type to " + mPreferredNetworkType);
+                    setPreferredNetworkType(mPreferredNetworkType, null);
+                }
+                break;
         }
 
         p.setDataPosition(dataPosition);
