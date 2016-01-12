@@ -42,6 +42,7 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.telephony.Rlog;
+import android.telephony.ServiceState;
 import android.net.NetworkUtils;
 import android.net.InterfaceConfiguration;
 import android.net.LinkAddress;
@@ -343,38 +344,20 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         return super.getDataCallResponse(p, version);
     }
 
-    protected Object responseIccCardStatus(Parcel p) {
-        int dataPosition = p.dataPosition(); // save off position within the Parcel
+    private void switchCdmaGsm(int tech) {
+        int lteOnCdma = 1;
 
-        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: responseIccCardStatus");
-
-        int cardState = p.readInt(); //CardState
-        if (cardState == 1) { //Present
-            p.readInt(); //PinState
-            int gsmIndex = p.readInt();
-            int cdmaIndex = p.readInt();
-
-            if ((cdmaIndex == -1) && (gsmIndex != -1)) {
-                //No CDMA application on card, but GSM/UMTS present
-                if (getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) {
-                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: disabling telephony.lteOnCdmaDevice");
-                    SystemProperties.set("telephony.lteOnCdmaDevice", "0");
-
-                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
-                    mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
-                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceRadioTech UMTS");
-                    if (mVoiceRadioTechChangedRegistrants != null) {
-                        int tech[] = { NETWORK_TYPE_UMTS }; // We only care about the technology family
-                        mVoiceRadioTechChangedRegistrants.notifyRegistrants(new AsyncResult(null, tech, null));
-                    }
-                    //Force PhoneProxy to query real VoiceRadioTech
-                    mOnRegistrants.notifyRegistrants();
-                }
-            }
+        if (ServiceState.isGsm(tech) &&
+                tech != ServiceState.RIL_RADIO_TECHNOLOGY_LTE &&
+                tech != ServiceState.RIL_RADIO_TECHNOLOGY_LTE_CA) {
+            lteOnCdma = 0;
         }
 
-        p.setDataPosition(dataPosition);
-        return super.responseIccCardStatus(p);
+        if (getLteOnCdmaMode() != lteOnCdma) {
+            Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: " + ((lteOnCdma == 1) ? "en" : "dis") +"abling telephony.lteOnCdmaDevice");
+
+            SystemProperties.set("telephony.lteOnCdmaDevice", Integer.toString(lteOnCdma));
+        }
     }
 
     @Override
@@ -482,6 +465,15 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 }
                 mRequestList.remove(serial);
                 break;
+            case RIL_REQUEST_VOICE_RADIO_TECH:
+                int voiceTech[] = (int [])responseInts(p);
+
+                if (voiceTech.length > 0)  {
+                    switchCdmaGsm(voiceTech[0]);
+                }
+
+                p.setDataPosition(dataPosition);
+                return super.processSolicited(p);
             default:
                 p.setDataPosition(dataPosition);
                 return super.processSolicited(p);
@@ -532,6 +524,13 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 if (!setPreferredNetworkTypeSeen) {
                     Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: connected, setting network type to " + mPreferredNetworkType);
                     setPreferredNetworkType(mPreferredNetworkType, null);
+                }
+                break;
+            case RIL_UNSOL_VOICE_RADIO_TECH_CHANGED:
+                int voiceTech[] = (int [])responseInts(p);
+
+                if (voiceTech.length > 0)  {
+                    switchCdmaGsm(voiceTech[0]);
                 }
                 break;
         }
