@@ -240,8 +240,6 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setPreferredNetworkType: " + networkType);
 
         if (!setPreferredNetworkTypeSeen) {
-            Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: need to reboot modem!");
-            setRadioPower(false, null);
             setPreferredNetworkTypeSeen = true;
         }
 
