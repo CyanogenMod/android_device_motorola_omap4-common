@@ -41,7 +41,9 @@ import android.os.SystemProperties;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.telephony.RadioAccessFamily;
 import android.telephony.Rlog;
+import android.telephony.ServiceState;
 import android.net.NetworkUtils;
 import android.net.InterfaceConfiguration;
 import android.net.LinkAddress;
@@ -61,6 +63,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     private INetworkManagementService mNwService;
     private boolean initialAttachApnSeen = false;
     private boolean setPreferredNetworkTypeSeen = false;
+    private boolean forceGsm = false;
+    private int lastPreferredNetworkType = -1;
     private String voiceRegState = "0";
     private String voiceDataTech = "0";
 
@@ -208,7 +212,16 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: getRadioCapability");
 
         if (response != null) {
-            Object ret = makeStaticRadioCapability();
+            Object ret;
+            if (!forceGsm) {
+                ret = makeStaticRadioCapability();
+            } else {
+                String rafString = "GSM|WCDMA";
+                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: reducing to " + rafString);
+                int raf = RadioAccessFamily.rafTypeFromString(rafString);
+                ret = new RadioCapability(mInstanceId.intValue(), 0, 0, raf,
+                                  "", RadioCapability.RC_STATUS_SUCCESS);
+            }
             AsyncResult.forMessage(response, ret, null);
             response.sendToTarget();
         }
@@ -242,6 +255,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         if (!setPreferredNetworkTypeSeen) {
             setPreferredNetworkTypeSeen = true;
         }
+
+        lastPreferredNetworkType = networkType;
 
         super.setPreferredNetworkType(networkType, response);
     }
@@ -341,6 +356,27 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         return super.getDataCallResponse(p, version);
     }
 
+    private void switchCdmaGsm(int tech) {
+        int lteOnCdma = 1;
+
+        if ((!forceGsm) && (tech == ServiceState.RIL_RADIO_TECHNOLOGY_UNKNOWN)) {
+            return;
+        }
+
+        if (forceGsm ||
+            (ServiceState.isGsm(tech) &&
+             tech != ServiceState.RIL_RADIO_TECHNOLOGY_LTE &&
+             tech != ServiceState.RIL_RADIO_TECHNOLOGY_LTE_CA)) {
+            lteOnCdma = 0;
+        }
+
+        if (getLteOnCdmaMode() != lteOnCdma) {
+            Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: " + ((lteOnCdma == 1) ? "en" : "dis") +"abling telephony.lteOnCdmaDevice");
+
+            SystemProperties.set("telephony.lteOnCdmaDevice", Integer.toString(lteOnCdma));
+        }
+    }
+
     protected Object responseIccCardStatus(Parcel p) {
         int dataPosition = p.dataPosition(); // save off position within the Parcel
 
@@ -352,11 +388,18 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
             int gsmIndex = p.readInt();
             int cdmaIndex = p.readInt();
 
-            if ((cdmaIndex == -1) && (gsmIndex != -1)) {
-                //No CDMA application on card, but GSM/UMTS present
-                if (getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) {
-                    Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: disabling telephony.lteOnCdmaDevice");
-                    SystemProperties.set("telephony.lteOnCdmaDevice", "0");
+            if (SystemProperties.getBoolean("ro.mot.phonemode.vzw4gphone", false) &&
+                (cdmaIndex == -1) && (gsmIndex != -1)) {
+                //No CDMA application on card, but GSM/UMTS present, perform full switch
+                if (!forceGsm) {
+                    switchCdmaGsm(ServiceState.RIL_RADIO_TECHNOLOGY_UMTS);
+
+                    if (lastPreferredNetworkType != RILConstants.NETWORK_MODE_WCDMA_PREF &&
+                        lastPreferredNetworkType != RILConstants.NETWORK_MODE_GSM_ONLY &&
+                        lastPreferredNetworkType != RILConstants.NETWORK_MODE_WCDMA_ONLY &&
+                        lastPreferredNetworkType != RILConstants.NETWORK_MODE_GSM_UMTS) {
+                        setPreferredNetworkType(RILConstants.NETWORK_MODE_WCDMA_PREF, null);
+                    }
 
                     Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
                     mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
@@ -365,8 +408,12 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                         int tech[] = { NETWORK_TYPE_UMTS }; // We only care about the technology family
                         mVoiceRadioTechChangedRegistrants.notifyRegistrants(new AsyncResult(null, tech, null));
                     }
+
+                    forceGsm = true;
                     //Force PhoneProxy to query real VoiceRadioTech
                     mOnRegistrants.notifyRegistrants();
+                    //Force Phone to query new RadioCapabilities
+                    mAvailRegistrants.notifyRegistrants();
                 }
             }
         }
@@ -480,6 +527,15 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 }
                 mRequestList.remove(serial);
                 break;
+            case RIL_REQUEST_VOICE_RADIO_TECH:
+                int voiceTech[] = (int [])responseInts(p);
+
+                if (voiceTech.length > 0)  {
+                    switchCdmaGsm(voiceTech[0]);
+                }
+
+                p.setDataPosition(dataPosition);
+                return super.processSolicited(p);
             default:
                 p.setDataPosition(dataPosition);
                 return super.processSolicited(p);
@@ -530,6 +586,13 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 if (!setPreferredNetworkTypeSeen) {
                     Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: connected, setting network type to " + mPreferredNetworkType);
                     setPreferredNetworkType(mPreferredNetworkType, null);
+                }
+                break;
+            case RIL_UNSOL_VOICE_RADIO_TECH_CHANGED:
+                int voiceTech[] = (int [])responseInts(p);
+
+                if (voiceTech.length > 0)  {
+                    switchCdmaGsm(voiceTech[0]);
                 }
                 break;
         }
