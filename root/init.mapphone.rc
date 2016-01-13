@@ -523,6 +523,14 @@ on boot
     chmod 660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
     chmod 660 /proc/irq/124/smp_affinity
     chmod 660 /proc/irq/125/smp_affinity
+    #Hardware tunables
+    chown root system /sys/devices/platform/omapdss/manager0/cpr_coef
+    chown root system /sys/devices/platform/omapdss/manager0/cpr_enable
+    chmod 0664 /sys/devices/platform/omapdss/manager0/cpr_coef
+    chmod 0664 /sys/devices/platform/omapdss/manager0/cpr_enable
+    restorecon /sys/devices/platform/omapdss/manager0/cpr_coef
+    restorecon /sys/devices/platform/omapdss/manager0/cpr_enable
+
 on charger
     trigger early-fs
     trigger fs
