@@ -7,6 +7,7 @@ allow init loop_system_block_device:blk_file { relabelto };
 allow init userdata_block_device:blk_file { relabelto };
 allow init cache_block_device:blk_file { relabelto };
 allow init socket_device:sock_file rw_file_perms;
+allow init sysfs_hardware:file rw_file_perms;
 
 domain_trans(init, rootfs, fixboot)
 domain_trans(init, motbootmode_exec, motbootmode)
