@@ -232,10 +232,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     windowsmgr.max_events_per_sec=90 \
     com.ti.omap_enhancement=true \
     ro.bq.gpu_to_cpu_unsupported=1 \
-    hwui.render_dirty_regions=false \
+    debug.hwui.render_dirty_regions=false \
+    ro.hwui.disable_scissor_opt=true \
     persist.demo.hdmirotationlock=true \
     ro.product.use_charge_counter=1 \
-    persist.sys.usb.config=mtp \
     ro.setupwizard.enable_bypass=1
 
 # Media
