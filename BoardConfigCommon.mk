@@ -48,6 +48,7 @@ include device/qcom/sepolicy/sepolicy.mk
 # Kernel/Module Build
 TARGET_KERNEL_SOURCE := kernel/motorola/omap4-common
 TARGET_KERNEL_CONFIG := mapphone_mmi_defconfig
+COMMON_KERNEL_CMDLINE := zcache zcache=lz4 androidboot.hardware=mapphone_cdma androidboot.selinux=enforcing
 
 WLAN_MODULES:
 	make clean -C hardware/ti/wlan/mac80211/compat_wl12xx
