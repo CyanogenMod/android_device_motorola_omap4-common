@@ -11,7 +11,7 @@ allow fixboot rootfs:file { execute_no_trans };
 allow fixboot rootfs:dir { create_dir_perms mounton };
 allow fixboot vfat:file rw_file_perms;
 allow fixboot vfat:dir rw_dir_perms;
-allow fixboot vfat:filesystem { mount };
+allow fixboot vfat:filesystem { mount unmount };
 allow fixboot block_device:dir create_dir_perms;
 allow fixboot block_device:lnk_file { rename create };
 allow fixboot loop_system_block_device:blk_file rw_file_perms;
