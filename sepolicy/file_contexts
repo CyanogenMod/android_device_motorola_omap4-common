@@ -58,8 +58,7 @@
 /dev/rfkill u:object_r:rfkill_device:s0
 
 # System files
-/system/bin/ak8975fs                     u:object_r:akmd8975_exec:s0
-/system/bin/akmd8975                     u:object_r:akmd8975_exec:s0
+/system/bin/akmd8975\.sh                 u:object_r:akmd8975_exec:s0
 /system/bin/battd\.sh                    u:object_r:battd_exec:s0
 /system/bin/modemlog                     u:object_r:modemlog_exec:s0
 /system/bin/motorild                     u:object_r:motorild_exec:s0

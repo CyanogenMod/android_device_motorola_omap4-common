@@ -6,8 +6,13 @@ type akmd8975_file, file_type;
 init_daemon_domain(akmd8975)
 
 allow akmd8975 sensors_device:chr_file rw_file_perms;
+allow akmd8975 input_device:dir r_dir_perms;
+allow akmd8975 input_device:chr_file r_file_perms;
 allow akmd8975 system_data_file:dir create_dir_perms;
 allow akmd8975 akmd8975_file:dir create_dir_perms;
 allow akmd8975 akmd8975_file:file create_file_perms;
 allow akmd8975 akmd8975_exec:file rx_file_perms;
 allow akmd8975 self:process execmem;
+
+allow akmd8975 shell_exec:file rx_file_perms;
+allow akmd8975 system_file:file {rx_file_perms execmod};
