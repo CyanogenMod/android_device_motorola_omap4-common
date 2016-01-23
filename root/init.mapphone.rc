@@ -607,7 +607,7 @@ service uim /system/bin/uim-sysfs
     user  root
     group bluetooth net_bt_admin
 # Ecompass daemon
-service akmd8975 /system/bin/ak8975fs
+service akmd8975 /system/bin/akmd8975.sh
     class main
     user compass
     group compass misc input

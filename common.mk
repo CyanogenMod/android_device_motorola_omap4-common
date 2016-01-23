@@ -26,6 +26,7 @@ TARGET_SCREEN_WIDTH := 480
 
 # The gps config appropriate for this device
 PRODUCT_COPY_FILES += \
+    $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/akmd8975.sh \
     $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/battd.sh \
     $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/msp430.sh \
     $(COMMON_FOLDER)/prebuilt/bin/execmod-wrapper.sh:system/bin/thermaldaemon.sh \
@@ -118,10 +119,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     uim-sysfs \
     libbt-vendor
-
-# Sensors
-PRODUCT_PACKAGES += \
-    ak8975fs
 
 # Misc
 PRODUCT_PACKAGES += \

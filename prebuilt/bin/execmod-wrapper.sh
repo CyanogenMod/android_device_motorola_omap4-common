@@ -8,6 +8,8 @@ elif [ "${0}" = "/system/bin/thermaldaemon.sh" ]; then
 	exec "/system/bin/thermaldaemon" "${@}"
 elif [ "${0}" = "/system/bin/whisperd.sh" ]; then
 	exec "/system/bin/whisperd" "${@}"
+elif [ "${0}" = "/system/bin/akmd8975.sh" ]; then
+	exec "/system/bin/akmd8975" "${@}"
 fi
 
 exit 1
