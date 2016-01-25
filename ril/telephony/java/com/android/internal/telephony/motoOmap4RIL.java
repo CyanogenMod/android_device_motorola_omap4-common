@@ -164,6 +164,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     public void setDataAllowed(boolean allowed, Message result) {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setDataAllowed");
 
+        initialAttachApnSeen = true;
+
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
         mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
 
