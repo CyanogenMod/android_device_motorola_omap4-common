@@ -6,6 +6,3 @@ type firmware_ducati, file_type;
 
 # panic files (modemlog)
 type panic_file, file_type;
-
-# hardware tunables
-type sysfs_hardware, fs_type, sysfs_type;

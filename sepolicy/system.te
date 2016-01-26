@@ -5,4 +5,3 @@ allow system_server panic_file:file create_file_perms;
 allow system_server system_file:file { execmod };
 allow system_server rild_file:dir r_dir_perms;
 allow system_server rild_file:sock_file rw_file_perms;
-allow system_server sysfs_hardware:file rw_file_perms;
