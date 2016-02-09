@@ -61,7 +61,7 @@ import com.android.internal.telephony.dataconnection.DataCallResponse;
 public class motoOmap4RIL extends RIL implements CommandsInterface {
 
     private INetworkManagementService mNwService;
-    private boolean initialAttachApnSeen = false;
+    private boolean dataAllowed = false;
     private boolean setPreferredNetworkTypeSeen = false;
     private boolean forceGsm = false;
     private int lastPreferredNetworkType = -1;
@@ -164,7 +164,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     public void setDataAllowed(boolean allowed, Message result) {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setDataAllowed");
 
-        initialAttachApnSeen = true;
+        dataAllowed = allowed;
 
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
         mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
@@ -280,7 +280,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
             String password, Message result) {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setInitialAttachApn");
 
-        initialAttachApnSeen = true;
+        dataAllowed = true; //If we should attach to an APN, we actually need to register data
 
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
         mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
@@ -499,7 +499,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
 
                 if (dataRegStates.length > 0) {
                     if (dataRegStates[0] != null) {
-                        if (!initialAttachApnSeen) {
+                        if (!dataAllowed) {
                             if (Integer.parseInt(dataRegStates[0]) > 0) {
                                 Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataRegState to 0 from " + dataRegStates[0]);
                                 dataRegStates[0] = "0";
