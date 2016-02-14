@@ -149,6 +149,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     MotoDoze
 
+# Camera
+PRODUCT_PACKAGES += \
+    Snap
+
 # FS config
 PRODUCT_PACKAGES += \
     fs_config_files
