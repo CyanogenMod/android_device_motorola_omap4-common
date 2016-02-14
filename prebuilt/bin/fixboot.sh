@@ -6,7 +6,7 @@ exec 1<>/dev/kmsg
 exec 2>&1
 
 # mount safestrap partition
-/sbin/bbx mount -t vfat -o uid=1023,gid=1023,fmask=0007,dmask=0007,allow_utime=0020 /dev/block/emstorage /ss
+/sbin/bbx mount -t vfat -o uid=1023,gid=1023,fmask=0007,dmask=0007,allow_utime=0020,utf8 /dev/block/emstorage /ss
 
 SLOT_LOC=$(/sbin/bbx cat /ss/safestrap/active_slot)
 
