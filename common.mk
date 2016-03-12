@@ -290,7 +290,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     wifi.interface=wlan0 \
     softap.interface=wlan0 \
     wifi.ap.interface=wlan0 \
-    wifi.supplicant_scan_interval=90 \
     persist.wlan.ti.calibrated=0 \
     ro.disableWifiApFirmwareReload=true
 
