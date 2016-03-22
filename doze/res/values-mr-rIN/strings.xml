@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">जेश्चर्स</string>
-  <string name="screen_gestures_panel_summary">कृती पार पाडण्यासाठी जेश्चर्स वापरा</string>
   <string name="ambient_display_title">अँबियन्ट प्रदर्शन</string>
   <string name="ambient_display_enable_title">अँबियन्ट प्रदर्शन</string>
   <string name="ambient_display_enable_summary">तुम्हाला नोटिफिकेशन्स मिळतील तेव्हा स्क्रीन सक्रिय करा</string>

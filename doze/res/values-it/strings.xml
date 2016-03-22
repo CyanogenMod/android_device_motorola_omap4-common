@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">Gesture</string>
-  <string name="screen_gestures_panel_summary">Usa le gesture per eseguire azioni</string>
   <string name="ambient_display_title">Ambient display</string>
   <string name="ambient_display_enable_title">Ambient display</string>
   <string name="ambient_display_enable_summary">Accendi lo schermo quando ricevi una notifica</string>

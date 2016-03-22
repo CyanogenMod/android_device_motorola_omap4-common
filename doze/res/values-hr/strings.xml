@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">Geste</string>
-  <string name="screen_gestures_panel_summary">Koristite geste za aktivnosti</string>
   <string name="ambient_display_title">Ambijentni zaslon</string>
   <string name="ambient_display_enable_title">Ambijentni zaslon</string>
   <string name="ambient_display_enable_summary">Probudi zaslon kada primite obavijest</string>

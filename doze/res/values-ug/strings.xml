@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">قول ئىشارەت</string>
-  <string name="screen_gestures_panel_summary">قول ئىشارىتى ئارقىلىق مەشغۇلات ئېلىپ بېرىڭ</string>
   <string name="ambient_display_title">تەشەببۇسكارلىق بىلەن كۆرسىتىدۇ</string>
   <string name="ambient_display_enable_title">تەشەببۇسكارلىق بىلەن كۆرسىتىدۇ</string>
   <string name="ambient_display_enable_summary">ئۇقتۇرۇش كەلگەندە ئېكراننى ئويغىتىدۇ</string>

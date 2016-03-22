@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">ভঙ্গিমা</string>
-  <string name="screen_gestures_panel_summary">ক্ৰিয়া সম্পন্ন কৰিবলৈ ভঙ্গিমা ব্যৱহাৰ কৰক</string>
   <string name="ambient_display_title">পৰিপাৰ্শ্বিক ডিচপ্লে</string>
   <string name="ambient_display_enable_title">পৰিপাৰ্শ্বিক ডিচপ্লে</string>
   <string name="ambient_display_enable_summary">আপুনি অধিসূচনা প্ৰাপ্ত কৰিলে স্ক্ৰীণ ৱেক কৰক</string>

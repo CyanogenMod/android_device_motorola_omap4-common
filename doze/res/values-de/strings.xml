@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">Gesten</string>
-  <string name="screen_gestures_panel_summary">Gesten verwenden, um Aktionen auszuführen</string>
   <string name="ambient_display_title">Inaktivitätsdisplay</string>
   <string name="ambient_display_enable_title">Inaktivitätsdisplay</string>
   <string name="ambient_display_enable_summary">Bildschirm beim Empfang von Benachrichtigungen aktivieren</string>

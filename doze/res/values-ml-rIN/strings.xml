@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">ആംഗ്യം</string>
-  <string name="screen_gestures_panel_summary">പ്രവർത്തനങ്ങൾ നടത്തുന്നതിന് ആംഗ്യങ്ങൾ ഉപയോഗിക്കുക</string>
   <string name="ambient_display_title">വ്യാപിക്കുന്ന പ്രദര്‍ശനം</string>
   <string name="ambient_display_enable_title">വ്യാപിക്കുന്ന പ്രദര്‍ശനം</string>
   <string name="ambient_display_enable_summary">നിങ്ങൾക്ക് അറിയിപ്പുകൾ ലഭിക്കുമ്പോൾ സ്ക്രീൻ ഉണര്‍ത്തുക</string>

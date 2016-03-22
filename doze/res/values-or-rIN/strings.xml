@@ -15,7 +15,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Gesture shortcuts -->
   <string name="screen_gestures_panel_title">ଅଙ୍ଗଭଙ୍ଗୀ୍ସ</string>
-  <string name="screen_gestures_panel_summary">ସଂଚାଳନଗୁଡିକ କରିବା ପାଇଁ ଅଙ୍ଗଭଙ୍ଗୀ୍ସ ବ୍ୟବହାର କରନ୍ତୁ</string>
   <string name="ambient_display_title">ଏମ୍ବିଏଣ୍ଟ ପ୍ରଦର୍ଶନ</string>
   <string name="ambient_display_enable_title">ଏମ୍ବିଏଣ୍ଟ ପ୍ରଦର୍ଶନ</string>
   <string name="ambient_display_enable_summary">ଆପଣ ସୂଚନାବଳି ପ୍ରାପ୍ତ କରିବା ସମୟରେ ସ୍କ୍ରିନ୍‍କୁ ଉଠାନ୍ତୁ</string>
