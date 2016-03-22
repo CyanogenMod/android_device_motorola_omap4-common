@@ -283,6 +283,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.call_ring.multiple=false \
     persist.ril.mux.noofchannels=10 \
     persist.ril.mux.retries=500 \
+    ro.ril.force_eri_from_xml=true \
     ro.telephony.ril_class=motoOmap4RIL
 
 # Wifi
