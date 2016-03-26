@@ -89,6 +89,24 @@ on post-fs
     # Disable automatic power control for OHCI USB IPC Temporarily
     #    write /sys/devices/platform/ohci-omap3/usb1/1-1/power/control auto
 
+#Wifi
+    # Load wifi drivers (all except wl12xx_sdio)
+    insmod /system/lib/modules/compat.ko
+    insmod /system/lib/modules/cfg80211.ko
+    insmod /system/lib/modules/mac80211.ko
+    insmod /system/lib/modules/wl12xx.ko
+    # create moto specific dirs for wifi
+    mkdir /data/system 0771 system system
+    # wifi dirs
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    mkdir /data/misc/wifi/firmware 0770 wifi wifi
+    mkdir /data/misc/wifi/wpa_supplicant 0770 wifi wifi
+    # Wifi check
+    exec u:r:qti_init_shell:s0 root wifi -- /system/bin/sh /system/bin/wificalcheck.sh boot
+    chmod 0640 /data/misc/wifi/wl1271-nvs.bin
+    restorecon_recursive /data/misc/wifi
+
 # NFC configuration
     # Reset system time
     write /sys/class/rtc/rtc0/unsecured_rtc on
@@ -193,23 +211,6 @@ on post-fs
     insmod /system/lib/modules/tty_hci.ko
 
 on post-fs-data
-#Wifi
-    # Load wifi drivers (all except wl12xx_sdio)
-    insmod /system/lib/modules/compat.ko
-    insmod /system/lib/modules/cfg80211.ko
-    insmod /system/lib/modules/mac80211.ko
-    insmod /system/lib/modules/wl12xx.ko
-    # create moto specific dirs for wifi
-    mkdir /data/system 0771 system system
-    # wifi dirs
-    mkdir /data/misc/wifi 0770 wifi wifi
-    mkdir /data/misc/wifi/sockets 0770 wifi wifi
-    mkdir /data/misc/wifi/firmware 0770 wifi wifi
-    mkdir /data/misc/wifi/wpa_supplicant 0770 wifi wifi
-    # Wifi check
-    exec u:r:qti_init_shell:s0 root wifi -- /system/bin/sh /system/bin/wificalcheck.sh boot
-    chmod 0640 /data/misc/wifi/wl1271-nvs.bin
-    restorecon_recursive /data/misc/wifi
 #tmp
     mkdir /data/tmp 0777 system system
 #Set the default value for bluedroid_ref
