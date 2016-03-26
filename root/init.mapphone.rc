@@ -192,7 +192,6 @@ on post-fs
     insmod /system/lib/modules/btwilink.ko
     insmod /system/lib/modules/tty_hci.ko
 
-on post-fs-data
 #Wifi
     # Load wifi drivers (all except wl12xx_sdio)
     insmod /system/lib/modules/compat.ko
