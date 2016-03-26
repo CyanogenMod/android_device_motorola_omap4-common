@@ -40,25 +40,6 @@ on fs
     insmod /system/lib/modules/pvrsrvkm_sgx540_120.ko
 
 on post-fs
-    mkdir /data/misc/pds 0700 root root
-    restorecon_recursive /data/misc/pds
-    restorecon /dev/block/pds
-    exec u:r:vold:s0 root root -- /system/bin/sh /system/bin/pdsbackup.sh
-    restorecon_recursive /pds
-
-    mkdir /data/misc/akmd 0755 compass compass
-    restorecon_recursive /data/misc/akmd
-
-    mkdir /data/misc/ril 0771 radio radio
-    restorecon_recursive /data/misc/ril
-
-    chown system system /pds
-    chmod 0775 /pds
-
-    mount ext3 /dev/block/system /system ro noatime nodiratime remount
-    mount rootfs rootfs / ro remount
-    symlink /dev/ttyGS0 /dev/acm0
-
 # Create mountpoints and mount tmpfs
     mkdir /misc 0770 system misc
     mkdir /sd-ext 0771 system system
@@ -146,17 +127,6 @@ on post-fs
 # Change permission of tiler's free_page_max to allow mot_osh access
     chmod 0660 /sys/module/tiler_omap/parameters/free_page_max
     chown mot_osh mot_osh /sys/module/tiler_omap/parameters/free_page_max
-    mkdir /pds/public 0775 system shell
-    mkdir /pds/factory 0740 mot_tcmd shell
-    mkdir /pds/camera 0775 system media
-    mkdir /pds/camera/module1 0775 system media
-    chown system media /pds/camera/module1/cameracal.bin
-    chmod 0644 /pds/camera/module1/cameracal.bin
-# Create basic filesystem structure
-    mkdir /pds/wifi 0771 wifi wifi
-    chmod 0664 /pds/wifi/nvs_map.bin
-    mkdir /pds/whisper 0770 mot_whisper mot_whisper
-    mkdir /pds/whisper/whisper_only 0700 mot_whisper mot_whisper
     # bluetooth power up/down interface
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
@@ -169,6 +139,47 @@ on post-fs
     # change permissions for rfkill
     chmod 0666 /dev/rfkill
     # create the lost+found directories, so as to enforce our permissions
+# Permission for USB
+    chown root mot_usb /proc/mtpctl
+    chmod 0660 /proc/mtpctl
+    restorecon /system/etc/firmware/ducati-m3.bin
+# Install kernel modules
+# Load BT userspace driver
+    insmod /system/lib/modules/btwilink.ko
+    insmod /system/lib/modules/tty_hci.ko
+
+on post-fs-data
+    mkdir /data/misc/akmd 0755 compass compass
+    restorecon_recursive /data/misc/akmd
+
+    mkdir /data/misc/ril 0771 radio radio
+    restorecon_recursive /data/misc/ril
+
+#PDS
+    mkdir /data/misc/pds 0700 root root
+    restorecon_recursive /data/misc/pds
+    restorecon /dev/block/pds
+    exec u:r:vold:s0 root root -- /system/bin/sh /system/bin/pdsbackup.sh
+    restorecon_recursive /pds
+
+    chown system system /pds
+    chmod 0775 /pds
+
+    mkdir /pds/public 0775 system shell
+    mkdir /pds/factory 0740 mot_tcmd shell
+    mkdir /pds/camera 0775 system media
+    mkdir /pds/camera/module1 0775 system media
+    chown system media /pds/camera/module1/cameracal.bin
+    chmod 0644 /pds/camera/module1/cameracal.bin
+# Create basic filesystem structure
+    mkdir /pds/wifi 0771 wifi wifi
+    chmod 0664 /pds/wifi/nvs_map.bin
+    mkdir /pds/whisper 0770 mot_whisper mot_whisper
+    mkdir /pds/whisper/whisper_only 0700 mot_whisper mot_whisper
+
+    mount ext3 /dev/block/system /system ro noatime nodiratime remount
+    mount rootfs rootfs / ro remount
+    symlink /dev/ttyGS0 /dev/acm0
     mkdir /pds/lost+found 0770 root root
 # create the necessary pds dirs for tpapi with proper permission
     mkdir /pds/security 2770 mot_tpapi mot_tpapi
@@ -183,16 +194,7 @@ on post-fs
     chown mot_accy mot_accy /pds/public/battd/batt_offset_data
     chown mot_accy mot_accy /pds/public/battd/batt_phasing_data
     chown mot_accy mot_accy /pds/public/battd/batt_tuning_data
-# Permission for USB
-    chown root mot_usb /proc/mtpctl
-    chmod 0660 /proc/mtpctl
-    restorecon /system/etc/firmware/ducati-m3.bin
-# Install kernel modules
-# Load BT userspace driver
-    insmod /system/lib/modules/btwilink.ko
-    insmod /system/lib/modules/tty_hci.ko
 
-on post-fs-data
 #Wifi
     # Load wifi drivers (all except wl12xx_sdio)
     insmod /system/lib/modules/compat.ko
