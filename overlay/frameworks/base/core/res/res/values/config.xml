@@ -294,5 +294,8 @@
     <!-- Older rotation sensors are not setting event.timestamp correctly. Setting to
           true will use SystemClock.elapsedRealtimeNanos() to set timestamp. -->
      <bool name="config_useSystemClockforRotationSensor">true</bool>
-</resources>
 
+    <!-- Integer indicating amount of time failed networks are blacklisted for the purpose
+         of network switching in milliseconds -->
+    <integer translatable="false" name="config_wifi_network_switching_blacklist_time">0</integer>
+</resources>
