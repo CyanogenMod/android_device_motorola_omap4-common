@@ -42,6 +42,9 @@
 struct wrapper_in_stream {
     struct audio_stream_in *stream_in;
     struct jb_audio_stream_in *jb_stream_in;
+    int in_use;
+    pthread_mutex_t in_use_mutex;
+    pthread_cond_t in_use_cond;
 };
 
 static struct wrapper_in_stream *in_streams = NULL;
@@ -52,6 +55,9 @@ static pthread_mutex_t in_streams_mutex = PTHREAD_MUTEX_INITIALIZER;
 struct wrapper_out_stream {
     struct audio_stream_out *stream_out;
     struct jb_audio_stream_out *jb_stream_out;
+    int in_use;
+    pthread_mutex_t in_use_mutex;
+    pthread_cond_t in_use_cond;
 };
 
 static struct wrapper_out_stream *out_streams = NULL;
@@ -75,22 +81,22 @@ static struct audio_hw_device *ics_hw_dev = NULL;
 static void *ics_dso_handle = NULL;
 #endif
 
-#define INCREMENT_IN_USE() do { pthread_mutex_lock(&in_use_mutex); \
+#define INCREMENT_IN_USE(in_use) do { pthread_mutex_lock(&(in_use ## _mutex)); \
                                 in_use++; \
-                                pthread_mutex_unlock(&in_use_mutex); } while(0)
+                                pthread_mutex_unlock(&(in_use ## _mutex)); } while(0)
 
-#define DECREMENT_IN_USE() do { pthread_mutex_lock(&in_use_mutex); \
+#define DECREMENT_IN_USE(in_use) do { pthread_mutex_lock(&(in_use ## _mutex)); \
                                 in_use--; \
-                                pthread_cond_signal(&in_use_cond); \
-                                pthread_mutex_unlock(&in_use_mutex); } while(0)
+                                pthread_cond_signal(&(in_use ## _cond)); \
+                                pthread_mutex_unlock(&(in_use ## _mutex)); } while(0)
 
-#define WAIT_FOR_FREE() do { pthread_mutex_lock(&in_use_mutex); \
+#define WAIT_FOR_FREE(in_use) do { pthread_mutex_lock(&(in_use ## _mutex)); \
                              while (in_use) { \
-                                 pthread_cond_wait(&in_use_cond, &in_use_mutex); \
+                                 pthread_cond_wait(&(in_use ## _cond), &(in_use ## _mutex)); \
                              } } while(0)
 
-#define UNLOCK_FREE() do { pthread_cond_signal(&in_use_cond); \
-                           pthread_mutex_unlock(&in_use_mutex); } while (0)
+#define UNLOCK_FREE(in_use) do { pthread_cond_signal(&(in_use ## _cond)); \
+                           pthread_mutex_unlock(&(in_use ## _mutex)); } while (0)
 
 /* Generic wrappers for streams */
 #define _WRAP_STREAM_LOCKED(name, function, direction, rettype, err, prototype, parameters, log, pre_fn, post_fn) \
@@ -105,13 +111,13 @@ static void *ics_dso_handle = NULL;
         pthread_mutex_lock(& direction ## _streams_mutex); \
         for (i = 0; i < n_ ## direction ## _streams; i++) { \
             if (direction ## _streams[i].stream_ ## direction == (struct audio_stream_ ## direction*)stream) { \
-                WAIT_FOR_FREE(); \
+                WAIT_FOR_FREE(direction ## _streams[i].in_use); \
                 jbstream = (struct jb_audio_stream *)direction ## _streams[i].jb_stream_ ## direction; \
                 jbstream_ ## direction = direction ## _streams[i].jb_stream_ ## direction; \
                 pre_fn; \
                 ret = jbstream_ ## direction ->function parameters; \
                 post_fn; \
-                UNLOCK_FREE(); \
+                UNLOCK_FREE(direction ## _streams[i].in_use); \
                 break; \
             } \
         } \
@@ -142,9 +148,9 @@ static void *ics_dso_handle = NULL;
         pthread_mutex_lock(&out_streams_mutex); \
         pthread_mutex_lock(&in_streams_mutex); \
     \
-        WAIT_FOR_FREE(); \
+        WAIT_FOR_FREE(in_use); \
         ret = jb_hw_dev->function parameters; \
-        UNLOCK_FREE(); \
+        UNLOCK_FREE(in_use); \
     \
         pthread_mutex_unlock(&in_streams_mutex); \
         pthread_mutex_unlock(&out_streams_mutex); \
@@ -198,20 +204,20 @@ static ssize_t wrapper_read(struct audio_stream_in *stream, void* buffer,
 {
     ssize_t ret = -ENODEV;
     int i;
-    struct jb_audio_stream_in *wrapped_stream = NULL;
+    struct wrapper_in_stream *wrapper_stream = NULL;
 
     pthread_mutex_lock(&in_streams_mutex);
     for (i = 0; i < n_in_streams; i++) {
         if (in_streams[i].stream_in == stream) {
-            wrapped_stream = in_streams[i].jb_stream_in;
-            INCREMENT_IN_USE();
+            wrapper_stream = &(in_streams[i]);
+            INCREMENT_IN_USE(wrapper_stream->in_use);
             break;
         }
     }
     pthread_mutex_unlock(&in_streams_mutex);
 
-    if (wrapped_stream) {
-        ret = wrapped_stream->read(wrapped_stream, buffer, bytes);
+    if (wrapper_stream) {
+        ret = wrapper_stream->jb_stream_in->read(wrapper_stream->jb_stream_in, buffer, bytes);
 #if 0
         if ((ret > 0) && (ret != (ssize_t)bytes)) {
             if (wrapper_hal_is_resampling(bytes, ret))
@@ -221,7 +227,7 @@ static ssize_t wrapper_read(struct audio_stream_in *stream, void* buffer,
         if (ret != (ssize_t)bytes) {
             ALOGE("read %u bytes instead of %u", (unsigned int)ret, (unsigned int)bytes);
         }
-        DECREMENT_IN_USE();
+        DECREMENT_IN_USE(wrapper_stream->in_use);
     } else {
             ALOGE("read on non-wrapped stream!");
     }
@@ -283,8 +289,12 @@ static void wrapper_close_input_stream(unused_audio_hw_device *dev,
     pthread_mutex_lock(&in_streams_mutex);
     for (i = 0; i < n_in_streams; i++) {
         if (in_streams[i].stream_in == stream_in) {
+            WAIT_FOR_FREE(in_streams[i].in_use);
+            UNLOCK_FREE(in_streams[i].in_use);
             jb_stream_in = in_streams[i].jb_stream_in;
             free(in_streams[i].stream_in);
+            pthread_mutex_destroy(&(in_streams[i].in_use_mutex));
+            pthread_cond_destroy(&(in_streams[i].in_use_cond));
             n_in_streams--;
             memmove(in_streams + i,
                     in_streams + i + 1,
@@ -296,9 +306,9 @@ static void wrapper_close_input_stream(unused_audio_hw_device *dev,
         }
     }
     if (jb_stream_in) {
-        WAIT_FOR_FREE();
+        WAIT_FOR_FREE(in_use);
         jb_hw_dev->close_input_stream(jb_hw_dev, jb_stream_in);
-        UNLOCK_FREE();
+        UNLOCK_FREE(in_use);
     }
 
     pthread_mutex_unlock(&in_streams_mutex);
@@ -333,10 +343,10 @@ static int wrapper_open_input_stream(unused_audio_hw_device *dev,
         }
     }
 
-    WAIT_FOR_FREE();
+    WAIT_FOR_FREE(in_use);
     ret = jb_hw_dev->open_input_stream(jb_hw_dev, handle, devices,
                                          config, &jb_stream_in);
-    UNLOCK_FREE();
+    UNLOCK_FREE(in_use);
 
     if (ret == 0) {
         struct wrapper_in_stream *new_in_streams;
@@ -380,6 +390,10 @@ static int wrapper_open_input_stream(unused_audio_hw_device *dev,
         (*stream_in)->read = wrapper_read;
         (*stream_in)->get_input_frames_lost = wrapper_get_input_frames_lost;
 
+        in_streams[n_in_streams].in_use = 0;
+        pthread_mutex_init(&(in_streams[n_in_streams].in_use_mutex), NULL);
+        pthread_cond_init(&(in_streams[n_in_streams].in_use_cond), NULL);
+
         ALOGI("Wrapped an input stream: rate %d, channel_mask: %x, format: %d, addr: %p/%p",
               config->sample_rate, config->channel_mask, config->format, *stream_in, jb_stream_in);
 
@@ -397,27 +411,27 @@ static int wrapper_write(struct audio_stream_out *stream, const void* buffer,
 {
     int ret = -ENODEV;
     int i;
-    struct jb_audio_stream_out *wrapped_stream = NULL;
+    struct wrapper_out_stream *wrapper_stream = NULL;
     size_t written;
 
     pthread_mutex_lock(&out_streams_mutex);
     for (i = 0; i < n_out_streams; i++) {
         if (out_streams[i].stream_out == stream) {
-            wrapped_stream = out_streams[i].jb_stream_out;
-            INCREMENT_IN_USE();
+            wrapper_stream = &(out_streams[i]);
+            INCREMENT_IN_USE(wrapper_stream->in_use);
             break;
         }
     }
     pthread_mutex_unlock(&out_streams_mutex);
 
-    if (wrapped_stream) {
-        written = wrapped_stream->write(wrapped_stream, buffer, bytes);
+    if (wrapper_stream) {
+        written = wrapper_stream->jb_stream_out->write(wrapper_stream->jb_stream_out, buffer, bytes);
         ret = written;
         if ((ret > 0) && (written != bytes)) {
             if (wrapper_hal_is_resampling(bytes, written))
                 ret = bytes;
         }
-        DECREMENT_IN_USE();
+        DECREMENT_IN_USE(wrapper_stream->in_use);
     } else {
             ALOGE("write on non-wrapped stream!");
     }
@@ -502,8 +516,12 @@ static void wrapper_close_output_stream(unused_audio_hw_device *dev,
     pthread_mutex_lock(&out_streams_mutex);
     for (i = 0; i < n_out_streams; i++) {
         if (out_streams[i].stream_out == stream_out) {
+            WAIT_FOR_FREE(out_streams[i].in_use);
+            UNLOCK_FREE(out_streams[i].in_use);
             jb_stream_out = out_streams[i].jb_stream_out;
             free(out_streams[i].stream_out);
+            pthread_mutex_destroy(&(out_streams[i].in_use_mutex));
+            pthread_cond_destroy(&(out_streams[i].in_use_cond));
             n_out_streams--;
             memmove(out_streams + i,
                     out_streams + i + 1,
@@ -516,9 +534,9 @@ static void wrapper_close_output_stream(unused_audio_hw_device *dev,
     }
 
     if (jb_stream_out) {
-        WAIT_FOR_FREE();
+        WAIT_FOR_FREE(in_use);
         jb_hw_dev->close_output_stream(jb_hw_dev, jb_stream_out);
-        UNLOCK_FREE();
+        UNLOCK_FREE(in_use);
     }
 
     pthread_mutex_unlock(&out_streams_mutex);
@@ -537,10 +555,10 @@ static int wrapper_open_output_stream(unused_audio_hw_device *dev,
 
     pthread_mutex_lock(&out_streams_mutex);
 
-    WAIT_FOR_FREE();
+    WAIT_FOR_FREE(in_use);
     ret = jb_hw_dev->open_output_stream(jb_hw_dev, handle, devices,
                                           flags, config, &jb_stream_out);
-    UNLOCK_FREE();
+    UNLOCK_FREE(in_use);
 
     if (ret == 0) {
         struct wrapper_out_stream *new_out_streams;
@@ -591,6 +609,10 @@ static int wrapper_open_output_stream(unused_audio_hw_device *dev,
         (*stream_out)->drain = NULL;
         (*stream_out)->flush = NULL;
         (*stream_out)->get_presentation_position = wrapper_get_presentation_position;
+
+        out_streams[n_out_streams].in_use = 0;
+        pthread_mutex_init(&(out_streams[n_out_streams].in_use_mutex), NULL);
+        pthread_cond_init(&(out_streams[n_out_streams].in_use_cond), NULL);
 
         ALOGI("Wrapped an output stream: rate %d, channel_mask: %x, format: %d, addr: %p/%p",
               config->sample_rate, config->channel_mask, config->format, *stream_out, jb_stream_out);
@@ -675,12 +697,12 @@ static int wrapper_set_mic_mute(unused_audio_hw_device *dev, bool state)
 	pthread_mutex_lock(&out_streams_mutex);
 	pthread_mutex_lock(&in_streams_mutex);
 
-	WAIT_FOR_FREE();
+	WAIT_FOR_FREE(in_use);
 	ret = jb_hw_dev->set_mic_mute(jb_hw_dev, state);
 	if (hal_audio_mode == AUDIO_MODE_IN_CALL) {
 		alsa_set_mic_mute(state);
 	}
-	UNLOCK_FREE();
+	UNLOCK_FREE(in_use);
 
 	pthread_mutex_unlock(&in_streams_mutex);
 	pthread_mutex_unlock(&out_streams_mutex);
@@ -697,7 +719,7 @@ static int wrapper_set_mode(unused_audio_hw_device *dev, audio_mode_t mode)
 	pthread_mutex_lock(&out_streams_mutex);
 	pthread_mutex_lock(&in_streams_mutex);
 
-	WAIT_FOR_FREE();
+	WAIT_FOR_FREE(in_use);
 	ret = jb_hw_dev->set_mode(jb_hw_dev, mode);
 	if ((hal_audio_mode == AUDIO_MODE_IN_CALL) && (mode != AUDIO_MODE_IN_CALL)) {
 		if (last_mute_ctl_value != -1) {
@@ -706,7 +728,7 @@ static int wrapper_set_mode(unused_audio_hw_device *dev, audio_mode_t mode)
 		}
 	}
 	hal_audio_mode = mode;
-	UNLOCK_FREE();
+	UNLOCK_FREE(in_use);
 
 	pthread_mutex_unlock(&in_streams_mutex);
 	pthread_mutex_unlock(&out_streams_mutex);
@@ -765,7 +787,7 @@ static int wrapper_close(hw_device_t *device)
     pthread_mutex_lock(&out_streams_mutex);
     pthread_mutex_lock(&in_streams_mutex);
 
-    WAIT_FOR_FREE();
+    WAIT_FOR_FREE(in_use);
 
     ret = jb_hw_dev->common.close(device);
 
@@ -793,7 +815,7 @@ static int wrapper_close(hw_device_t *device)
     ics_dso_handle = NULL;
 #endif
 
-    UNLOCK_FREE();
+    UNLOCK_FREE(in_use);
     pthread_mutex_unlock(&in_streams_mutex);
     pthread_mutex_unlock(&out_streams_mutex);
 
