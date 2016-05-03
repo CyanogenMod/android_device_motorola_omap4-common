@@ -15,7 +15,3 @@
  */
 
 #define BLE_INCLUDED TRUE
-
-#define SDP_MAX_RECORDS         25
-#define GAP_MAX_CONNECTIONS     8
-#define SC_MODE_INCLUDED        FALSE
