@@ -261,6 +261,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.media.panorama.defres=3264x1840 \
     ro.media.panorama.frameres=1280x720 \
     camera2.portability.force_api=1 \
+    camera.qcom.misc.disable=1 \
     media.stagefright.cache-params=18432/20480/15 \
     media.aac_51_output_enabled=true
 
