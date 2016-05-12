@@ -21,9 +21,7 @@
 #ifdef _SYS_SYSCALL_H_
 #ifdef _SYS_TYPES_H_
 #ifdef _SYS_STAT_H_
-int android_reboot2(int cmd, int flags, const char *arg);
-
-int android_reboot(int cmd, int flags __attribute__((unused)), const char *arg)
+int recovery_pre_command(int cmd, const char *arg)
 {
     int fd;
 
@@ -33,12 +31,42 @@ int android_reboot(int cmd, int flags __attribute__((unused)), const char *arg)
             write(fd, "1", 1);
             close(fd);
         }
+        return 1;
+    }
+
+    return 0;
+}
+
+int android_reboot2(int cmd, int flags, const char *arg);
+
+int android_reboot(int cmd, int flags __attribute__((unused)), const char *arg)
+{
+
+    if (recovery_pre_command(cmd, arg)) {
         return android_reboot2(ANDROID_RB_RESTART, flags, arg);
     }
 
     return android_reboot2(cmd, flags, arg);
 }
 #define android_reboot(cmd, flags, arg) android_reboot2(cmd, flags, arg)
+
+int android_reboot_with_callback2(
+    int cmd, int flags __unused, const char *arg,
+    void (*cb_on_remount)(const struct mntent*));
+
+int android_reboot_with_callback(
+    int cmd, int flags __unused, const char *arg,
+    void (*cb_on_remount)(const struct mntent*))
+{
+    if (recovery_pre_command(cmd, arg)) {
+        return android_reboot_with_callback2(ANDROID_RB_RESTART, flags,
+                                             arg, cb_on_remount);
+    }
+
+    return android_reboot_with_callback2(cmd, flags, arg, cb_on_remount);
+}
+#define android_reboot_with_callback(cmd, flags, arg, cb_on_remount) android_reboot_with_callback2(cmd, flags, arg, cb_on_remount)
+
 #endif /* _SYS_STAT_H_ */
 #endif /* _SYS_TYPES_H_ */
 #endif /* _SYS_SYSCALL_H_ */
