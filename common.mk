@@ -297,7 +297,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Memory management
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.ksm.default=1
+    ro.ksm.default=1 \
+    config.disable_atlas=true
 
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
