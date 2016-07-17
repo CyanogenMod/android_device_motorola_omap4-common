@@ -61,6 +61,7 @@ import com.android.internal.telephony.dataconnection.DataCallResponse;
 public class motoOmap4RIL extends RIL implements CommandsInterface {
 
     private INetworkManagementService mNwService;
+    private boolean dataAllowed = false;
     private boolean setPreferredNetworkTypeSeen = false;
     private boolean forceGsm = false;
     private int lastPreferredNetworkType = -1;
@@ -162,6 +163,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     @Override
     public void setDataAllowed(boolean allowed, Message result) {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setDataAllowed");
+
+        dataAllowed = allowed;
 
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
         mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
@@ -275,6 +278,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     public void setInitialAttachApn(String apn, String protocol, int authType, String username,
             String password, Message result) {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setInitialAttachApn");
+
+        dataAllowed = true; //If we should attach to an APN, we actually need to register data
 
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: faking VoiceNetworkState");
         mVoiceNetworkStateRegistrants.notifyRegistrants(new AsyncResult(null, null, null));
@@ -492,15 +497,22 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: DataRegistrationState response");
 
                 if (dataRegStates.length > 0 && dataRegStates[0] != null) {
-                    //CDMA needs to use VoiceReg/Tech for data
-                    if ((getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) &&
-                        (Integer.parseInt(dataRegStates[0]) != 1) && (Integer.parseInt(dataRegStates[0]) != 5) &&
-                        ((Integer.parseInt(voiceRegState) == 1) || (Integer.parseInt(voiceRegState) == 5))) {
-                        Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataRegState from " + dataRegStates[0] + " to " + voiceRegState);
-                        dataRegStates[0] = voiceRegState;
-                        if (dataRegStates.length > 3) {
-                            Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataTech from " + dataRegStates[3] + " to " + voiceDataTech);
-                            dataRegStates[3] = voiceDataTech;
+                    if (!dataAllowed) {
+                        if (Integer.parseInt(dataRegStates[0]) > 0) {
+                            Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataRegState to 0 from " + dataRegStates[0]);
+                            dataRegStates[0] = "0";
+                        }
+                    } else {
+                        //CDMA needs to use VoiceReg/Tech for data
+                        if ((getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) &&
+                            (Integer.parseInt(dataRegStates[0]) != 1) && (Integer.parseInt(dataRegStates[0]) != 5) &&
+                            ((Integer.parseInt(voiceRegState) == 1) || (Integer.parseInt(voiceRegState) == 5))) {
+                            Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataRegState from " + dataRegStates[0] + " to " + voiceRegState);
+                            dataRegStates[0] = voiceRegState;
+                            if (dataRegStates.length > 3) {
+                                Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: modifying dataTech from " + dataRegStates[3] + " to " + voiceDataTech);
+                                dataRegStates[3] = voiceDataTech;
+                            }
                         }
                     }
                 }
