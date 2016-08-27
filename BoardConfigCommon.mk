@@ -182,6 +182,7 @@ BOARD_HARDWARE_CLASS := $(OMAP4_NEXT_FOLDER)/cmhw/
 
 # Override healthd HAL to use charge_counter for 1%
 BOARD_HAL_STATIC_LIBRARIES := libhealthd.omap4
+WITH_CM_CHARGER := false
 
 BOARD_SEPOLICY_DIRS += \
     device/motorola/omap4-common/sepolicy
