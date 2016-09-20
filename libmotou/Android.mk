@@ -19,7 +19,7 @@ LOCAL_PATH := $(ANDROID_BUILD_TOP)
 include $(CLEAR_VARS)
 
 LU_PATH := system/core/libutils
-LOC_PATH := device/motorola/msm8960_jbbl-common/libmotou
+LOC_PATH := device/motorola/omap4-common/libmotou
 
 LOCAL_SRC_FILES := \
         $(LU_PATH)/BasicHashtable.cpp \
