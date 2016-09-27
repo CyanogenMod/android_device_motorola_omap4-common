@@ -49,22 +49,24 @@ include device/qcom/sepolicy/sepolicy.mk
 TARGET_KERNEL_SOURCE := kernel/motorola/omap4-common
 TARGET_KERNEL_CONFIG := mapphone_mmi_defconfig
 COMMON_KERNEL_CMDLINE := androidboot.hardware=mapphone_cdma androidboot.selinux=enforcing
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
+TARGET_NEEDS_TEXT_RELOCATIONS := true
 
 WLAN_MODULES:
 	make clean -C hardware/ti/wlan/mac80211/compat_wl12xx
-	make -j8 -C hardware/ti/wlan/mac80211/compat_wl12xx KERNEL_DIR=$(KERNEL_OUT) KLIB=$(KERNEL_OUT) KLIB_BUILD=$(KERNEL_OUT) ARCH=arm CROSS_COMPILE="arm-eabi-"
+	make -j8 -C hardware/ti/wlan/mac80211/compat_wl12xx KERNEL_DIR=$(KERNEL_OUT) KLIB=$(KERNEL_OUT) KLIB_BUILD=$(KERNEL_OUT) ARCH=arm CROSS_COMPILE="arm-linux-androideabi-"
 	mv hardware/ti/wlan/mac80211/compat_wl12xx/compat/compat.ko $(KERNEL_MODULES_OUT)
 	mv hardware/ti/wlan/mac80211/compat_wl12xx/net/mac80211/mac80211.ko $(KERNEL_MODULES_OUT)
 	mv hardware/ti/wlan/mac80211/compat_wl12xx/net/wireless/cfg80211.ko $(KERNEL_MODULES_OUT)
 	mv hardware/ti/wlan/mac80211/compat_wl12xx/drivers/net/wireless/wl12xx/wl12xx.ko $(KERNEL_MODULES_OUT)
 	mv hardware/ti/wlan/mac80211/compat_wl12xx/drivers/net/wireless/wl12xx/wl12xx_spi.ko $(KERNEL_MODULES_OUT)
 	mv hardware/ti/wlan/mac80211/compat_wl12xx/drivers/net/wireless/wl12xx/wl12xx_sdio.ko $(KERNEL_MODULES_OUT)
-	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/compat.ko
-	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/mac80211.ko
-	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/cfg80211.ko
-	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/wl12xx.ko
-	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/wl12xx_spi.ko
-	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/wl12xx_sdio.ko
+	$(ANDROID_TOOLCHAIN)/arm-linux-androideabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/compat.ko
+	$(ANDROID_TOOLCHAIN)/arm-linux-androideabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/mac80211.ko
+	$(ANDROID_TOOLCHAIN)/arm-linux-androideabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/cfg80211.ko
+	$(ANDROID_TOOLCHAIN)/arm-linux-androideabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/wl12xx.ko
+	$(ANDROID_TOOLCHAIN)/arm-linux-androideabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/wl12xx_spi.ko
+	$(ANDROID_TOOLCHAIN)/arm-linux-androideabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/wl12xx_sdio.ko
 
 TARGET_KERNEL_MODULES += WLAN_MODULES
 
@@ -72,9 +74,9 @@ TARGET_KERNEL_MODULES += WLAN_MODULES
 SGX_MODULES:
 	make clean -C $(HARDWARE_TI_OMAP4_BASE)/pvr-source/eurasiacon/build/linux2/omap4430_android
 	cp $(TARGET_KERNEL_SOURCE)/drivers/video/omap2/omapfb/omapfb.h $(KERNEL_OUT)/drivers/video/omap2/omapfb/omapfb.h
-	make -j8 -C $(HARDWARE_TI_OMAP4_BASE)/pvr-source/eurasiacon/build/linux2/omap4430_android ARCH=arm KERNEL_CROSS_COMPILE=arm-eabi- CROSS_COMPILE=arm-eabi- KERNELDIR=$(KERNEL_OUT) TARGET_PRODUCT="blaze_tablet" BUILD=release TARGET_SGX=540 PLATFORM_VERSION=4.0
+	make -j8 -C $(HARDWARE_TI_OMAP4_BASE)/pvr-source/eurasiacon/build/linux2/omap4430_android ARCH=arm KERNEL_CROSS_COMPILE=arm-linux-androideabi- CROSS_COMPILE=arm-linux-androideabi- KERNELDIR=$(KERNEL_OUT) TARGET_PRODUCT="blaze_tablet" BUILD=release TARGET_SGX=540 PLATFORM_VERSION=4.0
 	mv $(KERNEL_OUT)/../../target/kbuild/pvrsrvkm_sgx540_120.ko $(KERNEL_MODULES_OUT)
-	$(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/pvrsrvkm_sgx540_120.ko
+	$(ANDROID_TOOLCHAIN)/arm-linux-androideabi-strip --strip-unneeded $(KERNEL_MODULES_OUT)/pvrsrvkm_sgx540_120.ko
 
 TARGET_KERNEL_MODULES += SGX_MODULES
 
@@ -100,7 +102,7 @@ WIFI_DRIVER_MODULE_PATH          := "/system/lib/modules/wl12xx_sdio.ko"
 WIFI_DRIVER_MODULE_NAME          := "wl12xx_sdio"
 WIFI_FIRMWARE_LOADER             := ""
 BOARD_WIFI_SKIP_CAPABILITIES     := true
-COMMON_GLOBAL_CFLAGS += -DUSES_TI_MAC80211
+BOARD_GLOBAL_CFLAGS += -DUSES_TI_MAC80211
 endif
 
 # Audio
@@ -155,13 +157,13 @@ TARGET_NR_SVC_SUPP_GIDS := 28
 # MOTOROLA
 BOARD_USE_MOTOROLA_DEV_ALIAS := true
 ifdef BOARD_USE_MOTOROLA_DEV_ALIAS
-COMMON_GLOBAL_CFLAGS += -DBOARD_USE_MOTOROLA_DEV_ALIAS
+BOARD_GLOBAL_CFLAGS += -DBOARD_USE_MOTOROLA_DEV_ALIAS
 endif
 
 # Media / Radio
-COMMON_GLOBAL_CFLAGS += -DQCOM_LEGACY_UIDS
+BOARD_GLOBAL_CFLAGS += -DQCOM_LEGACY_UIDS
 BOARD_USE_TI_DOMX_LOW_SECURE_HEAP := true
-COMMON_GLOBAL_CFLAGS += -DBOARD_USE_MOTOROLA_DOMX_ENHANCEMENTS
+BOARD_GLOBAL_CFLAGS += -DBOARD_USE_MOTOROLA_DOMX_ENHANCEMENTS
 # Off currently
 
 # OTA Packaging
