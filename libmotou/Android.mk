@@ -22,7 +22,6 @@ LU_PATH := system/core/libutils
 LOC_PATH := device/motorola/omap4-common/libmotou
 
 LOCAL_SRC_FILES := \
-        $(LU_PATH)/BasicHashtable.cpp \
         $(LU_PATH)/BlobCache.cpp \
         $(LU_PATH)/CallStack.cpp \
         $(LU_PATH)/FileMap.cpp \
