@@ -257,8 +257,8 @@
     -->
 
     <!-- Use analog dock-connector if device is connected (auto-sensing) -->
-    <bool name="config_forceAnalogDeskDock">true</bool>
-    <bool name="config_forceAnalogCarDock">true</bool>
+    <!-- <bool name="config_forceAnalogDeskDock">true</bool> -->
+    <!-- <bool name="config_forceAnalogCarDock">true</bool> -->
 
     <!-- Screen brightness used to dim the screen while dozing in a very low power state.
          May be less than the minimum allowed brightness setting
@@ -286,7 +286,7 @@
 
     <!-- Support for disabling to fetch APN from OMH card
          for some cdma carriers -->
-    <bool name="config_fetch_apn_from_omh_card">false</bool>
+    <!-- <bool name="config_fetch_apn_from_omh_card">false</bool> -->
 
     <!-- Integer indicating wpa_supplicant scan interval in milliseconds -->
     <integer translatable="false" name="config_wifi_supplicant_scan_interval">90000</integer>
@@ -300,5 +300,5 @@
     <integer translatable="false" name="config_wifi_network_switching_blacklist_time">0</integer>
 
     <!-- Disable IpReachability monitor -->
-    <bool name="config_wifi_ipreachability_monitor">false</bool>
+    <!-- <bool name="config_wifi_ipreachability_monitor">false</bool> -->
 </resources>
