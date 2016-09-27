@@ -263,8 +263,8 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
     }
 
     @Override
-    public void setupDataCall(String radioTechnology, String profile, String apn,
-            String user, String password, String authType, String protocol,
+    public void setupDataCall(int radioTechnology, int profile, String apn,
+            String user, String password, int authType, String protocol,
             Message result) {
         Rlog.v(RILJ_LOG_TAG, "motoOmap4RIL: setupDataCall");
 
@@ -425,7 +425,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
 
     @Override
     protected RILRequest
-    processSolicited (Parcel p) {
+    processSolicited (Parcel p, int type) {
         int serial, error, request;
         RILRequest rr;
         int dataPosition = p.dataPosition(); // save off position within the Parcel
@@ -436,7 +436,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         rr = mRequestList.get(serial);
         if (rr == null || error != 0 || p.dataAvail() <= 0) {
             p.setDataPosition(dataPosition);
-            return super.processSolicited(p);
+            return super.processSolicited(p, type);
         }
 
         try { switch (rr.mRequest) {
@@ -534,10 +534,10 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
                 }
 
                 p.setDataPosition(dataPosition);
-                return super.processSolicited(p);
+                return super.processSolicited(p, type);
             default:
                 p.setDataPosition(dataPosition);
-                return super.processSolicited(p);
+                return super.processSolicited(p, type);
         }} catch (Throwable tr) {
                 // Exceptions here usually mean invalid RIL responses
 
@@ -557,7 +557,7 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
 
     @Override
     protected void
-    processUnsolicited (Parcel p) {
+    processUnsolicited (Parcel p, int type) {
         int dataPosition = p.dataPosition(); // save off position within the Parcel
         int response;
 
@@ -597,6 +597,6 @@ public class motoOmap4RIL extends RIL implements CommandsInterface {
         }
 
         p.setDataPosition(dataPosition);
-        super.processUnsolicited(p);
+        super.processUnsolicited(p, type);
     }
 }
