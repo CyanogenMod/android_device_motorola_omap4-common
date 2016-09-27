@@ -7,5 +7,4 @@ allow mediaserver pds_file:file create_file_perms;
 allow mediaserver sysfs_devices_system_cpu:file rw_file_perms;
 allow mediaserver rild_file:dir r_dir_perms;
 allow mediaserver rild_file:sock_file rw_file_perms;
-allow mediaserver system_file:file { execmod };
 allow mediaserver sensorservice_service:service_manager find;
