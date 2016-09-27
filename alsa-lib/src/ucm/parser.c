@@ -1255,8 +1255,6 @@ int uc_mgr_scan_master_configs(const char **_list[])
 	filename[MAX_FILE-1] = '\0';
 
 #ifdef _GNU_SOURCE
-#define SORTFUNC	versionsort
-#else
 #define SORTFUNC	alphasort
 #endif
 	err = scandir(filename, &namelist, filename_filter, SORTFUNC);

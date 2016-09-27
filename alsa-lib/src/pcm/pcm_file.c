@@ -29,6 +29,7 @@
 #include <endian.h>
 #include <byteswap.h>
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 #include "pcm_local.h"
 #include "pcm_plugin.h"
