@@ -1051,7 +1051,7 @@ static void print_obj_lists(struct alisp_instance *instance, snd_output_t *out)
 		p = list_entry(pos, struct alisp_object, list);
 		snd_output_printf(out, "**   %p\n", p);
 	}
-	return 0; /* make compiler happy */
+	return;
 }
 
 static void dump_obj_lists(struct alisp_instance *instance, const char *fname)

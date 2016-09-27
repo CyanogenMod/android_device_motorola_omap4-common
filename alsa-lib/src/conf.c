@@ -3506,11 +3506,7 @@ int snd_config_hook_load(snd_config_t *root, snd_config_t *config, snd_config_t 
 			int n;
 
 #ifndef DOC_HIDDEN
-#ifdef _GNU_SOURCE
-#define SORTFUNC	versionsort
-#else
 #define SORTFUNC	alphasort
-#endif
 #endif
 			n = scandir(fi[idx].name, &namelist, config_filename_filter, SORTFUNC);
 			if (n > 0) {
