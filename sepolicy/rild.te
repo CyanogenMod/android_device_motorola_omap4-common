@@ -23,4 +23,3 @@ allow rild zygote_exec:file rx_file_perms;
 allow rild app_data_file:file { write getattr setattr read lock open };
 allow rild serialno_prop:property_service set;
 allow rild self:process { execmem ptrace };
-allow rild system_file:file { execmod };
