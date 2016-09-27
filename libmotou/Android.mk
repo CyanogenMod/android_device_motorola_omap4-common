@@ -22,7 +22,6 @@ LU_PATH := system/core/libutils
 LOC_PATH := device/motorola/omap4-common/libmotou
 
 LOCAL_SRC_FILES := \
-        $(LU_PATH)/BasicHashtable.cpp \
         $(LU_PATH)/BlobCache.cpp \
         $(LU_PATH)/CallStack.cpp \
         $(LU_PATH)/FileMap.cpp \
@@ -51,7 +50,10 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE := libmotou
 LOCAL_MODULE_TAGS := optional
-LOCAL_C_INCLUDES += external/safe-iop/include
+LOCAL_C_INCLUDES += \
+	external/safe-iop/include \
+	system/core/libutils
+
 LOCAL_SHARED_LIBRARIES := libbacktrace libcutils libdl liblog
 
 include $(BUILD_SHARED_LIBRARY)
