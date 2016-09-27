@@ -29,6 +29,7 @@
 #include <endian.h>
 #include <byteswap.h>
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 #include "pcm_local.h"
 #include "pcm_plugin.h"
@@ -220,6 +221,7 @@ static int snd_pcm_file_open_output_file(snd_pcm_file_t *file)
 		/* pipe mode */
 		FILE *pipe;
 		/* clearing */
+		
 		pipe = popen(file->final_fname + 1, "w");
 		if (!pipe) {
 			SYSERR("running %s for writing failed",
