@@ -1475,7 +1475,7 @@ int process_usb_uevent_message(int socket)
 
 				sprintf(filename, "%s%s%s", "/sys", dev_path, "/device/model");
 				if ((ret_val = copy_string_from_file(filename, prodname, 128)) <= 0) {
-					if (prodname == NULL || ret_val < 0)
+					if (ret_val < 0)
 						snprintf(prodname, 7, "NONAME");
 
 					/* We only support storage devices directly connected to
