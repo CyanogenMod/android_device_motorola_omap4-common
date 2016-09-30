@@ -53,7 +53,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
 # libasound must be compiled with -fno-short-enums, as it makes extensive
 # use of enums which are often type casted to unsigned ints.
 LOCAL_CFLAGS := \
-	-fPIC -DPIC -D_POSIX_SOURCE \
+	-fPIC -DPIC -D_GNU_SOURCE \
 	-DALSA_CONFIG_DIR=\"/system/usr/share/alsa\" \
 	-DALSA_PLUGIN_DIR=\"/system/usr/lib/alsa-lib\" \
 	-DALSA_DEVICE_DIRECTORY=\"/dev/snd/\"
