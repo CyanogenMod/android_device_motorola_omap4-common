@@ -42,8 +42,10 @@ class Options(object): pass
 OPTIONS = Options()
 OPTIONS.search_path = "out/host/linux-x86"
 OPTIONS.signapk_path = "framework/signapk.jar"  # Relative to search_path
+OPTIONS.signapk_shared_library_path = "lib64"
 OPTIONS.extra_signapk_args = []
 OPTIONS.java_path = "java"  # Use the one on the path by default.
+OPTIONS.java_args = "-Xmx2048m" # JVM Args
 OPTIONS.public_key_suffix = ".x509.pem"
 OPTIONS.private_key_suffix = ".pk8"
 OPTIONS.verbose = False
@@ -348,7 +350,8 @@ def GetBootableImage(name, prebuilt_name, unpack_dir, tree_subdir,
   custom_bootimg_mk = os.getenv('MKBOOTIMG')
   if custom_bootimg_mk:
     bootimage_path = os.path.join(os.getenv('OUT'), "boot.img")
-    os.mkdir(prebuilt_dir)
+    if not os.path.exists(prebuilt_dir):
+        os.mkdir(prebuilt_dir)
     shutil.copyfile(bootimage_path, prebuilt_path)
   if os.path.exists(prebuilt_path):
     print "using prebuilt %s..." % (prebuilt_name,)
@@ -444,37 +447,47 @@ def GetKeyPasswords(keylist):
   return key_passwords
 
 
-def SignFile(input_name, output_name, key, password, align=None,
-             whole_file=False):
+def SignFile(input_name, output_name, key, password, min_api_level=None,
+    codename_to_api_level_map=dict(),
+    whole_file=False):
   """Sign the input_name zip/jar/apk, producing output_name.  Use the
   given key and password (the latter may be None if the key does not
   have a password.
 
-  If align is an integer > 1, zipalign is run to align stored files in
-  the output zip on 'align'-byte boundaries.
-
   If whole_file is true, use the "-w" option to SignApk to embed a
   signature that covers the whole file in the archive comment of the
   zip file.
+
+  min_api_level is the API Level (int) of the oldest platform this file may end
+  up on. If not specified for an APK, the API Level is obtained by interpreting
+  the minSdkVersion attribute of the APK's AndroidManifest.xml.
+
+  codename_to_api_level_map is needed to translate the codename which may be
+  encountered as the APK's minSdkVersion.
   """
 
-  if align == 0 or align == 1:
-    align = None
+  java_library_path = os.path.join(
+      OPTIONS.search_path, OPTIONS.signapk_shared_library_path)
 
-  if align:
-    temp = tempfile.NamedTemporaryFile()
-    sign_name = temp.name
-  else:
-    sign_name = output_name
-
-  cmd = [OPTIONS.java_path, "-Xmx2048m", "-jar",
+  cmd = [OPTIONS.java_path, OPTIONS.java_args,
+         "-Djava.library.path=" + java_library_path,
+         "-jar",
          os.path.join(OPTIONS.search_path, OPTIONS.signapk_path)]
   cmd.extend(OPTIONS.extra_signapk_args)
   if whole_file:
     cmd.append("-w")
+
+  min_sdk_version = min_api_level
+  if min_sdk_version is None:
+    if not whole_file:
+      min_sdk_version = GetMinSdkVersionInt(
+          input_name, codename_to_api_level_map)
+  if min_sdk_version is not None:
+    cmd.extend(["--min-sdk-version", str(min_sdk_version)])
+
   cmd.extend([key + OPTIONS.public_key_suffix,
               key + OPTIONS.private_key_suffix,
-              input_name, sign_name])
+              input_name, output_name])
 
   p = Run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
   if password is not None:
@@ -482,13 +495,6 @@ def SignFile(input_name, output_name, key, password, align=None,
   p.communicate(password)
   if p.returncode != 0:
     raise ExternalError("signapk.jar failed: return code %s" % (p.returncode,))
-
-  if align:
-    p = Run(["zipalign", "-f", str(align), sign_name, output_name])
-    p.communicate()
-    if p.returncode != 0:
-      raise ExternalError("zipalign failed: return code %s" % (p.returncode,))
-    temp.close()
 
 
 def CheckSize(data, target, info_dict):
@@ -588,9 +594,10 @@ def ParseOptions(argv,
   try:
     opts, args = getopt.getopt(
         argv, "hvp:s:x:" + extra_opts,
-        ["help", "verbose", "path=", "signapk_path=", "extra_signapk_args=",
-         "java_path=", "public_key_suffix=", "private_key_suffix=",
-         "device_specific=", "extra="] +
+        ["help", "verbose", "path=", "signapk_path=",
+         "signapk_shared_library_path=", "extra_signapk_args=",
+         "java_path=", "java_args=", "public_key_suffix=",
+         "private_key_suffix=", "device_specific=", "extra="] +
         list(extra_long_opts))
   except getopt.GetoptError, err:
     Usage(docstring)
@@ -609,10 +616,14 @@ def ParseOptions(argv,
       OPTIONS.search_path = a
     elif o in ("--signapk_path",):
       OPTIONS.signapk_path = a
+    elif o in ("--signapk_shared_library_path",):
+      OPTIONS.signapk_shared_library_path = a
     elif o in ("--extra_signapk_args",):
       OPTIONS.extra_signapk_args = shlex.split(a)
     elif o in ("--java_path",):
       OPTIONS.java_path = a
+    elif o in ("--java_args",):
+      OPTIONS.java_args = a
     elif o in ("--public_key_suffix",):
       OPTIONS.public_key_suffix = a
     elif o in ("--private_key_suffix",):
@@ -747,6 +758,44 @@ def ZipWriteStr(zip, filename, data, perms=0644):
   zinfo.external_attr = perms << 16
   zip.writestr(zinfo, data)
 
+def ZipWrite(zip_file, filename, arcname=None, perms=0o644,
+             compress_type=None):
+  import datetime
+
+  # http://b/18015246
+  # Python 2.7's zipfile implementation wrongly thinks that zip64 is required
+  # for files larger than 2GiB. We can work around this by adjusting their
+  # limit. Note that `zipfile.writestr()` will not work for strings larger than
+  # 2GiB. The Python interpreter sometimes rejects strings that large (though
+  # it isn't clear to me exactly what circumstances cause this).
+  # `zipfile.write()` must be used directly to work around this.
+  #
+  # This mess can be avoided if we port to python3.
+  saved_zip64_limit = zipfile.ZIP64_LIMIT
+  zipfile.ZIP64_LIMIT = (1 << 32) - 1
+
+  if compress_type is None:
+    compress_type = zip_file.compression
+  if arcname is None:
+    arcname = filename
+
+  saved_stat = os.stat(filename)
+
+  try:
+    # `zipfile.write()` doesn't allow us to pass ZipInfo, so just modify the
+    # file to be zipped and reset it when we're done.
+    os.chmod(filename, perms)
+
+    # Use a fixed timestamp so the output is repeatable.
+    epoch = datetime.datetime.fromtimestamp(0)
+    timestamp = (datetime.datetime(2009, 1, 1) - epoch).total_seconds()
+    os.utime(filename, (timestamp, timestamp))
+
+    zip_file.write(filename, arcname=arcname, compress_type=compress_type)
+  finally:
+    os.chmod(filename, saved_stat.st_mode)
+    os.utime(filename, (saved_stat.st_atime, saved_stat.st_mtime))
+    zipfile.ZIP64_LIMIT = saved_zip64_limit
 
 class DeviceSpecificParams(object):
   module = None
