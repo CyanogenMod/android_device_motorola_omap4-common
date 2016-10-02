@@ -504,6 +504,8 @@ def WritePolicyConfig(file_context, output_zip):
   basename = os.path.basename(file_context)
   common.ZipWriteStr(output_zip, basename, f.read())
 
+#def WritePolicyConfig(file_name, output_zip):
+#  common.ZipWrite(output_zip, file_name, os.path.basename(file_name))
 
 def WriteMetadata(metadata, output_zip):
   common.ZipWriteStr(output_zip, "META-INF/com/android/metadata",
@@ -878,7 +880,7 @@ def main(argv):
   # in the root directory of the ramdisk.
   if "selinux_fc" in OPTIONS.info_dict:
     OPTIONS.info_dict["selinux_fc"] = os.path.join(OPTIONS.input_tmp, "BOOT", "RAMDISK",
-        "file_contexts")
+        "file_contexts.bin")
 
   if OPTIONS.verbose:
     print "--- target info ---"
