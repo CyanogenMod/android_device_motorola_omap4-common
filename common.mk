@@ -157,6 +157,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     fs_config_files
 
+# Remove packages filling up system
+PRODUCT_PACKAGES += \
+    RemovePackages
+
 # Permissions files
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
