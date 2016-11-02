@@ -198,11 +198,12 @@ on post-fs-data
     chown mot_accy mot_accy /pds/public/battd/batt_tuning_data
 
 #Wifi
-    # Load wifi drivers (all except wl12xx_sdio)
+    # Load wifi drivers
     insmod /system/lib/modules/compat.ko
     insmod /system/lib/modules/cfg80211.ko
     insmod /system/lib/modules/mac80211.ko
     insmod /system/lib/modules/wl12xx.ko
+    insmod /system/lib/modules/wl12xx_sdio.ko
     # create moto specific dirs for wifi
     mkdir /data/system 0771 system system
     # wifi dirs
