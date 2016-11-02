@@ -50,7 +50,7 @@ TARGET_KERNEL_SOURCE := kernel/motorola/omap4-common
 TARGET_KERNEL_CONFIG := mapphone_mmi_defconfig
 COMMON_KERNEL_CMDLINE := androidboot.hardware=mapphone_cdma androidboot.selinux=enforcing
 TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
-TARGET_NEEDS_TEXT_RELOCATIONS := true
+TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
 
 WLAN_MODULES:
 	make clean -C hardware/ti/wlan/mac80211/compat_wl12xx
