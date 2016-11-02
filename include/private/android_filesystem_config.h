@@ -89,6 +89,12 @@
 #define AID_DEBUGGERD     1045  /* debuggerd unprivileged user */
 #define AID_MEDIA_CODEC   1046  /* mediacodec process */
 #define AID_CAMERASERVER  1047  /* cameraserver process */
+#define AID_FIREWALL      1048  /* firewalld process */
+#define AID_TRUNKS        1049  /* trunksd process (TPM daemon) */
+#define AID_NVRAM         1050  /* Access-controlled NVRAM */
+#define AID_DNS           1051  /* DNS resolution daemon (system: netd) */
+#define AID_DNS_TETHER    1052  /* DNS resolution daemon (tether: dnsmasq) */
+/* Changes to this file must be made in AOSP, *not* in internal branches. */
 
 #define AID_SHELL         2000  /* adb and debug shell user */
 #define AID_CACHE         2001  /* cache access */
@@ -97,6 +103,11 @@
 /* The range 2900-2999 is reserved for OEM, and must never be
  * used here */
 #define AID_OEM_RESERVED_START 2900
+
+#define AID_QCOM_DIAG          2950  /* access to QTI diagnostic resources */
+#define AID_RFS                2951  /* Remote Filesystem for peripheral processors */
+#define AID_RFS_SHARED         2952  /* Shared files for Remote Filesystem for peripheral processors  */
+
 #define AID_OEM_RESERVED_END   2999
 
 /* The 3000 series are intended for use as supplemental group id's only.
@@ -112,9 +123,13 @@
 #define AID_READPROC      3009  /* Allow /proc read access */
 #define AID_WAKELOCK      3010  /* Allow system wakelock read/write access */
 
+#define AID_RFS_OLD          3012  /* DEPRECATED OLD ID FOR RFS, DO NOT USE */
+#define AID_RFS_SHARED_OLD   3013  /* DEPRECATED OLD ID FOR RFS-SHARED  */
+
 /* The range 5000-5999 is also reserved for OEM, and must never be used here. */
 #define AID_OEM_RESERVED_2_START 5000
 #define AID_OEM_RESERVED_2_END   5999
+#define AID_SENSORS       3011 /* access to /dev/socket/sensor_ctl_socket & QCCI/QCSI */
 
 /* STARGO: begin Motorola */
 #define AID_MOT_ACCY      9000  /* access to accessory */
@@ -211,10 +226,20 @@ static const struct android_id_info android_ids[] = {
     { "debuggerd",     AID_DEBUGGERD, },
     { "mediacodec",    AID_MEDIA_CODEC, },
     { "cameraserver",  AID_CAMERASERVER, },
+    { "firewall",      AID_FIREWALL, },
+    { "trunks",        AID_TRUNKS, },
+    { "nvram",         AID_NVRAM, },
+    { "dns",           AID_DNS, },
+    { "dns_tether",    AID_DNS_TETHER, },
 
     { "shell",         AID_SHELL, },
     { "cache",         AID_CACHE, },
     { "diag",          AID_DIAG, },
+
+    { "qcom_diag",     AID_QCOM_DIAG, },
+
+    { "rfs",           AID_RFS, },
+    { "rfs_shared",    AID_RFS_SHARED, },
 
     { "net_bt_admin",  AID_NET_BT_ADMIN, },
     { "net_bt",        AID_NET_BT, },
@@ -226,6 +251,10 @@ static const struct android_id_info android_ids[] = {
     { "net_bt_stack",  AID_NET_BT_STACK, },
     { "readproc",      AID_READPROC, },
     { "wakelock",      AID_WAKELOCK, },
+    { "sensors",       AID_SENSORS, },
+
+    { "rfs_old",           AID_RFS_OLD, },
+    { "rfs_shared_old",    AID_RFS_SHARED_OLD, },
 
     { "everybody",     AID_EVERYBODY, },
     { "misc",          AID_MISC, },
