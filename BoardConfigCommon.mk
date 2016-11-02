@@ -150,6 +150,7 @@ TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_EGL_CFG := device/motorola/omap4-common/prebuilt/etc/egl.cfg
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
 TARGET_USES_OPENGLES_FOR_SCREEN_CAPTURE := true
+TARGET_FORCE_SCREENSHOT_CPU_PATH := true
 BOARD_USE_TI_LIBION := true
 
 # Number of supplementary service groups allowed by init
