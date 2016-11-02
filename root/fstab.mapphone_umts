@@ -4,7 +4,7 @@
 #<src>                                              <mnt_point>      <type>  <mnt_flags and options>                                        <fs_mgr_flags>
 
 /dev/block/system                                   /system          ext3    rw,noatime,nodiratime,errors=continue,barrier=1                wait
-/dev/block/userdata                                 /data            ext3    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check,encryptable=footer
+/dev/block/userdata                                 /data            ext4    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check,encryptable=footer,length=-16384
 /dev/block/cache                                    /cache           ext3    rw,nosuid,nodev,noatime,nodiratime,errors=continue,barrier=1   wait,check
 /devices/platform/omap/omap_hsmmc.1/mmc_host/mmc1*  auto             vfat    defaults                                                       voldmanaged=sdcard0:25,noemulatedsd,nonremovable
 /devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0*  auto             auto    defaults                                                       voldmanaged=sdcard1:auto,encryptable=userdata
