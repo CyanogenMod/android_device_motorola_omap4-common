@@ -516,8 +516,6 @@ on boot
 
 # Start services
     exec u:r:motbootmode:s0 root root -- /system/bin/mot_boot_mode
-# Set core max size
-    setrlimit 8 67108864 67108864
     mount debugfs /sys/kernel/debug /sys/kernel/debug
 #IKHSS6-3716 allow mediaserver to enable performance mode for OMAP4 USB Audio
     chown root audio /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
