@@ -157,7 +157,7 @@
 /dev/pn544                0600   nfc        nfc
 /dev/dmm                  0660   media      graphics
 /dev/omaplfb              0660   media      graphics
-/dev/ion                  0770   media      graphics
+/dev/ion                  0777   media      graphics
 
 #for DSSCOMP
 /dev/dsscomp              0660   system     system
