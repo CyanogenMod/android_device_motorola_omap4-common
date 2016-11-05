@@ -1,7 +1,5 @@
 type pds_block_device, dev_type;
 
-allow vold sdcard_external:file getattr;
-
 allow vold kmsg_device:chr_file rw_file_perms;
 
 allow vold self:capability { dac_override };

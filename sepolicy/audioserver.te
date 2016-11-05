@@ -1,0 +1,13 @@
+allow audioserver device:dir { read open };
+allow audioserver proc:file write;
+allow audioserver system_server:unix_stream_socket { read write setopt };
+allow audioserver system_data_file:sock_file write;
+allow audioserver pds_file:dir create_dir_perms;
+allow audioserver pds_file:file create_file_perms;
+allow audioserver sysfs_devices_system_cpu:file rw_file_perms;
+allow audioserver rild_file:dir r_dir_perms;
+allow audioserver rild_file:sock_file rw_file_perms;
+allow audioserver rild:unix_stream_socket { connectto read write setopt };
+allow audioserver system_file:file { execmod };
+allow audioserver sensorservice_service:service_manager find;
+allow audioserver proc_net:file rw_file_perms;
