@@ -1,0 +1,2 @@
+domain_trans(ueventd, shell_exec, ueventd)
+domain_trans(ueventd, rootfs, ueventd)

@@ -1,0 +1,10 @@
+allow cameraserver device:dir { read open };
+allow cameraserver proc:file write;
+allow cameraserver system_server:unix_stream_socket { read write setopt };
+allow cameraserver system_data_file:sock_file write;
+allow cameraserver pds_file:dir create_dir_perms;
+allow cameraserver pds_file:file create_file_perms;
+allow cameraserver sysfs_devices_system_cpu:file rw_file_perms;
+allow cameraserver system_file:file { execmod };
+allow cameraserver sensorservice_service:service_manager find;
+allow cameraserver rpmsg_device:chr_file rw_file_perms;

@@ -1,1 +1,5 @@
 allow netd self:capability fsetid;
+allow netd motbootmode_prop:file r_file_perms;
+allow netd toolbox_exec:file { execute_no_trans };
+allow netd sysfs:file rw_file_perms;
+domain_trans(netd, toolbox_exec, netd)

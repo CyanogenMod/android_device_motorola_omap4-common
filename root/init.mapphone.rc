@@ -24,11 +24,11 @@ loglevel 3
 
 on fs
     # create safestrap loopdevs
-    exec u:r:vold:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-system b 7 99
+    exec u:r:ueventd:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-system b 7 99
     restorecon /dev/block/loop-system
-    exec u:r:vold:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-userdata b 7 98
+    exec u:r:ueventd:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-userdata b 7 98
     restorecon /dev/block/loop-userdata
-    exec u:r:vold:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-cache b 7 97
+    exec u:r:ueventd:s0 root root -- /sbin/bbx mknod -m600 /dev/block/loop-cache b 7 97
     restorecon /dev/block/loop-cache
     # check for safestrap loopback files and mount them
     exec u:r:fixboot:s0 root root -- /sbin/bbx sh /sbin/fixboot.sh

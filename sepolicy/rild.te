@@ -21,6 +21,9 @@ allow rild battd:unix_stream_socket { connectto read write setopt };
 allow rild sysfs:file rw_file_perms;
 allow rild zygote_exec:file rx_file_perms;
 allow rild app_data_file:file { write getattr setattr read lock open };
-allow rild serialno_prop:property_service set;
 allow rild self:process { execmem ptrace };
 allow rild system_file:file { execmod };
+allow rild motbootmode_prop:file r_file_perms;
+allow rild battd_socket:sock_file rw_file_perms;
+
+set_prop(rild, radio_prop);

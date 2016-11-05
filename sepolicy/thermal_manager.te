@@ -10,3 +10,4 @@ allow thermal_manager sysfs_devices_system_cpu:file rw_file_perms;
 allow thermal_manager sysfs:file rw_file_perms;
 allow thermal_manager shell_exec:file rx_file_perms;
 allow thermal_manager system_file:file {rx_file_perms execmod};
+allow thermal_manager proc_net:file rw_file_perms;
