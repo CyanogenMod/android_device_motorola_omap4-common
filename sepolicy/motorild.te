@@ -7,11 +7,13 @@ init_daemon_domain(motorild)
 allow motorild shell_exec:file rx_file_perms;
 allow motorild system_file:file rx_file_perms;
 allow motorild wcnss_service_exec:file rx_file_perms;
+allow motorild proc_net:file rw_file_perms;
 allow motorild netd_socket:sock_file rw_file_perms;
 allow motorild netd:unix_stream_socket { connectto read write setopt };
 allow motorild sysfs_devices_system_cpu:file rw_file_perms;
-allow motorild self:capability { dac_override net_admin };
+allow motorild self:capability { dac_override net_admin net_raw };
 allow motorild self:netlink_route_socket { create setopt bind getattr write nlmsg_read nlmsg_write read };
+allow motorild self:udp_socket { create ioctl };
 
 allow radio motorild_exec:file rx_file_perms;
 allow radio motorild:unix_stream_socket { connectto read write setopt };

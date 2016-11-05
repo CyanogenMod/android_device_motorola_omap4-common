@@ -7,6 +7,7 @@ allow fixboot kmsg_device:chr_file rw_file_perms;
 
 allow fixboot self:capability { dac_override sys_admin };
 allow fixboot cgroup:dir create_dir_perms;
+allow fixboot cgroup:file r_file_perms;
 allow fixboot rootfs:file { execute_no_trans };
 allow fixboot rootfs:dir { create_dir_perms mounton };
 allow fixboot vfat:file rw_file_perms;
