@@ -23,6 +23,7 @@ $(call inherit-product-if-exists, hardware/ti/omap4/omap4.mk)
 # Boot animation (HACK 540.zip crashes PVR currently)
 TARGET_SCREEN_HEIGHT := 720
 TARGET_SCREEN_WIDTH := 480
+TARGET_BOOTANIMATION_NAME := 480
 
 # The gps config appropriate for this device
 PRODUCT_COPY_FILES += \
