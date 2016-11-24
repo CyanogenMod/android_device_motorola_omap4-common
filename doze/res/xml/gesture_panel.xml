@@ -15,7 +15,7 @@
 
     <PreferenceCategory
         android:key="ambient_display_key"
-        android:title="@string/ambient_display_title" >
+        android:title="@string/ambient_display_title">
 
         <SwitchPreference
             android:key="ambient_display_enable"
@@ -34,6 +34,7 @@
             android:defaultValue="false"
             android:title="@string/pocket_gesture_title"
             android:summary="@string/pocket_gesture_summary" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
