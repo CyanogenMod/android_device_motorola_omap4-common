@@ -37,19 +37,6 @@ int recovery_pre_command(int cmd, const char *arg)
     return 0;
 }
 
-int android_reboot2(int cmd, int flags, const char *arg);
-
-int android_reboot(int cmd, int flags __attribute__((unused)), const char *arg)
-{
-
-    if (recovery_pre_command(cmd, arg)) {
-        return android_reboot2(ANDROID_RB_RESTART, flags, arg);
-    }
-
-    return android_reboot2(cmd, flags, arg);
-}
-#define android_reboot(cmd, flags, arg) android_reboot2(cmd, flags, arg)
-
 int android_reboot_with_callback2(
     int cmd, int flags __unused, const char *arg,
     void (*cb_on_remount)(const struct mntent*));
